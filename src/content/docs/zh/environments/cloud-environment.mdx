@@ -1,0 +1,120 @@
+---
+title: "云端环境"
+description: "为 Codex 自定义依赖、工具和环境配置"
+locale: "zh"
+translationKey: "environments/cloud-environment"
+section: "explore"
+order: 1047
+draft: false
+translationStatus: complete
+lastUpdated: 2026-08-06
+pageKind: article
+referenceHub: "developers"
+sourceUrl: "https://www.codex-docs.com/docs/environments/cloud-environment"
+outline:
+  - id: "how-codex-cloud-tasks-run"
+    label: "Codex 云端聊天的运行方式"
+  - id: "默认-universal-镜像"
+    label: "默认 universal 镜像"
+  - id: "环境变量与密钥secrets"
+    label: "环境变量与密钥（Secrets）"
+  - id: "automatic-setup"
+    label: "自动设置"
+  - id: "manual-setup"
+    label: "手动设置"
+  - id: "container-caching"
+    label: "容器缓存"
+  - id: "internet-access-and-network-proxy"
+    label: "网络访问与代理"
+---
+
+你可以使用环境来控制 Codex 在云端聊天中会安装什么、运行什么。例如，你可以补充依赖、安装 lint / formatter 等工具，以及设置环境变量。
+
+在 [Codex 设置](https://chatgpt.com/codex/settings/environments) 中配置环境。
+
+<span id="how-codex-cloud-tasks-run"></span>
+
+## Codex 云端聊天的运行方式
+
+当你提交一个提示词时，会发生以下事情：
+
+1.  Codex 创建一个容器，并在你选定的分支或 commit SHA 上检出仓库。
+2.  Codex 运行你的设置脚本；如果恢复的是缓存容器，还会额外运行可选的维护脚本。
+3.  Codex 会应用你的互联网访问设置。设置脚本阶段默认可联网；智能体阶段默认关闭互联网访问，但你可以按需启用受限访问或无限制访问。详见[智能体互联网访问](/docs/cloud/internet-access)。
+4.  智能体在终端循环中运行命令，编辑代码、执行检查并尝试验证结果。如果仓库中包含 `AGENTS.md`，智能体会用它来定位项目特定的 lint 和测试命令。
+5.  智能体完成后，会展示最终答复以及它改动过文件的 diff。你可以继续追问，或直接打开 pull request。
+
+## 默认 universal 镜像
+
+Codex 智能体默认运行在名为 `universal` 的容器镜像中，该镜像预装了常见语言、包管理器和开发工具。
+
+在环境设置中，可以通过 **Set package versions（设置包版本）** 固定 Python、Node.js 以及其他运行时的版本。
+
+<Callout kind="note">
+
+如果你想查看镜像里默认安装了什么，可以参考 [openai/codex-universal](https://github.com/openai/codex-universal)。其中提供了参考 Dockerfile，也提供可在本地拉取和测试的镜像。
+
+</Callout>
+
+`codex-universal` 为了速度和便利性预装了常见语言，但你仍然可以通过[设置脚本](#%E6%89%8B%E5%8A%A8%E8%AE%BE%E7%BD%AE)向容器额外安装所需软件包。
+
+## 环境变量与密钥（Secrets）
+
+**环境变量（Environment variables）** 会在聊天的整个生命周期内生效，包括设置脚本阶段和智能体执行阶段。
+
+**密钥（Secrets）** 与环境变量类似，但有两点不同：
+
+-   它们会以额外加密层进行存储，只会在聊天执行时解密。
+-   它们只会提供给设置脚本使用。出于安全原因，在智能体阶段开始前，这些密钥会被移除。
+
+<span id="automatic-setup"></span>
+
+## 自动设置
+
+对于使用常见包管理器的项目，例如 `npm`、`yarn`、`pnpm`、`pip`、`pipenv` 和 `poetry`，Codex 可以自动安装依赖和工具。
+
+<span id="manual-setup"></span>
+
+## 手动设置
+
+如果你的开发环境更复杂，也可以提供自定义设置脚本。例如：
+
+<CodeBlock code={"# Install type checker\npip install pyright\n\n# Install dependencies\npoetry install --with test\npnpm install"} language="bash" />
+
+<Callout kind="note">
+
+设置脚本与智能体运行在不同的 Bash 会话中，因此像 `export` 这样的命令不会自动延续到智能体阶段。若要持久化环境变量，请把它们写入 `~/.bashrc`，或直接在环境设置中配置。
+
+</Callout>
+
+<span id="container-caching"></span>
+
+## 容器缓存
+
+为了加快新聊天和后续追问的启动速度，Codex 会缓存容器状态，最长可保留 12 小时。
+
+当环境进入缓存状态时：
+
+-   Codex 会克隆仓库并检出默认分支。
+-   Codex 会运行设置脚本，并把最终容器状态缓存下来。
+
+当某个缓存容器被恢复时：
+
+-   Codex 会检出该聊天指定的分支。
+-   Codex 会运行维护脚本（可选）。这在设置脚本基于较早提交执行、而依赖需要更新时尤其有用。
+
+如果你修改了设置脚本、维护脚本、环境变量或密钥，Codex 会自动使缓存失效。如果仓库变化导致现有缓存状态不再兼容，可以在环境页面点击 **Reset cache（重置缓存）**。
+
+<Callout kind="note">
+
+对于 Business（企业团队版）和 Enterprise（企业版）工作区，缓存会在所有有权访问该环境的成员之间共享。使缓存失效会影响工作区中所有正在使用该环境的成员。
+
+</Callout>
+
+<span id="internet-access-and-network-proxy"></span>
+
+## 网络访问与代理
+
+在设置脚本阶段，环境默认可访问互联网，以便安装依赖。智能体阶段的网络访问默认关闭，但你可以按需配置为受限访问或无限制访问。详见[智能体互联网访问](/docs/cloud/internet-access)。
+
+出于安全和滥用防护考虑，环境会运行在一个 HTTP/HTTPS 网络代理之后。所有向外的互联网流量都会经过该代理。

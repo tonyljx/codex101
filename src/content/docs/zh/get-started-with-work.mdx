@@ -1,0 +1,165 @@
+---
+title: "开始使用 ChatGPT Work"
+description: "将大型任务交给 ChatGPT Work，并获得可评审的结果。"
+locale: "zh"
+translationKey: "get-started-with-work"
+section: "start"
+order: 3
+draft: false
+translationStatus: complete
+lastUpdated: 2026-08-06
+outline:
+  - id: "introducing-chatgpt-work"
+    label: "认识 ChatGPT Work"
+  - id: "第一个任务可以尝试什么"
+    label: "第一个任务可以尝试什么"
+  - id: "best-practices-for-using-work"
+    label: "使用 ChatGPT Work 的最佳实践"
+  - id: "添加-plugins获得更多上下文和更好结果"
+    label: "添加 plugins，获得更多上下文和更好结果"
+  - id: "use-chatgpt-work-efficiently"
+    label: "高效使用 ChatGPT Work"
+  - id: "更多使用场景"
+    label: "更多使用场景"
+---
+
+<Video src="https://cdn.openai.com/devhub/superapp-video-v1.mp4?v=b14ff090efb2" />
+
+<span id="introducing-work-mode" className="doc-heading-anchor-alias"></span>
+
+<h2 id="introducing-chatgpt-work">认识 ChatGPT Work</h2>
+
+ChatGPT Work 是把真实工作委派给 ChatGPT 的一种方式。
+
+需要答案、解释、头脑风暴或简短草稿时，使用 Chat；需要 ChatGPT 完成一项结果明确的任务时，使用 ChatGPT Work，例如简报、演示文稿、分析、定期更新、工作流，或可以评审和使用的文件。更多信息见 [Chat 与 ChatGPT Work 的配合方式](/docs/use-chatgpt)。
+
+ChatGPT Work 可以使用你的文件、plugins 和已批准工具来检索信息、创建成品文件、运行工作流，并完成可供评审的工作。你可以跟踪进度、回答问题、调整方向，并审批重要操作。
+
+在[桌面 App](/docs/app) 中，当相应工具可用时，ChatGPT Work 还可以使用本地文件、Apps 和浏览器。
+
+如果你一直使用 Codex 处理非编码工作，可以继续留在 Codex，也可以改用 ChatGPT Work。ChatGPT Work 具备相同的核心能力，但交互体验更适合日常工作。
+
+## 第一个任务可以尝试什么
+
+<Video src="https://cdn.openai.com/devhub/videos-learn/selectnoonboarding.mp4?v=dda6f24633bd" />
+
+先切换到 **Work**，然后再挑选第一项任务。好的任务通常有清晰结果、少量来源材料，以及可以检查的输出。
+
+### 选择本地或云端工作
+
+在桌面 App 中，打开输入框里标为 **Work locally（在本地工作）** 的控件。如果其中显示 **Cloud（云端）** 选项，可在希望 ChatGPT Work 于关闭 App 或电脑关机后继续运行，或者希望从 Web 或移动 App 继续聊天时选择它。如果任务需要使用电脑上的文件或 Apps，则继续使用 **Work locally**。
+
+云端也适合需要持续研究或检查网站的计划任务，因为这些运行不依赖电脑保持唤醒。
+
+以下是三个常见起点：
+
+### 创建演示文稿
+
+让 ChatGPT Work 把笔记、文档、研究资料或会议材料整理成结构清晰的演示文稿。
+
+<Screenshot
+  src="/images/learn/get-started-with-work/create-presentation.webp"
+  alt="ChatGPT 界面截图：由 ChatGPT Work 创建的演示文稿"
+  width={1540}
+  height={1000}
+  picture
+/>
+
+<PromptCard prompt="Review the attached source materials and create an eight-slide presentation for [audience]. Focus on the main themes, include supporting evidence, and flag anything that needs human review. Return a draft for my review." />
+
+### 创建对比电子表格
+
+让 ChatGPT Work 把笔记、文件或研究结果整理成用于比较选项、辅助决策的电子表格。
+
+<Screenshot
+  src="/images/learn/get-started-with-work/comparison-spreadsheet.webp"
+  alt="ChatGPT 界面截图：由 ChatGPT Work 创建的对比电子表格"
+  width={1540}
+  height={988}
+  picture
+/>
+
+<PromptCard prompt="Create a spreadsheet comparing the options for [decision]. Use the attached notes and source materials. Include the most important criteria, score each option, flag risks or missing information, and add a summary tab with a recommendation and next steps." />
+
+### 设置定期更新
+
+当你希望 ChatGPT Work 随时间重复、监控或刷新某项工作时，使用计划任务。
+
+<Screenshot
+  src="/images/learn/get-started-with-work/recurring-update.webp"
+  alt="ChatGPT 界面截图：在 ChatGPT Work 中安排的定期更新"
+  width={1540}
+  height={1000}
+  picture
+/>
+
+<PromptCard prompt="Every Monday morning, review new updates from @Slack and @Google Drive for [project]. Refresh the meeting agenda with decisions, blockers, owners, and open questions. Send me a draft before sharing it." />
+
+进一步了解[计划任务](/docs/automations?surface=app)。
+
+<span id="best-practices-for-using-work-mode" className="doc-heading-anchor-alias"></span>
+
+<h2 id="best-practices-for-using-work">使用 ChatGPT Work 的最佳实践</h2>
+
+当你希望 ChatGPT 完成任务、创建文件，或持续管理工作时，使用 ChatGPT Work。它适合以下任务：
+
+- 使用多个来源、plugins、工具或步骤。
+- 如果手动完成，会花费不少时间。
+- 产生需要评审、编辑或复用的结果。
+- 需要随时间重复、监控或更新。
+
+要获得更好的结果，请告诉 ChatGPT：你需要什么结果、应使用哪些来源或 plugins、必须遵循哪些约束、怎样才算做好，以及何时应停下来等待评审或审批。
+
+与其只说：
+
+<CodeBlock code="Make me a presentation about our customer research." />
+
+不如补充受众、来源、结构、事实核对要求与完成标准：
+
+<PromptCard prompt="Review the attached interview notes and survey results. Create an eight-slide presentation for the product leadership meeting. Focus on the three most common customer problems, include supporting evidence, separate findings from recommendations, and flag any claims that are not well supported. Use @Google Drive for the source docs. Return a draft for my review before treating it as final." />
+
+更多信息见 [ChatGPT Work 提示词](/docs/prompting#prompting-for-work)。
+
+## 添加 plugins，获得更多上下文和更好结果
+
+plugins 可以把 ChatGPT Work 连接到团队使用的工具，例如 Slack、Google Drive、SharePoint、电子邮件、日历、客户关系管理系统和项目跟踪器。
+
+<Screenshot
+  src="/images/learn/get-started-with-work/plugins.webp"
+  alt="ChatGPT 界面截图：ChatGPT Work 中的 plugins 库"
+  width={1540}
+  height={1000}
+  picture
+/>
+
+- 在左侧栏选择 **Plugins**，打开 plugin 库。
+- 安装与工作最相关的 plugins。
+- 如果要让 ChatGPT 使用指定工具，请在提示词中输入 `@` 和 plugin 名称。
+
+进一步了解 [plugins](/docs/plugins)。
+
+<span id="use-work-mode-efficiently" className="doc-heading-anchor-alias"></span>
+
+<h2 id="use-chatgpt-work-efficiently">高效使用 ChatGPT Work</h2>
+
+ChatGPT Work 最适合包含多个步骤、来源或工具，或需要完整交付物的重要任务。ChatGPT 代你完成的事情越多，较长或复杂的任务可能使用越多 credits。判断价值时，应关注完成结果，而不是提示词数量。
+
+通过设置有用的边界让任务保持聚焦，例如：“use only these sources,” “compare the top five options,” 或 “stop before sending anything.”
+
+对于快速提问、简短改写，以及只需要建议的决策，请改用 Chat。
+
+更多建议见[高效使用 ChatGPT Work](/docs/prompting#prompting-for-work)。
+
+## 更多使用场景
+
+你可以继续探索适用于常见团队和任务的 ChatGPT Work 工作流，并先从一个结果明确、可以亲自评审的任务开始。
+
+<WorkUseCases items={[
+  { href: "https://learn.chatgpt.com/use-cases/", title: "效率与协作", description: "把共享上下文整理为计划、草稿和后续行动。" },
+  { href: "https://learn.chatgpt.com/use-cases/", title: "业务运营", description: "跨团队和工具协调定期工作。" },
+  { href: "https://learn.chatgpt.com/use-cases/", title: "数据科学", description: "分析源材料并产出可评审结果。" },
+  { href: "https://learn.chatgpt.com/use-cases/", title: "金融", description: "比较选项、汇总证据并标记假设。" },
+  { href: "https://learn.chatgpt.com/use-cases/", title: "销售", description: "准备客户研究和下一步材料。" },
+  { href: "https://learn.chatgpt.com/use-cases/", title: "生命科学", description: "以清晰的评审节点组织研究工作流。" },
+  { href: "https://learn.chatgpt.com/use-cases/", title: "教育", description: "基于可信来源创建结构化学习材料。" }
+]} />

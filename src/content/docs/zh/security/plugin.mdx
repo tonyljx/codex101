@@ -1,0 +1,132 @@
+---
+title: "Codex Security 插件快速开始"
+navTitle: "快速开始"
+description: "安装 Codex Security plugin，运行首次只读扫描，并在 Codex 中评审结果。"
+locale: "zh"
+translationKey: "security/plugin"
+section: "explore"
+order: 1066
+draft: false
+translationStatus: complete
+lastUpdated: 2026-08-06
+pageKind: article
+referenceHub: "security-administration"
+sourceUrl: "https://www.codex-docs.com/docs/security/plugin"
+outline:
+  - id: "安装插件"
+    label: "安装插件"
+  - id: "运行第一次扫描"
+    label: "运行第一次扫描"
+  - id: "扫描会创建什么"
+    label: "扫描会创建什么"
+  - id: "选择下一步工作流"
+    label: "选择下一步工作流"
+---
+
+Codex Security 会扫描代码中的漏洞，并验证可信的安全发现。对于每项需报告的问题，它都会提供评审结果所需的证据和修复指导。请只扫描你拥有或已获准评估的代码。
+
+按照本快速开始安装插件，并在 Codex 中对本地仓库运行一次只读扫描。
+
+<Callout kind="note">
+
+本页介绍桌面 App 或 Codex CLI 中的 Codex Security 插件。要扫描 Codex 云端中已连接的 GitHub 仓库，请参阅 [Codex Security 云端设置](/docs/security/setup)。
+
+</Callout>
+
+## 安装插件
+
+ChatGPT 桌面 App Codex CLI
+
+1.  在 [ChatGPT 桌面 App 中打开 Codex](/docs/app)。
+2.  打开 **Plugins（插件）**，搜索 **Codex Security**，或选择[安装 Codex Security 插件](codex://plugins/install/codex-security?marketplace=openai-curated)。
+3.  确认插件已启用，然后打开侧栏中的 **Security（安全）**。
+
+1.  在终端中进入要评估的仓库并启动 Codex：
+
+<CodeBlock code={"codex"} language="bash" />
+
+2.  输入 `/plugins`，搜索 **Codex Security**，然后选择 **Install plugin（安装插件）**。
+3.  输入 `/new`，为该仓库启动一个新聊天。
+
+<Callout kind="note">
+
+托管的桌面 App catalog 与公开的 Codex CLI marketplace 可能提供不同的插件版本。在依赖某项功能或开始长时间扫描前，请查看[插件更新日志](/docs/security/plugin/changelog)。如果桌面 App 侧栏中没有 **Security**，请更新 App 和插件，并确认插件已启用。
+
+</Callout>
+
+## 运行第一次扫描
+
+为获得最佳扫描质量，请使用 `gpt-5.6-sol`，并把推理强度设为 `xhigh`。
+
+ChatGPT 桌面 App Codex CLI
+
+<Screenshot src="/images/openai/learn.chatgpt.com/_astro/scan-overview.yP-kWp8o.webp" darkSrc="/images/openai/learn.chatgpt.com/_astro/scan-overview-dark.C7WLYB0s.webp" alt="原生 Codex Security 工作台显示仓库扫描开始前的新建扫描设置" maxHeight={520} />
+
+1.  打开扫描设置
+    
+    选择侧栏中的 **Security（安全）**，打开 **Scans（扫描）**，然后选择 **\+ Scan（新建扫描）**。
+    
+2.  选择代码库和扫描范围
+    
+    选择已有仓库或其它文件夹。选择 **Codebase（代码库）**，关闭 **Deep scan（深度扫描）**，再选择整个仓库或一个文件夹。确认分支与 revision 指向你准备扫描的代码。
+    
+3.  添加相关上下文
+    
+    选择模型和推理强度。只有在需要说明特定攻击向量、安全敏感区域或仓库细节时，才打开 **Additional context（附加上下文）**。
+    
+    <Screenshot src="/images/openai/learn.chatgpt.com/_astro/scan-setup.DU01oB7G.webp" darkSrc="/images/openai/learn.chatgpt.com/_astro/scan-setup-dark.DCLYP8U7.webp" alt="原生 Codex Security 扫描设置已启用附加上下文，并填写攻击向量、重点区域和安全指引示例" maxHeight={460} />
+    
+4.  开始扫描
+    
+    选择 **Start scan（开始扫描）**，并在 Security 工作台中跟踪扫描阶段。选择 **View activity（查看活动）** 可以检查执行扫描的 Codex 任务。
+    
+5.  评审结果
+    
+    打开已完成的扫描，检查安全发现、覆盖范围和可用报告产物。使用 **Findings（安全发现）** 跨扫描评审问题，或使用 **Repositories（仓库）** 检查仓库扫描历史。
+    
+    <Screenshot src="/images/openai/learn.chatgpt.com/_astro/findings-workspace.CBRmmbMI.webp" darkSrc="/images/openai/learn.chatgpt.com/_astro/findings-workspace-dark.DMK43Kic.webp" alt="已完成的 Codex Security 扫描，显示原生工作台中的安全发现" maxHeight={520} />
+    
+
+1.  请求普通扫描
+    
+    在新聊天中发送：
+    
+
+<CodeBlock code={"Run a Codex Security scan on this repository."} language="text" />
+
+2.  等待扫描完成
+    
+    Codex 会在终端中运行扫描，不会打开设置工作台。保持任务运行，直到 Codex 报告完成。如果 Codex 发现配置限制，请先评审限制和拟议变更的确切内容，再批准配置更新。
+    
+3.  评审结果
+    
+    在终端中查看摘要，然后打开生成的 `report.md` 获取完整结果。
+    
+
+## 扫描会创建什么
+
+ChatGPT 桌面 App Codex CLI
+
+已完成的扫描会继续保存在 **Scans（扫描）** 中。你可以在 Security 工作台中评审安全发现与覆盖范围，也可以通过 **Findings（安全发现）** 和 **Repositories（仓库）** 检查相关安全发现与仓库历史。扫描还会创建以下文件。
+
+每次完成扫描后，终端都会报告摘要，并创建以下文件。
+
+-   `report.md`：扫描结果的主要可读入口。
+-   `findings/<slug>/`：可生成详细漏洞报告和配套 PoC 文件时提供。
+-   `hardening/`：可生成结构性加固指导和配套方案或图示时提供。
+-   `scan-manifest.json`、`findings.json` 和 `coverage.json` 中的结构化扫描数据，可用于自动化和集成；通常不需要手工打开这些文件。
+
+共享或归档结果时，请保留完整扫描目录，确保 `report.md` 中的链接继续有效。
+
+## 选择下一步工作流
+
+-   [使用 Security 工作台](/docs/security/plugin/workbench)：在桌面 App 中管理已保存的扫描、安全发现、仓库和扫描活动。
+-   [从 CLI 运行扫描](/docs/security/cli)：如果你拥有 beta 访问权限，可使用可重复、带结构化结果的终端工作流。
+-   [运行标准或限定范围扫描](/docs/security/plugin/scans)：使用默认工作流扫描整个仓库或一个文件夹。
+-   [运行深度扫描](/docs/security/plugin/deep-scans)：需要更全面的扫描，并可以等待更长时间。
+-   [评审代码变更](/docs/security/plugin/code-changes)：目标是 pull request、commit、branch range 或 working-tree patch。
+-   [分诊积压](/docs/security/plugin/triage-backlog)：需要评审已有安全发现。
+-   [修复并验证发现](/docs/security/plugin/fix-findings)：接受某项发现并准备修复。
+-   [导出或跟踪发现](/docs/security/plugin/export-findings)：需要 JSON、CSV、SARIF、经过审批的 Linear、GitHub 或 Jira issue，或 private draft GitHub Security Advisory。
+-   [编写漏洞报告](/docs/security/plugin/vulnerability-reports)：把已有发现、披露说明、源代码与 PoC 整理成完善且自包含的报告。
+-   [提出安全加固方案](/docs/security/plugin/security-hardening)：根据扫描结果或其他安全证据提出结构或架构选项。

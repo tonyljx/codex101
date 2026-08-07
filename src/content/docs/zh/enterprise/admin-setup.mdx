@@ -1,0 +1,169 @@
+---
+title: "管理员上线指南"
+description: "规划、配置并验证覆盖工作区和开发者产品的 ChatGPT Enterprise 推出"
+locale: "zh"
+translationKey: "enterprise/admin-setup"
+section: "explore"
+order: 1087
+draft: false
+translationStatus: complete
+lastUpdated: 2026-08-06
+pageKind: article
+referenceHub: "administration"
+sourceUrl: "https://www.codex-docs.com/docs/enterprise/admin-setup"
+outline:
+  - id: "pre-requisites-determine-owners-and-rollout-strategy"
+    label: "第 1 步：指定负责人并选择上线方式"
+  - id: "第-2-步配置工作区访问与身份"
+    label: "第 2 步：配置工作区访问与身份"
+  - id: "第-3-步配置本地运行时要求"
+    label: "第 3 步：配置本地运行时要求"
+  - id: "team-config"
+    label: "第 4 步：统一仓库配置"
+  - id: "第-5-步配置-codex-云端"
+    label: "第 5 步：配置 Codex 云端"
+  - id: "第-6-步配置-plugins-与连接能力"
+    label: "第 6 步：配置 plugins 与连接能力"
+  - id: "第-7-步设置治理与可观测性"
+    label: "第 7 步：设置治理与可观测性"
+  - id: "第-8-步验证并维护上线结果"
+    label: "第 8 步：验证并维护上线结果"
+---
+
+使用本指南规划跨越以下管理边界的 ChatGPT Enterprise 上线：
+
+-   工作区访问。
+-   ChatGPT 桌面 App、Codex CLI 和 IDE 扩展中相关功能的本地运行时策略。
+-   Codex 云端。
+-   Platform API 访问。
+-   plugins 和连接器访问。
+-   连接系统中的权限。
+
+首次上线时请按顺序完成各步骤；如果只需调整某个边界，也可以直接打开对应链接页面。
+
+在工作区设置中，**Codex Local** 是部分本地访问和 access token 控件的分组标签，并不是独立产品或客户端。当前 **Allow members to use Codex Local（允许成员使用 Codex Local）** 控件覆盖 ChatGPT 桌面 App、Codex CLI 和 IDE 扩展中的本地使用。托管配置是另一层策略，可以约束这些客户端中受支持功能的运行时行为。当不同产品形态的行为或可用性不一致时，本指南会明确写出具体产品形态。
+
+请先查看[角色和工作区权限](/docs/enterprise/roles-and-workspace-permissions)中的权威边界图。当前 ChatGPT 工作区流程以 Help Center 指南为准；本地和托管运行时行为则以链接的开发者文档为准。
+
+企业安全、隐私和运行时保护参见[智能体审批与安全](/docs/agent-approvals-security)和 [Codex 安全白皮书](/docs?itemUid=382f924d-54f3-43a8-a9df-c39e6c959958&source=click)。
+
+<span id="pre-requisites-determine-owners-and-rollout-strategy"></span>
+
+## 第 1 步：指定负责人并选择上线方式
+
+为上线工作的每一部分指定负责人：
+
+-   **工作区访问：** 成员资格、席位、角色和受支持的工作区功能。
+-   **本地运行时策略：** 审批、权限配置档案、文件系统和网络访问，以及受支持本地客户端的其他要求。
+-   **Codex 云端：** 托管环境、仓库连接和云端运行时策略。
+-   **连接系统：** 服务提供方的应用安装、账号和权限。
+-   **报告与合规：** 分析访问、审计导出和下游数据处理。
+
+确定每类受众需要 ChatGPT 桌面 App、Codex CLI、IDE 扩展中的本地功能，还是需要 Codex 云端，或需要这些产品形态的组合。当工作流使用 API key 认证时，应把 Platform API 访问视为独立的组织与项目边界。
+
+## 第 2 步：配置工作区访问与身份
+
+通过 ChatGPT 工作区成员资格、席位、群组以及受支持的 RBAC 权限，为目标受众开放受支持的工作区功能。应根据当前工作区指南分别验证本地客户端和 Codex 云端访问，不要假设同一个角色能够控制所有产品形态。内置管理角色仅分配给实际负责工作区管理的人员。
+
+工作区控件和标签会随时间变化。当前流程请参考：
+
+-   [管理成员、席位类型、角色和访问权限](https://help.openai.com/en/articles/8266401-managing-members-seat-types-roles-and-access-in-chatgpt-enterprise)
+-   [配置基于角色的访问控制](https://help.openai.com/en/articles/11750701-rbac)
+-   [管理工作区设置](https://help.openai.com/en/articles/8411955)
+-   [群组与预配](/docs/enterprise/groups-and-provisioning)
+-   [认证](/docs/auth)
+
+在扩大上线范围前，请使用一名具有代表性的成员测试登录和功能访问。工作区访问不会授予连接服务中的仓库、文件或操作权限。
+
+## 第 3 步：配置本地运行时要求
+
+当用户在 ChatGPT 桌面 App、Codex CLI 或 IDE 扩展中启动受支持的本地运行时，本地要求会对其行为施加约束。请通过受支持的云端、设备或系统渠道下发 `requirements.toml`，并让这项策略与 ChatGPT 工作区角色和群组保持分离。
+
+对于受支持的本地客户端，应使用权限配置档案，不要继续围绕旧版沙箱模式限制构建新的部署。例如：
+
+<CodeBlock code={"default_permissions = \":workspace\"\n\n[allowed_permission_profiles]\n\":read-only\" = true\n\":workspace\" = true"} language="toml" />
+
+要在受支持的浏览器和桌面功能中禁用 Computer Use，需要同时限制参与这项体验的每个公开功能键：
+
+<CodeBlock code={"[features]\nbrowser_use = false\nbrowser_use_full_cdp_access = false\nbrowser_use_external = false\nin_app_browser = false\ncomputer_use = false"} language="toml" />
+
+权威键名清单、下发行为、优先级和更多示例参见[托管配置](/docs/enterprise/managed-configuration)和 [`requirements.toml` 参考](/docs/config-file/config-reference#requirementstoml)。
+
+<span id="team-config"></span>
+
+## 第 4 步：统一仓库配置
+
+通过仓库范围配置共享项目默认值、规则和 skills，避免让每位用户重复设置。根据各功能记录的位置，把配置提交到 `.codex` 或 `.agents`：
+
+<div className="doc-table-wrap">
+
+| 类型 | 来源 | 用途 |
+| --- | --- | --- |
+| 配置 | [基础配置](/docs/config-file/config-basic) | 为受支持的本地客户端设置仓库默认值 |
+| 规则 | [规则](/docs/agent-configuration/rules) | 控制沙箱外哪些命令需要审批 |
+| Skills | [构建 skills](/docs/build-skills) | 让受支持的客户端能够使用仓库工作流 |
+
+</div>
+
+仓库配置可以提供默认值和可复用工作流，但不能授予工作区、模型、Platform API 或连接系统访问权限。
+
+## 第 5 步：配置 Codex 云端
+
+Codex 云端使用托管环境和已连接的源代码仓库。请逐项规划以下边界：
+
+1.  通过受支持的工作区控件，为目标受众授予 Codex 云端访问权限。
+2.  安装并配置受支持的源系统集成。
+3.  在源系统中把仓库访问范围限制为各类受众真正需要的仓库。
+4.  为这些仓库配置云端环境、secrets 和互联网访问。
+5.  配置代码评审等可选托管工作流。
+6.  使用一名拥有目标工作区和仓库权限的代表性用户进行测试。
+
+Codex 云端会遵守连接源系统公开的仓库权限和保护规则；工作区访问不会绕过这些控制。设置和运行时说明参见[云端环境](/docs/environments/cloud-environment)、[GitHub 集成](/docs/third-party/github)和[智能体审批与安全](/docs/agent-approvals-security)。
+
+## 第 6 步：配置 plugins 与连接能力
+
+应把 plugin 安装、内置 skills、由连接器提供的能力、连接器操作和源系统授权视为彼此独立的决策。禁用由连接器提供的能力，并不一定会卸载 plugin 或其中的 skills。
+
+把 plugin 或 skill 纳入上线范围前：
+
+1.  确认其来源、责任人、目标受众和复核日期。
+2.  评审内置 skills、连接器、MCP servers、hooks，以及各项能力所需的数据与操作。
+3.  使用非敏感数据和满足需求的最小访问权限进行测试。
+4.  记录重新评审和退役的负责人。
+
+plugins 可用于 Web 端 ChatGPT Work、桌面 App 的 ChatGPT Work 与 Codex，以及 Codex CLI 的 plugin 浏览器；它们不能用于 Chat、IDE 扩展或移动端。ChatGPT 与 Codex 共用同一个公共插件目录，工作区控制决定成员可以访问其中哪些插件。
+
+完整权限模型参见 [Plugin 控件](/docs/enterprise/apps-and-connectors)和 [Skill 控件](/docs/enterprise/skills)。
+
+## 第 7 步：设置治理与可观测性
+
+根据要回答的问题选择对应报告界面：
+
+-   使用 [Workspace analytics](/docs/enterprise/workspace-analytics)查看交互式 ChatGPT 工作区分析和 Codex analytics。
+-   使用 [Analytics API](/docs/enterprise/analytics-api)，通过 Codex Analytics API 获取程序化、聚合后的报告。
+-   使用 [Compliance API](/docs/enterprise/compliance-api)获取审计和调查记录。
+-   当与套餐相关的 Codex 活动会消耗符合条件的 ChatGPT 工作区 credits 时，使用 [ChatGPT 用量限制与支出控制](/docs/enterprise/usage-limits)。
+
+当前访问要求、schema、字段、保留策略和请求行为应以需要登录的 API 参考为准，不要根据本指南中复制的契约构建集成。
+
+请保护集成边界：
+
+-   把 API key 和其他集成凭据存放在组织的 secret management system 中。
+-   将下游系统和保留数据的访问权限限制为已获批准的受众。
+-   根据记录敏感度和组织保留策略保护导出的 Compliance API 记录，并依据当前契约测试收集与删除工作流。
+
+## 第 8 步：验证并维护上线结果
+
+使用具有代表性的身份验证每个适用边界：
+
+-   ChatGPT 工作区成员资格、席位和受支持的角色权限。
+-   ChatGPT 桌面 App、Codex CLI 和 IDE 扩展中的受支持本地能力，包括登录和实际生效的运行时要求。
+-   Codex 云端访问、环境配置和仓库权限。
+-   API key 工作流所需的 Platform API 组织与项目访问。
+-   plugin 安装、内置 skills、连接器访问和受支持操作。
+-   连接系统授权与数据访问。
+-   责任管理员的 analytics 与 compliance 访问。
+
+为每项控制记录负责人和当前流程来源。这样，当 UI 或策略发生变化时，管理员可以更新流程，而不需要改变整体管理模型。
+
+首次上线后，持续评审访问权限、连接能力、credits 用量、支持反馈，以及团队实际使用的工作流。当这些信号发生变化时，应调整上线范围和管理员指南。

@@ -1,0 +1,247 @@
+---
+title: "Codex Security TypeScript SDK"
+navTitle: "TypeScript SDK"
+description: "从 TypeScript 运行 Codex Security 扫描、选择目标、检查结果并管理扫描生命周期。"
+locale: "zh"
+translationKey: "security/sdk"
+section: "explore"
+order: 1085
+draft: false
+translationStatus: complete
+lastUpdated: 2026-08-06
+pageKind: article
+referenceHub: "security-administration"
+sourceUrl: "https://www.codex-docs.com/docs/security/sdk"
+outline:
+  - id: "设置-sdk"
+    label: "设置 SDK"
+  - id: "运行扫描"
+    label: "运行扫描"
+  - id: "使用预检检查输入"
+    label: "使用预检检查输入"
+  - id: "选择扫描目标"
+    label: "选择扫描目标"
+  - id: "处理扫描结果"
+    label: "处理扫描结果"
+  - id: "跟踪或取消扫描"
+    label: "跟踪或取消扫描"
+  - id: "配置运行时和凭据"
+    label: "配置运行时和凭据"
+  - id: "处理扫描错误"
+    label: "处理扫描错误"
+---
+
+使用 Codex Security TypeScript SDK，从应用或开发工具对仓库和代码变更运行安全扫描。SDK 会返回类型化的安全发现、覆盖范围详情和扫描产物路径。对于耗时较长的扫描，它还支持预检、成本限制、进度回调和取消。
+
+SDK 使用 ECMAScript 模块（ESM），并在 Node.js 22 或更高版本的服务端环境中运行。扫描还需要 Python 3.10 或更高版本。
+
+<Callout kind="note">
+
+Codex Security SDK 已在 [GitHub 上公开](https://github.com/openai/codex-security)。运行扫描仍需获得 Codex Security 访问权限。对于通用编程智能体，请参阅 [Codex SDK 指南](/docs/codex-sdk)；对于终端和 CI 工作流，请参阅 [Codex Security CLI 快速入门](/docs/security/cli)。
+
+</Callout>
+
+## 设置 SDK
+
+安装 SDK：
+
+<CodeBlock code={"npm install @openai/codex-security"} language="bash" />
+
+开始扫描前，请设置 `OPENAI_API_KEY` 或 `CODEX_API_KEY`，也可以复用现有的文件式 Codex 登录。
+
+为取得最佳效果，请使用已通过 [Trusted Access for Cyber](https://chatgpt.com/cyber) 验证的账号。登录或提供 API key 不会授予 Trusted Access。
+
+## 运行扫描
+
+创建一个 `CodexSecurity` 客户端，运行标准仓库扫描，并在工作完成后关闭客户端。传入 `outputDir`，选择外层 Git 工作树之外的私有结果目录。
+
+如果省略 `outputDir`，Codex Security 会将结果保存在其自己的持久状态目录中。结果可以包括源代码摘录和漏洞详细信息，因此请选择适当的权限和保留策略。
+
+<CodeBlock code={"const security = new CodexSecurity();\n\ntry {\n  const result = await security.run(\"/path/to/repository\", {\n    outputDir: \"/path/outside/repository/results\",\n  });\n\n  console.log(result.reportPath);\n  console.log(result.coverage.completeness);\n  console.log(result.findings.findings.length);\n} finally {\n  await security.close();\n}"} language="typescript" />
+
+`run` 会启动扫描、等待扫描完成、验证已封存的产物，并返回 `ScanResult`。`close` 会释放隔离运行时，而且可以重复调用。
+
+## 使用预检检查输入
+
+在开始扫描之前，使用 `preflight` 检查仓库、目标、模式、输出位置和 Codex 配置：
+
+<CodeBlock code={"const plan = await security.preflight(\"/path/to/repository\", {\n  target: [\"services/billing\", \"packages/auth\"],\n  outputDir: \"/path/outside/repository/results\",\n});\n\nconsole.log(plan.repository);\nconsole.log(plan.target.kind);\nconsole.log(plan.mode);\nconsole.log(plan.outputDir);"} language="typescript" />
+
+预检不会改动 Codex 运行时和凭据。插件和 Python 的发现过程仍由实际扫描完成。因此，预检很适合在启动耗时操作或使用凭据前检查用户输入。
+
+要预览现有结果目录的存档，请设置 `archiveExisting: true`：
+
+<CodeBlock code={"const plan = await security.preflight(\"/path/to/repository\", {\n  outputDir: \"/path/outside/repository/results\",\n  archiveExisting: true,\n});\n\nconsole.log(plan.archiveDir);"} language="typescript" />
+
+返回的 `archiveDir` 用于预览存档名称。最终路径可能不同，因为 `run` 会生成唯一的目标目录。使用 `onOutputArchived` 获取实际存档路径：
+
+<CodeBlock code={"await security.run(\"/path/to/repository\", {\n  outputDir: \"/path/outside/repository/results\",\n  archiveExisting: true,\n  onOutputArchived(archiveDir) {\n    console.log(\"Archived results:\", archiveDir);\n  },\n});"} language="typescript" />
+
+扫描会存档早期结果并从空输出目录开始。
+
+## 选择扫描目标
+
+SDK 支持仓库、路径、提交差异和工作树目标。默认目标是完整的仓库。
+
+### 扫描选定的路径
+
+传递仓库内的路径数组：
+
+<CodeBlock code={"const result = await security.run(\"/path/to/repository\", {\n  target: [\"services/billing\", \"packages/auth\"],\n});"} language="typescript" />
+
+路径可以标识文件或目录。SDK 解析仓库内的每个路径并删除重复项。
+
+### 扫描提交的更改
+
+使用 `DiffTarget.refs` 扫描两个本地可用的 Git 修订版之间提交的更改：
+
+<CodeBlock code={"const target = DiffTarget.refs({\n  base: \"origin/main\",\n  head: \"HEAD\",\n});\n\nconst result = await security.run(\"/path/to/repository\", { target });"} language="typescript" />
+
+head revision 默认为 `HEAD`。Diff 目标要求仓库参数指向 Git 工作树根目录。
+
+### 扫描工作树
+
+使用 `DiffTarget.workingTree` 扫描针对基本修订的暂存和未暂存更改：
+
+<CodeBlock code={"const target = DiffTarget.workingTree({ base: \"HEAD\" });\nconst result = await security.run(\"/path/to/repository\", { target });"} language="typescript" />
+
+base revision 默认为 `HEAD`。开始差异或工作树扫描前，请先获取选定的 revision。
+
+### 选择深度模式
+
+为需要更广泛评审的仓库或路径扫描设置 `mode: "deep"`：
+
+<CodeBlock code={"const result = await security.run(\"/path/to/repository\", {\n  target: [\"services/billing\"],\n  mode: \"deep\",\n});"} language="typescript" />
+
+深度模式支持仓库和路径目标。使用标准模式进行差异和工作树扫描。
+
+### 添加安全知识库
+
+通过 `knowledgeBasePaths` 传入架构文档、威胁模型或安全策略：
+
+<CodeBlock code={"const result = await security.run(\"/path/to/repository\", {\n  knowledgeBasePaths: [\n    \"/path/to/architecture.md\",\n    \"/path/to/security-policies\",\n  ],\n});"} language="typescript" />
+
+SDK 接受文件或目录并递归搜索目录。支持的文档格式为 `.md`、`.markdown`、`.txt`、`.pdf` 和 `.docx`。SDK 拒绝链接的输入路径，跳过链接的目录条目，并将提取的文档内容保留在保存的扫描结果之外。
+
+### 设置扫描预算
+
+设置 `maxCostUsd` 以在估计模型成本超过限制时停止扫描。使用 `onCost` 跟踪扫描运行时的成本：
+
+<CodeBlock code={"const result = await security.run(\"/path/to/repository\", {\n  maxCostUsd: 5,\n  onCost(cost) {\n    console.log(cost.estimatedUsd);\n  },\n});\n\nconsole.log(result.cost?.estimatedUsd);"} language="typescript" />
+
+该限制是估算值，而非硬性支出上限。已经发出的请求可能使最终成本超过该限制。如果扫描超出限制，SDK 会抛出 `ScanCostLimitExceededError` 并保留可用结果。
+
+## 处理扫描结果
+
+`ScanResult` 公开结构化文档、扫描元数据和产物路径：
+
+<div className="doc-table-wrap">
+
+| 字段 | 内容 |
+| --- | --- |
+| `manifest` | 已封存的扫描 manifest，包括目标、范围、生产者和产物记录。 |
+| `findings` | 安全发现文件。各项安全发现位于 `findings.findings`。 |
+| `coverage` | 已评审范围、排除、延后处理的工作、悬而未决的问题和完整性。 |
+| `scanDir` | 扫描目录。 |
+| `threadId` | 扫描对应的 Codex `thread` 标识符。 |
+| `turnResult` | `turn` 的状态、响应和可用的用量元数据。 |
+| `cost` | 估算的模型和 token 成本；不可用时为 `null`。 |
+| `reportPath` | `report.md` 的路径。 |
+| `manifestPath` | `scan-manifest.json` 的路径。 |
+| `findingsPath` | `findings.json` 的路径。 |
+| `coveragePath` | `coverage.json` 的路径。 |
+| `artifactsDir` | 支持产物目录。 |
+| `sarifPath` | 生成的 SARIF 路径，或者当 SARIF 不存在时为 `null`。 |
+| `pluginVersion` | 扫描制作者记录的版本。 |
+
+</div>
+
+直接使用结构化发现和覆盖范围：
+
+<CodeBlock code={"for (const finding of result.findings.findings) {\n  const location = finding.locations[0];\n  if (location === undefined) continue;\n\n  console.log(\n    finding.severity.level,\n    `${location.path}:${location.startLine}`,\n    finding.title\n  );\n}\n\nfor (const deferred of result.coverage.deferred) {\n  console.log(deferred.id, deferred.reason);\n}"} language="typescript" />
+
+覆盖完整性为 `complete`、`partial` 或 `unknown`。在使用扫描作为安全决策的证据之前，请查看延迟的表面、排除和未解决的问题。
+
+`result.toJSON()` 返回一个可直接序列化为 JSON 的对象，其中包含 manifest、安全发现、覆盖范围、扫描与 `thread` 标识符、`reportPath`、`artifactsDir`、`sarifPath` 和 `turn` 元数据。
+
+## 跟踪或取消扫描
+
+传递 `ScanOptions` 回调来报告扫描启动、工作进程和连接重试：
+
+<CodeBlock code={"const result = await security.run(\"/path/to/repository\", {\n  outputDir: \"/path/outside/repository/results\",\n  onScanStarted() {\n    console.log(\"Scan started\");\n  },\n  onWorkerStatus(status) {\n    console.log(status.kind, status);\n  },\n  onReconnect(attempt, maxAttempts) {\n    console.log(`Reconnect attempt ${attempt} of ${maxAttempts}`);\n  },\n  onObserverError(observer, error) {\n    console.error(`${observer} failed`, error);\n  },\n});\n\nconsole.log(result.reportPath);"} language="typescript" />
+
+当取消来自请求、作业控制器或超时时，传递 `AbortSignal`：
+
+<CodeBlock code={"const controller = new AbortController();\n\ntry {\n  const scan = security.run(\"/path/to/repository\", {\n    outputDir: \"/path/outside/repository/results\",\n    signal: controller.signal,\n  });\n\n  controller.abort();\n  await scan;\n} catch (error) {\n  if (error instanceof ScanInterruptedError) {\n    console.error(error.scanDir);\n  } else {\n    throw error;\n  }\n}"} language="typescript" />
+
+中断的扫描可能会在 `scanDir` 中留下部分输出。当结果需要调查时保留该目录。
+
+显示扫描设置进度的应用还可以使用 `ScanOptions` 生命周期回调：
+
+<div className="doc-table-wrap">
+
+| 回调 | 何时调用 |
+| --- | --- |
+| `onOutputArchived(archiveDir)` | 现有结果移至存档目录。 |
+| `onOutputDirReady(scanDir)` | 私有扫描目录已准备就绪。 |
+| `onScanStarted()` | 扫描设置完成并开始执行。 |
+| `onReconnect(attempt, maxAttempts)` | SDK 重试断开连接的扫描流。 |
+| `onWorkerStatus(status)` | worker 预检或调度状态发生变化。 |
+| `onCost(cost)` | 提供更新的估计扫描成本。 |
+| `onObserverError(observer, error)` | 另一个扫描生命周期回调会引发错误。 |
+
+</div>
+
+## 配置运行时和凭据
+
+当你需要特定插件、解释器或 Codex 设置时传递运行时配置：
+
+<CodeBlock code={"const security = new CodexSecurity({\n  pluginPath: \"/path/to/codex-security-plugin\",\n  pythonPath: \"/path/to/python\",\n  codexOverrides: {\n    model: \"gpt-5.6-terra\",\n    model_reasoning_effort: \"high\",\n  },\n});"} language="typescript" />
+
+`pluginPath` 接受插件目录或 ZIP。`pythonPath` 用于选择插件解释器。`codexOverrides` 会把支持的值合并到隔离的 Codex 配置中。扫描默认使用 `gpt-5.6-sol` 和 extra-high 推理强度；要使用其它模型或推理强度，请在 `codexOverrides` 中设置 `model` 和 `model_reasoning_effort`。
+
+客户端还公开支持的认证方法：
+
+<div className="doc-table-wrap">
+
+| 方法 | 目的 |
+| --- | --- |
+| `loginApiKey(apiKey)` | 使用 API key 验证隔离运行时。 |
+| `loginChatGPT()` | 启动浏览器登录流程并返回登录句柄。 |
+| `loginChatGPTDeviceCode()` | 启动设备代码登录流程并返回登录句柄。 |
+| `account()` | 返回当前的认证状态。 |
+| `logout()` | 清除隔离的认证。 |
+
+</div>
+
+登录句柄提供 `waitForInstructions`、`authUrl`、`verificationUrl`、`userCode`、`wait` 和 `cancel`，以便应用可以呈现并完成所选的登录流程。SDK 可以复用文件式 Codex 登录，API key 则很适合 CI 和服务端自动化。
+
+当 API key 和已保存的登录同时可用时，SDK 默认使用 API key。要改用 ChatGPT 登录，请为扫描显式选择：
+
+<CodeBlock code={"const result = await security.run(\"/path/to/repository\", {\n  auth: \"chatgpt\",\n});"} language="typescript" />
+
+设置 `auth: "api-key"` 可强制使用环境中的 API key。`preflight` 接受相同的 `auth` 选项。
+
+## 处理扫描错误
+
+根据应用可以采取的操作，捕获对应的错误类：
+
+<div className="doc-table-wrap">
+
+| 错误 | 意义 |
+| --- | --- |
+| `AuthenticationRequiredError` | 扫描需要受支持的凭据。 |
+| `ConfigurationError` | Codex 配置或覆盖不合适。 |
+| `InvalidTargetError` | 仓库、路径、模式或 Git 目标不合适。 |
+| `OutputDirectoryError` | 输出位置或其权限不合适。 |
+| `OutputInsideProtectedRootError` | 输出目录位于扫描的仓库或工作树内。 |
+| `PluginPythonUnavailableError` | 可用的 Python 解释器不可用。 |
+| `PluginBootstrapError` | 插件运行时无法启动。 |
+| `ScanCostLimitExceededError` | 扫描超出了其估计的成本限制。 |
+| `IncompleteScanError` | 扫描在产生所需结果之前结束。 |
+| `ContractValidationError` | 完成的扫描返回了结构化合约错误。 |
+| `ScanInterruptedError` | 中断停止了扫描并可能留下了部分输出。 |
+
+</div>
+
+继续阅读 [CLI 快速入门](/docs/security/cli)、[CI 指南](/docs/security/cli/ci) 或 [CLI 参考](/docs/security/cli/reference)。

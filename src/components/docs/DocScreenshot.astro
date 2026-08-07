@@ -1,0 +1,24 @@
+---
+type Props = {
+  src: string;
+  alt: string;
+  width?: number;
+  height?: number;
+  maxHeight?: number;
+  picture?: boolean;
+  darkSrc?: string;
+};
+
+const { src, alt, width, height, maxHeight = 520, picture = false, darkSrc } = Astro.props;
+---
+
+<figure class="doc-screenshot" style={`--doc-screenshot-max-height: ${maxHeight}px;`}>
+  {picture || darkSrc ? (
+    <picture>
+      {darkSrc && <source media="(prefers-color-scheme: dark)" srcset={darkSrc} />}
+      <img {src} {alt} {width} {height} loading="lazy" decoding="async" />
+    </picture>
+  ) : (
+    <img {src} {alt} {width} {height} loading="lazy" decoding="async" />
+  )}
+</figure>

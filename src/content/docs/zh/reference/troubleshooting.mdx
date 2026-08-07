@@ -1,0 +1,128 @@
+---
+title: "故障排查"
+description: "常见 ChatGPT 桌面 App 问题的 FAQ 与修复方法"
+locale: "zh"
+translationKey: "reference/troubleshooting"
+section: "explore"
+order: 1022
+draft: false
+translationStatus: complete
+lastUpdated: 2026-08-06
+pageKind: article
+referenceHub: "features"
+sourceUrl: "https://www.codex-docs.com/docs/reference/troubleshooting"
+outline:
+  - id: "常见问题"
+    label: "常见问题"
+  - id: "反馈与日志"
+    label: "反馈与日志"
+  - id: "卡住状态与恢复方式"
+    label: "卡住状态与恢复方式"
+  - id: "终端问题"
+    label: "终端问题"
+---
+
+## 常见问题
+
+### 侧边面板中出现了 Codex 没有编辑的文件
+
+如果项目位于 Git 仓库中，评审面板会根据项目的 Git 状态自动显示改动，其中也包括并非由 Codex 创建的改动。
+
+你可以在评审面板中切换已暂存与未暂存改动，也可以比较当前分支与 main 分支。
+
+如果只想查看 Codex 最近一个会话轮次的改动，请把 diff 面板切换到 **Last turn（最近一轮）** 视图。
+
+进一步了解[如何使用评审面板](/docs/code-review?surface=app)。
+
+### 从侧边栏移除项目
+
+将鼠标悬停在项目名称上，选择三点菜单中的 **Remove（移除）**。需要恢复时，使用 **Chats（聊天）** 旁边的 **Add new project（添加新项目）** 按钮，或按 Command+O 重新添加项目。
+
+<span id="find-archived-tasks"></span>
+
+### 查找已归档聊天
+
+已归档聊天位于[设置](/docs)中。取消归档后，聊天会重新出现在侧边栏原来的位置。
+
+<span id="only-some-tasks-appear-in-the-sidebar"></span>
+
+### 侧边栏只显示部分聊天
+
+侧边栏可以根据项目状态筛选聊天。如果聊天缺失，请选择 **Chats** 旁的筛选图标，再选择 **Chronological（按时间顺序）**。如果仍然找不到，请打开[设置](/docs)，检查 **Archived chats（已归档聊天）**。
+
+### 代码无法在工作树中运行
+
+工作树位于不同目录，默认只继承已提交到 Git 的文件。根据项目管理依赖和工具的方式，你可能需要使用[本地环境](/docs/environments/local-environment)在工作树中运行初始化脚本，或通过 [`.worktreeinclude`](/docs/environments/git-worktrees#copy-ignored-local-files-into-managed-worktrees) 复制被忽略的设置文件。也可以在常用本地项目中检出这些改动。详情见[工作树文档](/docs/environments/git-worktrees)。
+
+### 应用没有读取到队友共享的本地环境
+
+本地环境配置必须位于项目根目录的 `.codex` 文件夹中。如果在包含多个项目的 monorepo 中工作，请确保打开的是包含 `.codex` 文件夹的项目目录。
+
+### Codex 请求访问 Apple Music
+
+根据任务内容，Codex 可能需要浏览文件系统。macOS 上的 Music、Downloads 和 Desktop 等目录需要用户额外批准。如果 Codex 需要读取 home 目录，macOS 会提示你批准对这些文件夹的访问。
+
+<span id="automations-create-many-worktrees"></span>
+
+### 定时任务创建了大量工作树
+
+频繁运行的定时任务会随时间创建许多工作树。请归档不再需要的定时运行；除非确实要保留对应工作树，否则不要固定这些运行。
+
+### 选错目标后恢复提示词
+
+如果启动聊天时误选了 **Local（本地）**、**Worktree（工作树）** 或 **Cloud（云端）**，可以取消当前运行，然后在 composer（输入框）中按向上箭头键恢复上一条提示词。
+
+### 功能在 Codex CLI 中可用，但在 ChatGPT 桌面应用中不可用
+
+ChatGPT 桌面应用和 Codex CLI 可能内置不同版本的 Codex，因此某项功能可能先到达其中一个界面；实验性功能也可能先进入 Codex CLI。
+
+查看系统中的 Codex CLI 版本：
+
+<CodeBlock code={"codex --version"} language="bash" />
+
+查看 ChatGPT 桌面应用内置的 Codex 版本，请使用保留的 `Codex.app` 兼容 bundle 路径：
+
+<CodeBlock code={"/Applications/Codex.app/Contents/Resources/codex --version"} language="bash" />
+
+## 反馈与日志
+
+在消息输入框中输入 `/`，可以向团队提供反馈。如果从已有聊天中触发反馈，可以选择一并分享当前 session。提交后会获得一个 session ID，可将其提供给团队。
+
+报告问题：
+
+1.  在 Codex GitHub 仓库中搜索[已有 issues](https://github.com/openai/codex/issues)。
+2.  [新建 GitHub issue](https://github.com/openai/codex/issues/new?template=2-bug-report.yml&steps=Uploaded%20thread%3A%20019c0d37-d2b6-74c0-918f-0e64af9b6e14)。
+
+更多日志位于：
+
+-   应用日志（macOS）：`~/Library/Logs/com.openai.codex/YYYY/MM/DD`
+-   会话记录：`$CODEX_HOME/sessions`，默认 `~/.codex/sessions`
+-   已归档会话：`$CODEX_HOME/archived_sessions`，默认 `~/.codex/archived_sessions`
+
+分享日志前，请先检查其中是否包含敏感信息。
+
+## 卡住状态与恢复方式
+
+如果聊天看起来卡住了：
+
+1.  检查 Codex 是否正在等待审批。
+2.  打开终端并运行 `git status` 等基础命令。
+3.  使用范围更小、更聚焦的提示词开始新聊天。
+
+如果误取消了工作树创建并丢失提示词，请在 composer 中按向上箭头键恢复。
+
+## 终端问题
+
+**终端看起来卡住了**
+
+1.  关闭终端面板。
+2.  使用 Ctrl+\` 重新打开。
+3.  重新运行 `pwd` 或 `git status` 等基础命令。
+
+如果命令行为与预期不同，请先在终端中确认当前目录和分支。
+
+如果终端仍然卡住，请等待活跃聊天完成后重启应用。
+
+**字体显示不正确**
+
+Codex 会为评审面板、集成终端和应用内的其他代码区域使用同一种字体。可以在[设置](/docs)中通过 **Code font（代码字体）** 配置。

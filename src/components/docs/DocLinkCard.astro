@@ -1,0 +1,16 @@
+---
+type Props = {
+  href: string;
+  title: string;
+  description: string;
+  icon: 'book' | 'chat' | 'plugin' | 'settings' | 'tools';
+};
+
+const { href, title, description, icon } = Astro.props;
+---
+
+<a class="doc-link-card" {href}>
+  <span class={`doc-link-card__icon doc-link-card__icon--${icon}`} aria-hidden="true"></span>
+  <span class="doc-link-card__body"><strong>{title}</strong><span>{description}</span></span>
+  <span class="doc-link-card__arrow" aria-hidden="true">→</span>
+</a>

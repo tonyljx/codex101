@@ -1,0 +1,111 @@
+---
+title: "导出和跟踪安全发现"
+navTitle: "导出并跟踪安全发现"
+description: "将已完成的 Codex Security 扫描交接给产物或 issue 跟踪流程。"
+locale: "zh"
+translationKey: "security/plugin/export-findings"
+section: "explore"
+order: 1073
+draft: false
+translationStatus: complete
+lastUpdated: 2026-08-06
+pageKind: article
+referenceHub: "security-administration"
+sourceUrl: "https://www.codex-docs.com/docs/security/plugin/export-findings"
+outline:
+  - id: "导出可携带产物"
+    label: "导出可携带产物"
+  - id: "跟踪选中的发现"
+    label: "跟踪选中的发现"
+  - id: "评审建议写入"
+    label: "评审建议写入"
+  - id: "验证已跟踪项目"
+    label: "验证已跟踪项目"
+---
+
+可以把已完成的 Codex Security 扫描作为两种交接流程的来源：
+
+-   **Export** 会创建可携带的 JSON、CSV 或 SARIF 文件。
+-   **Track findings** 会把选中的发现准备为 Linear、GitHub 或 Jira issues，或一个 private draft GitHub Security Advisory；它会检查重复项，并在写入前等待你的批准。
+
+这些工作流不会修改封存的扫描包（sealed scan bundle）。
+
+<Callout kind="note">
+
+可用的产物链接和导出格式取决于当前 Codex 入口与已安装的 plugin 版本。在自动化流程中使用某种格式前，请先查看 [plugin 更新日志](/docs/security/plugin/changelog)。
+
+</Callout>
+
+## 导出可携带产物
+
+在桌面 App 中，从 **Security（安全）** > **Scans（扫描）** 打开一项已完成的扫描。使用可用产物链接检查 `report.md`、`findings.json`、`scan-manifest.json`、`coverage.json`，以及存在时的 SARIF 报告。
+
+要创建另一种受支持格式，请让 Codex 从已完成扫描中导出安全发现，且不修改封存的扫描包：
+
+<CodeBlock code={"Export the findings from [completed scan directory] as [JSON, CSV, or SARIF]. Do not modify the sealed scan bundle or upload its contents."} language="text" />
+
+选择适合目标位置的格式：
+
+<div className="doc-table-wrap">
+
+| 格式 | 用途 |
+| --- | --- |
+| JSON | 为工具和脚本保留封存的结构化发现。 |
+| CSV | 在电子表格中评审发现和当前本地分诊状态。 |
+| SARIF | 把发现发送给支持 SARIF 交换格式的工具。 |
+
+</div>
+
+<Screenshot src="/images/openai/learn.chatgpt.com/_astro/export-findings-formats.tLnnW2sO.webp" darkSrc="/images/openai/learn.chatgpt.com/_astro/export-findings-formats-dark.D9GdmkJi.webp" alt="已完成的 Codex Security 扫描，显示覆盖范围、安全发现、manifest、Markdown 报告和 SARIF 链接" maxHeight={520} />
+
+选择 **Markdown report（Markdown 报告）**，可在配置的外部编辑器中打开 `report.md`。
+
+<Screenshot src="/images/openai/learn.chatgpt.com/_astro/export-findings-report.CBDMI-NT.webp" darkSrc="/images/openai/learn.chatgpt.com/_astro/export-findings-report-dark.DGbDluqs.webp" alt="生成的 Codex Security Markdown 报告，显示扫描范围和已验证的安全发现" maxHeight={520} />
+
+使用返回的产物路径。如果其它工具需要完整扫描上下文，请把原始 `scan-manifest.json`、`findings.json` 和 `coverage.json` 放在一起保留。导出不会把安全发现上传到代码扫描服务。
+
+## 跟踪选中的发现
+
+`$codex-security:track-findings` 工作流接受一个已验证发现，或一次封存扫描中最多 25 个明确选中的发现，用于 issue tracking。Draft GitHub Security Advisories 只接受一个发现。一次运行只使用一个提供方（provider）和一个目标位置（destination）。
+
+对于 Linear，发送类似提示词：
+
+<CodeBlock code={"Use $codex-security:track-findings to prepare finding [finding ID] from\n[completed scan directory] for the Linear team [team] and project [project, if\nany]. Check for duplicates and show me the exact issue title, body, metadata,\nand destination. Do not create or update anything until I approve that payload."} language="text" />
+
+对于 GitHub issues，发送：
+
+<CodeBlock code={"Use $codex-security:track-findings to prepare finding [finding ID] from\n[completed scan directory] for GitHub repository [owner/repository]. Check open\nand closed issues for duplicates and show me the exact issue title, body,\nmetadata, repository visibility, and authenticated transport. Do not create or\nupdate anything until I approve that payload."} language="text" />
+
+对于 Jira，发送：
+
+<CodeBlock code={"Use $codex-security:track-findings to prepare finding [finding ID] from\n[completed scan directory] for Jira project [project key] as [issue type].\nCheck for duplicates and show me the exact issue summary, description,\nmetadata, and destination. Do not create or update anything until I approve\nthat payload."} language="text" />
+
+Jira tracking 需要 Codex 中的 Atlassian Rovo plugin。复用 issue 需要读权限；创建或更新 issue 需要读写权限。
+
+对于 private draft GitHub Security Advisory，发送：
+
+<CodeBlock code={"Use $codex-security:track-findings to prepare finding [finding ID] from\n[completed scan directory] as a private draft GitHub Security Advisory in\n[owner/repository]. Verify the sealed source revision, repository, affected\npaths, package metadata, and duplicate state. Show me the exact advisory\npayload, authenticated GitHub CLI identity, and disclosure warnings. Do not\ncreate anything until I approve that payload."} language="text" />
+
+<Callout kind="note">
+
+Draft advisories 需要封存的 `git_revision` 扫描中的一个发现、已验证的公开 canonical 源仓库，以及管理员权限。这个工作流不会批量处理、更新、发布或关闭 advisories。当来源不满足这些要求时，请使用已批准的私有 issue 目标位置。
+
+</Callout>
+
+## 评审建议写入
+
+1.  确认发现 ID 和 fingerprint 来自预期的封存扫描。
+2.  确认提供方、精确 Linear team、GitHub repository、Jira project 或 advisory repository，以及实时目标可见性。
+3.  评审重复项处理结果：`create`、`reuse`、`update` 或 `blocked`。
+4.  阅读完整的建议标题、正文、来源位置和提供方元数据。移除目标位置不应暴露的利用细节或内部证据。
+5.  只批准那个精确负载（payload）。只要目标位置、可见性、发现集合或正文发生变化，就需要重新预览。
+
+敏感发现应发送到私有目标位置。在内部或公开 GitHub repository 中创建 issue，需要明确的可见性警告，并批准完整内容。请把 draft advisory description 当作最终可能公开的内容，在批准前移除凭据、私有证据和不必要的利用细节。
+
+请在 Codex 对话中评审并批准外部操作。审批不会在 Security 工作台中创建单独的 issue 或 advisory 页面。
+
+## 验证已跟踪项目
+
+批准后，Codex 会重新验证封存来源、目标位置、访问权限和重复项状态。它会串行处理批次，并在第一个不确定结果处停止。只有当 Codex 读回对应的 issue，并验证其绑定标识符和内容后，create、update 或 reuse 才算完成。
+
+请把返回的 issue 或 advisory 的 canonical URL 与分诊记录一起保存。当负责人接受该项目并准备修复时，继续阅读[修复并验证发现](/docs/security/plugin/fix-findings)。

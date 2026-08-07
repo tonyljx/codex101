@@ -1,0 +1,100 @@
+---
+title: "Codex SDK"
+description: "以编程方式控制本地 Codex 智能体"
+locale: "zh"
+translationKey: "codex-sdk"
+section: "explore"
+order: 1049
+draft: false
+translationStatus: complete
+lastUpdated: 2026-08-06
+pageKind: article
+referenceHub: "developers"
+sourceUrl: "https://www.codex-docs.com/docs/codex-sdk"
+outline:
+  - id: "typescript-库"
+    label: "TypeScript 库"
+  - id: "python-库"
+    label: "Python 库"
+---
+
+如果你已经在使用 Codex CLI、IDE 扩展或 Codex 云端，也可以进一步通过 SDK 以编程方式控制它。
+
+SDK 适合下面这些场景：
+
+-   需要把 Codex 接入自己的 CI/CD 流程
+-   需要构建能够与 Codex 协作完成复杂工程任务的自定义智能体
+-   需要把 Codex 集成进内部工具和工作流
+-   需要在自己的应用里嵌入 Codex
+
+Codex SDK 适合面向编码任务的 Codex 对话线程。如果 Codex 只是更大编排工作流中的一个专门角色，请改为[把 Codex CLI 作为 MCP server 运行，并用 Agents SDK 编排](/docs/mcp-server)。
+
+如果你拥有 Beta 访问权限，并需要对仓库或代码变更执行扫描，同时获取结构化安全发现与覆盖范围，请使用 [Codex Security TypeScript SDK](/docs/security/sdk)。
+
+## TypeScript 库
+
+TypeScript 库让应用能够启动、继续和恢复本地 Codex `thread`。
+
+这个库应该运行在服务端环境中，要求 Node.js 18 或更高版本。
+
+### 安装
+
+安装方式：
+
+<CodeBlock code={"npm install @openai/codex-sdk"} language="bash" />
+
+### 用法
+
+先启动一个对话线程，再用提示词运行它：
+
+<CodeBlock code={"const codex = new Codex();\nconst thread = codex.startThread();\nconst result = await thread.run(\n  \"Make a plan to diagnose and fix the CI failures\"\n);\n\nconsole.log(result.finalResponse);"} language="typescript" />
+
+如果你想在同一个对话线程中继续执行，可以再次调用 `run()`；如果你要恢复一条过去的对话线程，可以提供对话线程 ID：
+
+<CodeBlock code={"// running the same thread\nconst result = await thread.run(\"Implement the plan\");\n\nconsole.log(result.finalResponse);\n\n// resuming past thread\n\nconst threadId = \"<thread-id>\";\nconst thread2 = codex.resumeThread(threadId);\nconst result2 = await thread2.run(\"Pick up where you left off\");\n\nconsole.log(result2.finalResponse);"} language="typescript" />
+
+更多细节请查看 [TypeScript 仓库](https://github.com/openai/codex/tree/main/sdk/typescript)。
+
+## Python 库
+
+Python SDK 通过 JSON-RPC 控制本地的 `Codex app-server`。它要求 Python 3.10 或更高版本。已发布的 SDK 构建产物包含固定版本的 Codex CLI 运行时依赖。
+
+<span id="安装-2"></span>
+
+### 安装
+
+安装 SDK：
+
+<CodeBlock code={"pip install openai-codex"} language="bash" />
+
+已发布的 SDK 构建产物会自动使用其固定的运行时。只有当你明确想针对某个本地 Codex 可执行文件运行时，才传入 `CodexConfig(codex_bin=...)`。
+
+Python SDK 仍处于 beta 阶段时，`pip install openai-codex` 会选择最新发布的 beta 构建版本。等到稳定版 SDK 发布后，如需选择更新的预发布版本，请使用 `pip install --pre openai-codex`。
+
+<span id="用法-2"></span>
+
+### 用法
+
+启动 Codex，创建对话线程并运行提示词：
+
+<CodeBlock code={"from openai_codex import Codex, Sandbox\n\nwith Codex() as codex:\n    thread = codex.thread_start(\n        model=\"gpt-5.6-terra\",\n        sandbox=Sandbox.workspace_write,\n    )\n    result = thread.run(\"Make a plan to diagnose and fix the CI failures\")\n    print(result.final_response)"} language="python" />
+
+如果你的应用本身已经是异步的，可以使用 `AsyncCodex`：
+
+<CodeBlock code={"import asyncio\n\nfrom openai_codex import AsyncCodex\n\n\nasync def main() -> None:\n    async with AsyncCodex() as codex:\n        thread = await codex.thread_start(model=\"gpt-5.6-terra\")\n        result = await thread.run(\"Implement the plan\")\n        print(result.final_response)\n\n\nasyncio.run(main())"} language="python" />
+
+### 沙箱预设
+
+创建对话线程或为后续会话轮次改变文件系统访问权限时，可以使用相同的 `Sandbox` 预设：
+
+<CodeBlock code={"from openai_codex import Codex, Sandbox\n\nwith Codex() as codex:\n    thread = codex.thread_start(sandbox=Sandbox.workspace_write)\n    thread.run(\"Make the requested change.\")\n    review = thread.run(\"Review the diff only.\", sandbox=Sandbox.read_only)"} language="python" />
+
+可用预设：
+
+-   `Sandbox.read_only`：读取文件，但不允许写入。
+-   `Sandbox.workspace_write`：读取文件，并可在工作区和已配置 writable roots 内写入。
+-   `Sandbox.full_access`：不施加文件系统访问限制。
+
+省略 `sandbox=` 时，app-server 会使用其配置的默认值。传给 `run(...)` 或 `turn(...)` 的 sandbox 会应用于当前会话轮次及该对话线程后续会话轮次。
+
+更多细节请查看 [Python 仓库](https://github.com/openai/codex/tree/main/sdk/python)。

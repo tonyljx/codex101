@@ -1,0 +1,130 @@
+---
+title: "沙箱"
+description: "了解沙箱如何在 ChatGPT 和 Codex 客户端中工作"
+locale: "zh"
+translationKey: "sandboxing"
+section: "explore"
+order: 1061
+draft: false
+translationStatus: complete
+lastUpdated: 2026-08-06
+pageKind: article
+referenceHub: "security-administration"
+sourceUrl: "https://www.codex-docs.com/docs/sandboxing"
+outline:
+  - id: "沙箱做什么"
+    label: "沙箱做什么"
+  - id: "为什么这很重要"
+    label: "为什么这很重要"
+  - id: "开始使用"
+    label: "开始使用"
+  - id: "权限如何工作"
+    label: "权限如何工作"
+  - id: "configure-defaults"
+    label: "配置默认值"
+---
+
+沙箱是一道边界，让智能体可以自主行动，而不获得对机器的无限制访问权限。本地聊天在 **ChatGPT 桌面应用**、**Codex CLI** 或 **IDE 扩展**中运行命令时，默认会进入受限环境，而不是直接获得完全访问权限。
+
+该环境决定智能体可以自行完成哪些操作，例如能修改哪些文件、命令能否使用网络。任务保持在边界内时，智能体可以持续工作而无需反复确认；需要越过边界时，则会进入审批流程。
+
+<Callout kind="note">
+
+沙箱和审批是两种相互配合但彼此独立的控制。沙箱定义技术边界；审批策略决定智能体何时必须暂停，并在跨越边界前询问。
+
+</Callout>
+
+## 沙箱做什么
+
+沙箱适用于派生的命令，而不只限制内置文件操作。如果智能体运行 `git`、包管理器或测试 runner，这些命令会继承相同的沙箱边界。
+
+Codex 在每种操作系统上使用平台原生的强制机制。macOS、Linux、WSL2 和原生 Windows 的实现不同，但各界面的目标一致：为智能体提供边界明确的工作区域，使日常任务可以在清晰限制内自主运行。
+
+## 为什么这很重要
+
+沙箱可以减少审批疲劳。智能体无需为每条低风险命令请求确认，而可以在已获批准的边界内读取文件、编辑内容并运行日常项目命令。
+
+它也为智能体工作提供更清晰的信任模型：你依赖的不只是智能体的意图，还包括强制执行的限制。这样既可以让智能体独立工作，也能知道它会在什么情况下停止并请求帮助。
+
+## 开始使用
+
+默认权限模式会自动应用沙箱。
+
+### 前提条件
+
+在 **macOS** 上，沙箱使用系统内置 Seatbelt framework，无需额外设置。
+
+在 **Windows** 上，通过 PowerShell 运行时，Codex 使用原生 [Windows sandbox](/docs/windows/windows-sandbox#windows-sandbox)；通过 WSL2 运行时，则使用 Linux 沙箱实现。
+
+在 **Linux 和 WSL2** 上，请先用包管理器安装 `bubblewrap`：
+
+**Ubuntu/Debian**
+
+<CodeBlock code={"sudo apt install bubblewrap"} language="bash" />
+
+**Fedora**
+
+<CodeBlock code={"sudo dnf install bubblewrap"} language="bash" />
+
+Codex 会使用 `PATH` 中找到的第一个 `bwrap` 可执行文件。如果找不到，Codex 会回退到随附的辅助程序，但该辅助程序要求系统支持创建非特权用户命名空间。安装发行版提供的 `bwrap` 软件包可以让设置更可靠。
+
+`bwrap` 缺失，或辅助程序无法创建所需用户命名空间时，Codex 会在启动时显示警告。对于限制这一 AppArmor 设置的发行版，建议加载 `bwrap` AppArmor 配置，使 `bwrap` 正常工作，而不是在全局关闭限制。
+
+<Callout kind="note">
+
+**Ubuntu AppArmor 说明：**在 Ubuntu 25.04 上，从 Ubuntu 软件包仓库安装 `bubblewrap` 应当无需额外 AppArmor 设置。`bwrap-userns-restrict` 配置由 `apparmor` 软件包提供，路径为 `/etc/apparmor.d/bwrap-userns-restrict`。
+
+在 Ubuntu 24.04 上，即使已经安装 `bubblewrap`，Codex 仍可能提示无法创建所需用户命名空间。请复制并加载额外配置：
+
+<CodeBlock code={"sudo apt update\nsudo apt install apparmor-profiles apparmor-utils\nsudo install -m 0644 \\\n  /usr/share/apparmor/extra-profiles/bwrap-userns-restrict \\\n  /etc/apparmor.d/bwrap-userns-restrict\nsudo apparmor_parser -r /etc/apparmor.d/bwrap-userns-restrict"} language="bash" />
+
+`apparmor_parser -r` 会把配置加载到内核，无需重启。也可以重新加载全部 AppArmor 配置：
+
+<CodeBlock code={"sudo systemctl reload apparmor.service"} language="bash" />
+
+如果该配置不存在或未解决问题，可以关闭 AppArmor 的非特权用户命名空间限制：
+
+<CodeBlock code={"sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0"} language="bash" />
+
+</Callout>
+
+## 权限如何工作
+
+使用当前界面提供的权限控件，调整 Codex 处理本地操作的方式。
+
+审批决定 Codex 何时在执行操作前暂停；沙箱决定命令能访问哪些文件和网络资源。当审批提供不同范围，例如仅批准一次或批准当前会话时，请选择能让任务继续的最小范围。默认保持项目边界；需要隔离无关仓库时，使用不同项目或工作树，而不是扩大访问范围。
+
+在 ChatGPT 桌面应用中，权限控件位于 composer（输入框）下方。根据配置，菜单中可能包含 **Ask for approval（请求审批）**、适用于部分审批请求的 **Approve for me（替我批准）**、**Full access（完全访问）**，以及命名或自定义权限配置档案。
+
+<span id="configure-defaults"></span>
+
+## 配置默认值
+
+要让每次任务以相同行为开始，请在 `config.toml` 中设置默认值。[配置基础](/docs/config-file/config-basic)介绍工作方式，[配置参考](/docs/config-file/config-reference)则记录 `sandbox_mode`、`approval_policy`、`approvals_reviewer` 和 `sandbox_workspace_write.writable_roots` 的准确配置键。使用这些设置决定智能体默认拥有多少自主权、可以写入哪些目录、何时暂停请求审批，以及由谁评审符合条件的审批请求。
+
+常见沙箱模式包括：
+
+-   `read-only`：智能体可以检查文件，但未经审批不能编辑文件或运行命令。
+-   `workspace-write`：智能体可以读取文件、在工作区内编辑，并在边界内运行日常本地命令。这是本地工作中默认的低干扰模式。
+-   `danger-full-access`：智能体不受沙箱限制，会移除文件系统和网络边界。只有明确希望智能体获得完全访问权限时才使用。
+
+常见审批策略包括：
+
+-   `untrusted`：智能体在运行不属于可信集合的命令前询问。
+-   `on-request`：智能体默认在沙箱内工作，需要越过边界时询问。
+-   `never`：智能体不会因审批提示而暂停。
+
+使用交互式审批时，还可以通过 `approvals_reviewer` 选择评审者：
+
+-   `user`：向用户显示审批提示，也是默认值。
+-   `auto_review`：把符合条件的审批请求交给评审智能体，参阅[自动审批评审](/docs/sandboxing/auto-review)。
+
+完全访问意味着同时使用 `sandbox_mode = "danger-full-access"` 和 `approval_policy = "never"`。风险较低的本地自动化预设则是 `sandbox_mode = "workspace-write"` 与 `approval_policy = "on-request"`，或对应 CLI flags：`--sandbox workspace-write --ask-for-approval on-request`。之后可以保留 `approvals_reviewer = "user"` 进行人工审批，或设为 `approvals_reviewer = "auto_review"` 进行自动审批评审。
+
+如果智能体需要跨多个目录工作，可以用 writable roots 扩展允许修改的位置，而不必完全移除沙箱。如果需要更宽或更窄的信任边界，请调整默认沙箱模式和审批策略，不要依赖一次性例外。
+
+工作流需要特定例外时，请使用[规则](/docs/agent-configuration/rules)。规则允许你对沙箱外的命令前缀执行允许、提示或禁止，通常比整体扩大访问权限更合适。IDE 专属设置入口见 [Codex IDE 扩展设置](/docs/developer-settings?surface=ide)。
+
+自动评审不会改变沙箱边界。它只是边界处审批请求的一种 `approvals_reviewer`，例如沙箱权限提升、被阻止的网络访问，或仍需审批且会产生副作用的工具调用。已经在沙箱内获准的操作不会额外评审。评审者生命周期、触发类型、拒绝语义和配置详情见[自动审批评审](/docs/sandboxing/auto-review)。
+
+原生 Windows 的设置、行为和排障见 [Windows](/docs/windows/windows-sandbox)。沙箱和审批的管理员要求及组织级约束见[智能体审批与安全](/docs/agent-approvals-security)。

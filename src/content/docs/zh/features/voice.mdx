@@ -1,0 +1,75 @@
+---
+title: "ChatGPT Voice"
+navTitle: "语音"
+description: "在 ChatGPT 桌面 App 的 Chat、Work 和 Codex 中使用语音。"
+locale: "zh"
+translationKey: "features/voice"
+section: "explore"
+order: 1011
+draft: false
+translationStatus: complete
+lastUpdated: 2026-08-06
+pageKind: article
+referenceHub: "features"
+sourceUrl: "https://www.codex-docs.com/docs/features/voice"
+outline:
+  - id: "开始说话"
+    label: "开始说话"
+  - id: "进行对话"
+    label: "进行对话"
+  - id: "委派和协调工作"
+    label: "委派和协调工作"
+  - id: "让-chatgpt-看见你看到的内容"
+    label: "让 ChatGPT 看见你看到的内容"
+  - id: "chatgpt-voice-与语音听写"
+    label: "ChatGPT Voice 与语音听写"
+  - id: "限额与故障排查"
+    label: "限额与故障排查"
+---
+
+ChatGPT Voice 由 GPT-Live 驱动，让你能在 ChatGPT 桌面 App 的 Chat、Work 和 Codex 中通过对话梳理想法并协调任务。你可以直接开始工作、检查进度或调整方向，无需切回键盘输入。
+
+ChatGPT Voice 适用于 ChatGPT 桌面 App 的 ChatGPT Plus、Pro、Business、Edu 和 Enterprise 套餐。Enterprise 与 Edu 会先开放两周 early access，随后默认提供此功能。将手机与桌面 host 配对后，你也可以通过 [iOS Remote](/docs/remote-connections#set-up-mobile-access) 使用 ChatGPT Voice。实际可用性还取决于功能发布进度和工作区设置，详见[功能可用性](/docs/pricing#feature-availability)。
+
+## 开始说话
+
+1.  在 ChatGPT 桌面 App 中打开一个新的空白聊天或任务。
+2.  发送消息前，选择 **Start new voice chat（开始新语音聊天）**。
+3.  首次开始语音聊天时，允许麦克风访问、选择声音，并在 macOS 上检查 Screen context（屏幕上下文）。
+4.  开始说话；完成后选择 **End（结束）**。
+
+聊天或任务必须从语音模式开始，才能使用 ChatGPT Voice。从其他模式开始的聊天或任务只会提供语音听写。若要恢复先前的语音聊天，请打开它并选择 **Start voice chat（开始语音聊天）**。
+
+你可以在 **Settings > Voice > Voice chat hotkey（设置 > 语音 > 语音聊天快捷键）** 中设置快捷键。
+
+## 进行对话
+
+ChatGPT Voice 支持自然的轮流对话。你可以在 ChatGPT 回复时打断它、继续追问或改变方向。如果 ChatGPT 已开始工作，你仍可继续交谈，检查进度或调整任务。
+
+## 委派和协调工作
+
+ChatGPT Voice 可以为耗时较长的任务启动独立对话线程、检查现有对话线程并发送后续指令。它会把进度、阻塞项和结果带回语音对话，让你在工作继续进行时保持交谈。
+
+例如：
+
+-   “Review today's launch brief and summarize decisions that need approval.”
+-   “Start a Codex task to run the tests and investigate anything that doesn't pass.”
+-   “Check active tasks and summarize anything blocking progress.”
+
+ChatGPT Voice 遵循其在 ChatGPT 桌面 App 的 Chat、Work 和 Codex 中所指导任务的相同[权限](/docs/permission-modes)。
+
+## 让 ChatGPT 看见你看到的内容
+
+在 macOS 上，前往 **Settings > Voice（设置 > 语音）** 开启 **Screen context（屏幕上下文）**，然后说 “Take a look at this.” ChatGPT 可以获取最前方窗口的 [Appshot](/docs/appshots#permissions-and-safety) 并将其用作上下文。你的组织可以禁用此能力。
+
+Appshot 可能包含窗口图像和可访问文本，包括可见滚动区域之外的内容。macOS 可能会请求 **Screen & System Audio Recording（屏幕与系统音频录制）** 和 **Accessibility（辅助功能）** 权限。请避免分享含有敏感信息的窗口，包括可见滚动区域之外的文本。
+
+## ChatGPT Voice 与语音听写
+
+需要与 ChatGPT 实时对话时，请使用 ChatGPT Voice；如果只想在发送前把语音转换成提示词文本，请使用[语音听写](/docs/prompting#use-voice-dictation)。
+
+## 限额与故障排查
+
+ChatGPT 桌面 App 同一时间只能有一场活动语音聊天。语音对话使用独立的套餐限额，并按滚动五小时窗口计量；通过 Voice 启动的任务仍会消耗 Codex 用量。当任一限额用尽时，ChatGPT 会通知你。详见 [Voice 定价与限额](/docs/pricing#chatgpt-voice-in-desktop)。
+
+如果无法开始语音聊天，请确认你的套餐、功能发布范围和工作区支持 ChatGPT Voice，再检查麦克风权限，以及其他 App 窗口中是否已有活动语音聊天。如果 Screen context 不可用，请检查 **Settings > Voice**、Appshots 权限和组织限制。

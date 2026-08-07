@@ -1,0 +1,115 @@
+---
+title: "Codex 安全"
+navTitle: "概览"
+description: "用 Codex 查找、验证并修复安全问题"
+locale: "zh"
+translationKey: "security"
+section: "explore"
+order: 1065
+draft: false
+translationStatus: complete
+lastUpdated: 2026-08-06
+pageKind: article
+referenceHub: "security-administration"
+sourceUrl: "https://www.codex-docs.com/docs/security"
+outline:
+  - id: "在桌面-app-中使用-codex-security"
+    label: "在桌面 App 中使用 Codex Security"
+  - id: "codex-security-cli-和-sdk"
+    label: "Codex Security CLI 和 SDK"
+  - id: "codex-安全云端"
+    label: "Codex 安全云端"
+  - id: "codex-安全云端如何工作"
+    label: "Codex 安全云端如何工作"
+  - id: "codex-安全云端访问与前提条件"
+    label: "Codex 安全云端访问与前提条件"
+  - id: "相关文档"
+    label: "相关文档"
+---
+
+Codex Security 是一款应用安全智能体，帮助安全与工程团队发现、确认并修复漏洞。你可以在 Codex 中、终端里、通过 TypeScript SDK，或对已连接的 GitHub 仓库使用它。
+
+[在 Codex App 中安装插件](https://chatgpt.com/plugins/share/676aca3811d54fa7bcdef5255236b3c4)
+
+如果要按推荐路径执行第一次本地扫描，请从 [Codex 安全插件快速开始](/docs/security/plugin) 开始。
+
+## 在桌面 App 中使用 Codex Security
+
+安装并启用 Codex Security 插件后，ChatGPT 桌面 App 的侧栏会显示 **Security（安全）**。Security 工作台把扫描、安全发现和仓库集中在一处；每次扫描则由 Codex 在一个任务中运行。
+
+-   使用 **Scans（扫描）** 开始扫描、跟踪进度并查看已保存的结果。
+-   使用 **Findings（安全发现）** 检查已完成扫描中的问题与证据。
+-   使用 **Repositories（仓库）** 查看仓库历史记录和未解决的安全发现。
+
+完整的桌面 App 工作流请参阅[使用 Security 工作台](/docs/security/plugin/workbench)。
+
+### 探索插件用例
+
+-   [运行安全扫描](/docs/security/plugin/scans)，评审整个仓库或一个限定文件夹。
+-   [运行深度安全扫描](/docs/security/plugin/deep-scans)，在你需要更全面扫描、也能等待更久时使用。
+-   [评审代码变更](/docs/security/plugin/code-changes)，在合并 pull request 或分支前检查风险。
+-   [分诊积压](/docs/security/plugin/triage-backlog)，用于评审已有安全发现。
+-   [修复并验证发现](/docs/security/plugin/fix-findings)，为已批准的发现结果生成有边界的 patch。
+-   [导出或跟踪发现](/docs/security/plugin/export-findings)，把结果转成可携带产物，或交给需要审批的跟踪目标。
+-   [编写漏洞报告](/docs/security/plugin/vulnerability-reports)，根据发现、披露说明、源码和 PoC 生成报告。
+-   [提出安全加固建议](/docs/security/plugin/security-hardening)，根据扫描结果或其他安全证据准备加固方案。
+-   [查看更新](/docs/security/plugin/changelog)，了解 Codex 安全插件的最新变化。
+
+<Callout kind="note">
+
+桌面端 Security 工作台和 Codex CLI 都使用 Codex Security 插件。Codex Security 云端则通过 Codex 云端扫描已连接的 GitHub 仓库。关于 Codex 的沙箱、审批、网络控制和管理员设置，请参阅[智能体审批与安全](/docs/agent-approvals-security)。
+
+</Callout>
+
+## Codex Security CLI 和 SDK
+
+CLI 与 TypeScript SDK 通过公开的 [`@openai/codex-security`](https://github.com/openai/codex-security) 软件包提供。安装软件包：
+
+<CodeBlock code={"npm install @openai/codex-security"} language="bash" />
+
+运行扫描仍需获得 Codex Security 访问权限。为取得最佳效果，请使用已通过 [Trusted Access for Cyber](https://chatgpt.com/cyber) 验证的账号。
+
+CLI 会在不同仓库和多次扫描中使用与插件相同的扫描器，可发现 GitHub 仓库、恢复批量扫描、跨扫描跟踪安全发现并记录误报反馈。你还可以提供架构与安全策略、设置估算成本上限，或在 CI 与提交前运行检查。TypeScript SDK 则可把扫描、进度报告和成本控制集成到应用或开发工具中。
+
+-   [从 CLI 快速开始](/docs/security/cli)，设置 CLI、预检仓库并运行本地扫描。
+-   [运行批量安全扫描](/docs/security/cli/bulk-scans)，发现 GitHub 仓库，或从 CSV 清单运行可恢复的扫描批次。
+-   [在 CI 中运行扫描](/docs/security/cli/ci)，评审 pull request 变更、保留产物、上传 SARIF 并设置严重性策略。
+-   [阅读 CLI 常见问题](/docs/security/cli/faq)，了解扫描历史、误报反馈、覆盖范围和修复验证。
+-   [使用 CLI 参考](/docs/security/cli/reference)，查看支持的命令、flag、输出格式、产物和退出码。
+-   [集成 TypeScript SDK](/docs/security/sdk)，从代码中选择目标、检查结果、跟踪进度并取消扫描。
+
+## Codex 安全云端
+
+Codex 安全云端目前处于研究预览阶段。它会扫描已连接的 GitHub 仓库，查找高概率安全问题。
+
+它能帮助团队：
+
+1.  **发现高概率漏洞**：利用仓库特定的威胁模型和真实代码上下文来识别问题。
+2.  **降低噪音**：在你开始人工评审前，先对发现结果做验证。
+3.  **把发现逐步推进到修复**：提供排序后的结果、证据以及建议补丁选项。
+
+## Codex 安全云端如何工作
+
+Codex 安全会对已连接的仓库按提交逐个扫描。它会基于你的仓库构建扫描上下文，再结合这些上下文检查高概率漏洞，并在隔离环境中验证高信号问题，然后再把结果展示出来。
+
+你获得的是一套聚焦于以下目标的工作流：
+
+-   使用仓库特定上下文，而不是通用签名规则
+-   提供验证证据，帮助减少误报
+-   给出可在 GitHub 中评审的建议修复方案
+
+## Codex 安全云端访问与前提条件
+
+Codex 安全云端会通过 Codex 云端扫描已连接的 GitHub 仓库。如果某个仓库没有出现在列表中，请确认该仓库已在你的 Codex 云端工作区中可用，或联系你的 OpenAI 客户团队。
+
+## 相关文档
+
+-   [Codex 安全插件快速开始](/docs/security/plugin) 会带你完成安装和第一次本地扫描。
+-   [Security 工作台](/docs/security/plugin/workbench) 介绍桌面 App 中保存的扫描、安全发现、仓库和扫描活动。
+-   [Codex Security CLI 快速开始](/docs/security/cli) 介绍设置、预检和第一次终端扫描。
+-   [运行批量安全扫描](/docs/security/cli/bulk-scans) 介绍 GitHub 发现、CSV 清单、批次结果和恢复行为。
+-   [Codex Security CLI 常见问题](/docs/security/cli/faq) 解答有关扫描、安全发现、覆盖范围和成本的常见问题。
+-   [Codex Security TypeScript SDK](/docs/security/sdk) 说明如何从应用或开发工具运行扫描。
+-   [Codex 安全云端设置](/docs/security/setup) 详细介绍设置、扫描和发现结果评审。
+-   [改进威胁模型](/docs/security/threat-model) 说明如何调整扫描范围、攻击面和严重性假设。
+-   [Codex Security 云端 FAQ](/docs/security/faq) 解答常见云端产品问题。

@@ -1,0 +1,21 @@
+---
+type Props = {
+  prompt: string;
+  label?: string;
+  copyLabel?: string;
+};
+
+const { prompt, label = '示例提示词', copyLabel = '复制代码' } = Astro.props;
+---
+
+<section class="doc-prompt-card">
+  <header><span>{label}</span></header>
+  <pre class="shiki shiki-plain code-copy-host has-copy-button"><button
+      type="button"
+      class="code-copy-button"
+      data-copy-prompt={prompt}
+      data-state="idle"
+      aria-label={copyLabel}
+      title={copyLabel}
+    ></button><code class="language-text"><span class="line"><span>{prompt}</span></span></code></pre>
+</section>

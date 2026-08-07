@@ -1,0 +1,42 @@
+---
+import { ChevronDown, Download } from 'lucide-react';
+
+type Props = {
+  menu: {
+    label: string;
+    items: Array<{ href: string; label: string }>;
+    footer?: { href: string; label: string };
+  };
+};
+
+const { menu } = Astro.props;
+---
+
+<div class="docs-download-menu" data-docs-download-menu>
+  <button
+    class="docs-download-menu__single-trigger"
+    type="button"
+    aria-label={`${menu.label}: 选择其他 ChatGPT 下载版本`}
+    aria-haspopup="menu"
+    aria-expanded="false"
+    data-docs-download-menu-toggle
+  >
+    <span>{menu.label}</span>
+    <ChevronDown aria-hidden="true" />
+  </button>
+  <div class="docs-download-menu__panel" role="menu" hidden data-docs-download-menu-panel>
+    <div class="docs-download-menu__items">
+      {menu.items.map((item) => (
+        <a class="docs-download-menu__item" href={item.href} target="_blank" rel="noreferrer noopener" role="menuitem">
+          <Download aria-hidden="true" />
+          <span>{item.label}</span>
+        </a>
+      ))}
+    </div>
+    {menu.footer && (
+      <a class="docs-download-menu__footer" href={menu.footer.href} target="_blank" rel="noreferrer noopener" role="menuitem">
+        {menu.footer.label}
+      </a>
+    )}
+  </div>
+</div>

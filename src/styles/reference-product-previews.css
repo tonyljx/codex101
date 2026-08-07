@@ -1,0 +1,37 @@
+/* Captured scoped styles for the reference CLI and IDE hero previews. */
+.docs-cli-preview[data-astro-cid-3tlvsx5q]{--cli-bg:#0f1728;--cli-panel:#172238;--cli-header:#101827;--cli-text:#aebbd1;--cli-strong:#edf3ff;--cli-accent:#38bdf8;overflow:hidden;color:var(--cli-text);background:var(--cli-bg);text-align:left}
+header[data-astro-cid-3tlvsx5q]{display:flex;gap:.5rem;padding:.8rem 1.25rem;background:var(--cli-header)}
+header[data-astro-cid-3tlvsx5q] span[data-astro-cid-3tlvsx5q]{width:.52rem;height:.52rem;border-radius:50%;background:#ff5f57}
+header[data-astro-cid-3tlvsx5q] span[data-astro-cid-3tlvsx5q]:nth-child(2){background:#febc2e}
+header[data-astro-cid-3tlvsx5q] span[data-astro-cid-3tlvsx5q]:nth-child(3){background:#28c840}
+.docs-cli-preview__body[data-astro-cid-3tlvsx5q]{padding:1rem 1.65rem 1.2rem;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;font-size:clamp(.68rem,1.15vw,.82rem);line-height:1.42}
+p[data-astro-cid-3tlvsx5q]{margin:0}
+pre[data-astro-cid-3tlvsx5q]{overflow-x:auto;margin:.55rem -.2rem 0;padding:.25rem .2rem .8rem;color:var(--cli-text);background:transparent;font:inherit;line-height:inherit}
+strong[data-astro-cid-3tlvsx5q]{color:var(--cli-strong);font-weight:650}
+.docs-cli-preview__muted[data-astro-cid-3tlvsx5q]{color:#71819c}
+.docs-cli-preview__accent[data-astro-cid-3tlvsx5q]{color:var(--cli-accent)}
+.docs-cli-preview__prompt[data-astro-cid-3tlvsx5q]{margin-inline:-1.65rem;padding:.8rem 1.65rem;color:var(--cli-text);background:var(--cli-panel)}
+.docs-cli-preview__prompt[data-astro-cid-3tlvsx5q] span[data-astro-cid-3tlvsx5q]{color:var(--cli-strong);animation:cli-cursor 1s steps(1) infinite}
+.docs-cli-preview__status[data-astro-cid-3tlvsx5q]{padding-top:1rem;color:#71819c}
+@keyframes cli-cursor{50%{opacity:0}}
+@media(prefers-reduced-motion:reduce){.docs-cli-preview__prompt[data-astro-cid-3tlvsx5q] span[data-astro-cid-3tlvsx5q]{animation:none}}
+@media(max-width:767px){.docs-cli-preview__body[data-astro-cid-3tlvsx5q]{padding-inline:1rem}.docs-cli-preview__prompt[data-astro-cid-3tlvsx5q]{margin-inline:-1rem;padding-inline:1rem}}
+
+.docs-ide-preview[data-astro-cid-vud52nje]{display:grid;min-height:28rem;grid-template-columns:3.25rem minmax(0,1.25fr) minmax(18rem,.9fr);color:#c7c7c7;background:#111;text-align:left}
+.docs-ide-preview__activity[data-astro-cid-vud52nje]{display:flex;align-items:center;flex-direction:column;gap:1.5rem;padding-top:1.2rem;border-right:1px solid #292929;color:#777;font-size:1.1rem}
+.docs-ide-preview__editor[data-astro-cid-vud52nje]{min-width:0;background:#121212}
+.docs-ide-preview__editor[data-astro-cid-vud52nje]>header[data-astro-cid-vud52nje]{display:flex;overflow:hidden;height:2.8rem;border-bottom:1px solid #292929}
+.docs-ide-preview__editor[data-astro-cid-vud52nje]>header[data-astro-cid-vud52nje] span[data-astro-cid-vud52nje]{min-width:8.5rem;padding:.85rem 1rem;border-right:1px solid #292929;color:#aaa;font:.73rem ui-monospace,SFMono-Regular,Menlo,monospace}
+.docs-ide-preview__editor[data-astro-cid-vud52nje]>header[data-astro-cid-vud52nje] span[data-astro-cid-vud52nje]:first-child{color:#ddd;background:#181818}
+.docs-ide-preview__code[data-astro-cid-vud52nje]{display:grid;grid-template-columns:2.5rem minmax(24rem,1fr);padding:2rem 0;font:.76rem/1.7 ui-monospace,SFMono-Regular,Menlo,monospace}
+.docs-ide-preview__code[data-astro-cid-vud52nje] span[data-astro-cid-vud52nje]{padding-right:.9rem;color:#929292;text-align:right}
+.docs-ide-preview__code[data-astro-cid-vud52nje] code[data-astro-cid-vud52nje]{color:#aeb6c2}
+.docs-ide-preview__codex[data-astro-cid-vud52nje]{min-width:0;padding:1rem;border-left:1px solid #292929;background:#171717;font-size:.78rem;line-height:1.55}
+.docs-ide-preview__codex[data-astro-cid-vud52nje]>header[data-astro-cid-vud52nje]{display:flex;justify-content:space-between;padding-bottom:1rem;color:#aaa;font-size:.68rem}
+.docs-ide-preview__task[data-astro-cid-vud52nje]{margin:.35rem 0 2.6rem}
+.docs-ide-preview__bubble[data-astro-cid-vud52nje]{width:fit-content;max-width:85%;margin:0 0 2rem auto;padding:.65rem .8rem;border-radius:.75rem;background:#242424}
+.docs-ide-preview__meta[data-astro-cid-vud52nje]{margin:0;padding-bottom:1rem;border-bottom:1px solid #303030;color:#aaa;font-size:.7rem}
+.docs-ide-preview__result[data-astro-cid-vud52nje]{padding-top:1rem}
+.docs-ide-preview__result[data-astro-cid-vud52nje] p[data-astro-cid-vud52nje]{margin:0;color:#aaa}
+.docs-ide-preview__result[data-astro-cid-vud52nje] code[data-astro-cid-vud52nje]{display:block;padding:.55rem .65rem;border-radius:.4rem;color:#c8e6ff;background:#202734}
+@media(max-width:767px){.docs-ide-preview[data-astro-cid-vud52nje]{min-height:24rem;grid-template-columns:2.5rem minmax(0,1fr)}.docs-ide-preview__editor[data-astro-cid-vud52nje]{display:none}.docs-ide-preview__codex[data-astro-cid-vud52nje]{border-left:0}}

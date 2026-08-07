@@ -1,0 +1,224 @@
+---
+title: "在并行云环境中运行编码任务"
+navTitle: "Codex 云端"
+description: "在隔离的云环境中运行任务、并行推进工作，并从 Codex Web、GitHub、Linear 或 Slack 发起任务。"
+locale: "zh"
+translationKey: "cloud"
+section: "available"
+order: 5
+draft: false
+translationStatus: complete
+lastUpdated: 2026-08-06
+pageKind: product
+---
+<ProductPage {...{
+  "product": "cloud",
+  "hero": {
+    "eyebrow": "Codex 云端",
+    "titleLines": [
+      "在并行云环境中",
+      "运行编码任务"
+    ],
+    "lead": "在隔离的云环境中运行任务、并行推进工作，并从 Codex Web、GitHub、Linear 或 Slack 发起任务。",
+    "primary": {
+      "href": "https://chatgpt.com/codex",
+      "label": "打开 Codex 云端"
+    },
+    "secondary": {
+      "href": "#getting-started",
+      "label": "设置 Codex 云端"
+    },
+    "media": {
+      "type": "image",
+      "src": "/images/learn/cloud/task-composer.png",
+      "alt": "Codex 云端任务输入框、任务列表和归档操作",
+      "width": 993,
+      "height": 496
+    }
+  },
+  "advantages": [
+    {
+      "number": "01",
+      "title": "并行运行工作",
+      "description": "为耗时更长的任务提供独立环境，让它们在你处理其他工作时继续运行。"
+    },
+    {
+      "number": "02",
+      "title": "复现运行环境",
+      "description": "配置每个仓库所需的依赖、工具、变量与设置步骤。"
+    },
+    {
+      "number": "03",
+      "title": "合并前先评审",
+      "description": "检查摘要与 diff、提出后续修改，或在结果就绪时打开 PR。"
+    }
+  ],
+  "quickstart": {
+    "label": "快速开始",
+    "title": "设置 Codex 云端",
+    "description": "连接 GitHub、创建环境，然后启动第一个云端任务。",
+    "steps": [
+      {
+        "title": "打开 Codex 并登录",
+        "description": "前往 Codex，然后使用你的 ChatGPT 账号登录。",
+        "action": {
+          "href": "https://chatgpt.com/codex",
+          "label": "打开 Codex"
+        }
+      },
+      {
+        "title": "连接 GitHub",
+        "description": "根据提示连接 GitHub 账号，然后选择允许 Codex 访问的仓库。"
+      },
+      {
+        "title": "创建环境",
+        "description": "为仓库创建环境，并配置任务所需的依赖、工具、环境变量或 secrets。",
+        "action": {
+          "href": "/docs/environments/cloud-environment",
+          "label": "查看云端环境配置"
+        }
+      },
+      {
+        "title": "启动第一个任务",
+        "description": "返回 Codex，选择环境并描述想要的结果。你可以查看任务日志，也可以让任务在后台继续运行。",
+        "action": {
+          "href": "https://chatgpt.com/codex",
+          "label": "打开 Codex 云端"
+        }
+      },
+      {
+        "title": "评审结果",
+        "description": "检查摘要与 diff。让 Codex 继续修改，或在工作就绪后打开 PR。"
+      }
+    ],
+    "nextSteps": {
+      "title": "后续步骤",
+      "links": [
+        {
+          "href": "/docs/environments/cloud-environment",
+          "label": "自定义云端环境"
+        },
+        {
+          "href": "/docs/cloud/internet-access",
+          "label": "配置智能体网络访问"
+        },
+        {
+          "href": "/docs/third-party/github",
+          "label": "在 GitHub 中使用 Codex"
+        },
+        {
+          "href": "/docs/third-party/linear",
+          "label": "在 Linear 中使用 Codex"
+        },
+        {
+          "href": "/docs/third-party/slack",
+          "label": "在 Slack 中使用 Codex"
+        }
+      ]
+    }
+  },
+  "capabilities": {
+    "title": "看看 Codex 云端能做什么",
+    "description": "为每项任务提供所需环境，然后按你的节奏评审结果。",
+    "features": [
+      {
+        "number": "01",
+        "title": "委派多项任务",
+        "description": "并行启动工作，在每项任务达到可评审状态后再回来处理。",
+        "action": {
+          "href": "/docs/environments/cloud-environment",
+          "label": "了解更多"
+        },
+        "media": {
+          "type": "image",
+          "src": "/images/learn/cloud/delegated-tasks.png",
+          "alt": "Codex 云端中并行运行的多项任务",
+          "width": 615,
+          "height": 346
+        }
+      },
+      {
+        "number": "02",
+        "title": "构建可复现环境",
+        "description": "配置仓库所需的依赖、工具、变量与设置步骤。",
+        "action": {
+          "href": "/docs/environments/cloud-environment",
+          "label": "了解更多"
+        },
+        "media": {
+          "type": "image",
+          "src": "/images/learn/cloud/environments.png",
+          "alt": "Codex 云端环境配置列表",
+          "width": 615,
+          "height": 347
+        }
+      },
+      {
+        "number": "03",
+        "title": "从集成中委派工作",
+        "description": "从 GitHub PR、Linear issue 或 Slack 频道与对话线程中启动云端任务。",
+        "action": {
+          "href": "/docs/developers",
+          "label": "了解更多"
+        },
+        "media": {
+          "type": "image",
+          "src": "/images/learn/cloud/integrations.png",
+          "alt": "GitHub、Linear 与 Slack 启动 Codex 云端任务",
+          "width": 615,
+          "height": 344
+        }
+      }
+    ]
+  },
+  "useWhen": {
+    "title": "这些情况适合使用 Codex 云端…",
+    "items": [
+      {
+        "term": "工作需要在后台运行",
+        "description": "委派一个耗时较长的任务，在结果就绪后再回来。"
+      },
+      {
+        "term": "你想比较多种方案",
+        "description": "并行运行多个任务，同时不占用本地机器。"
+      },
+      {
+        "term": "工作始于 GitHub、Linear 或 Slack",
+        "description": "通过集成完成交接，无需离开 PR、issue、频道或对话线程。"
+      },
+      {
+        "term": "你不在开发机器旁",
+        "description": "通过 Web 或 Codex CLI 启动并评审工作。"
+      }
+    ]
+  },
+  "surfaces": {
+    "title": "其他 ChatGPT 与 Codex 使用界面",
+    "items": [
+      {
+        "href": "/docs/app",
+        "icon": "monitor",
+        "title": "桌面应用",
+        "description": "在桌面端协调项目与长时间运行的任务。"
+      },
+      {
+        "href": "/docs/web",
+        "icon": "globe",
+        "title": "ChatGPT Web",
+        "description": "直接在浏览器中研究、分析并创建内容。"
+      },
+      {
+        "href": "/docs/codex/cli",
+        "icon": "square-terminal",
+        "title": "Codex CLI",
+        "description": "在终端中检查、编辑代码并运行自动化。"
+      },
+      {
+        "href": "/docs/codex/ide",
+        "icon": "code",
+        "title": "IDE 扩展",
+        "description": "在代码编辑器中让 Codex 与代码并行工作。"
+      }
+    ]
+  }
+}} />

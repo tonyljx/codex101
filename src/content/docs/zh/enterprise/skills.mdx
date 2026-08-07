@@ -1,0 +1,59 @@
+---
+title: "Skill 控制"
+navTitle: "技能控制"
+description: "比较 ChatGPT 工作区、本地文件系统和 plugin 的 skill 控制方式"
+locale: "zh"
+translationKey: "enterprise/skills"
+section: "explore"
+order: 1097
+draft: false
+translationStatus: complete
+lastUpdated: 2026-08-06
+pageKind: article
+referenceHub: "administration"
+sourceUrl: "https://www.codex-docs.com/docs/enterprise/skills"
+outline:
+  - id: "distinguish-the-distribution-models"
+    label: "Skill 分发与管理"
+  - id: "控制归属"
+    label: "控制归属"
+  - id: "相关文档"
+    label: "相关文档"
+---
+
+Skills 是由指令和支持资源组成的可复用工作流。ChatGPT 工作区 Skills、ChatGPT 桌面 App、Codex CLI 或 IDE 扩展的受控本地能力所使用的文件系统 skills，以及封装 skills 的插件，分别具有独立的生命周期和访问控制。
+
+完整管理模型请参见[角色与工作区权限](/docs/enterprise/roles-and-workspace-permissions)。
+
+<span id="distinguish-the-distribution-models"></span>
+
+## Skill 分发与管理
+
+<div className="doc-table-wrap">
+
+| 分发模型 | 适用场景 | 管理边界 |
+| --- | --- | --- |
+| ChatGPT 工作区 Skill | 通过受支持的 ChatGPT 工作区功能共享或安装经过批准的工作流 | ChatGPT 工作区 Skill 权限和生命周期控制 |
+| 本地文件系统 skill | 从仓库、用户、管理员或内置系统位置加载已安装的工作流 | 文件系统分发、本地客户端配置和运行时权限 |
+| 插件 | 将一个或多个 skills 与可选连接器、MCP servers、hooks 和展示元数据打包 | 插件可用性与安装，以及每项内置能力各自的控制 |
+
+</div>
+
+ChatGPT 工作区 Skill 分发、本地文件系统 skill 安装和特定入口的插件安装是不同路径。迁移一个 skill 不会转移 ChatGPT 工作区所有权、共享状态、角色分配、插件安装状态或连接器授权。
+
+插件可用于 Web 端 ChatGPT Work、ChatGPT 桌面 App 中的 ChatGPT Work 与 Codex，以及 Codex CLI 插件浏览器；不可用于 Chat、IDE 扩展或移动端。这些受支持入口从 ChatGPT 与 Codex 共用的统一目录中获取公共插件。
+
+## 控制归属
+
+文件系统位置和创作方式请参见[构建 skills](/docs/build-skills)，当前工作区流程请参见 [ChatGPT 中的 Skills](https://help.openai.com/en/articles/20001066-skills-in-chatgpt)，插件打包请参见[构建插件](https://developers.openai.com/plugins/build/plugins)。
+
+ChatGPT 工作区控制不会安装本地文件系统 skills 或插件。文件系统分发不会分配 ChatGPT 工作区所有权或角色。安装插件也不会授予连接器、MCP server 或连接服务的访问权限。请通过每项能力自己的控制面配置它。
+
+## 相关文档
+
+-   [Skills 与插件](/docs/skills-and-plugins)
+-   [插件](/docs/plugins)
+-   [构建 skills](/docs/build-skills)
+-   [构建插件](https://developers.openai.com/plugins/build/plugins)
+-   [管理员发布指南](/docs/enterprise/admin-setup)
+-   [插件控制](/docs/enterprise/apps-and-connectors)

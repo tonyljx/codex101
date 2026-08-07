@@ -1,0 +1,140 @@
+---
+title: "Codex 安全云端设置"
+navTitle: "设置"
+description: "设置 Codex 安全云端，等待首次发现结果，并通过修改威胁模型提升结果质量"
+locale: "zh"
+translationKey: "security/setup"
+section: "explore"
+order: 1077
+draft: false
+translationStatus: complete
+lastUpdated: 2026-08-06
+pageKind: article
+referenceHub: "security-administration"
+sourceUrl: "https://www.codex-docs.com/docs/security/setup"
+outline:
+  - id: "access-and-environment"
+    label: "1. 访问与环境"
+  - id: "new-security-scan"
+    label: "2. 新建安全扫描"
+  - id: "initial-scans-can-take-a-while"
+    label: "3. 首次扫描可能需要一些时间"
+  - id: "review-scans-and-improve-the-threat-model"
+    label: "4. 评审扫描并改进威胁模型"
+  - id: "review-findings-and-patch"
+    label: "5. 评审发现结果并打补丁"
+  - id: "related-docs"
+    label: "相关文档"
+---
+
+本页会带你从最初访问开始，一路走到在 Codex 安全云端评审发现结果并创建修复 PR。
+
+<Callout kind="note">
+
+在此之前，请先确认你已经配置好了 Codex 云端。若尚未配置，先阅读 [Codex 云端](/docs/cloud)。
+
+</Callout>
+
+<span id="access-and-environment"></span>
+
+## 1\. 访问与环境
+
+Codex 安全云端会扫描通过 [Codex 云端](/docs/cloud) 连接的 GitHub 仓库。
+
+-   确认你的工作区已经获得 Codex 安全云端访问权限。
+-   确认你想扫描的仓库已经在 Codex 云端中可用。
+
+前往 [Codex environments](https://chatgpt.com/codex/settings/environments)，检查这个仓库是否已经有环境。如果没有，请先在那里创建后再继续。
+
+[打开环境列表](https://chatgpt.com/codex/settings/environments)
+
+![Codex environments 页面](/images/openai/developers.openai.com/_astro/create_environment.M-EPszPH.webp)
+
+<span id="new-security-scan"></span>
+
+## 2\. 新建安全扫描
+
+环境准备好后，前往 [Create a security scan](https://chatgpt.com/codex/security/scans/new)，并选择你刚连接的仓库。
+
+[创建安全扫描](https://chatgpt.com/codex/security/scans/new)
+
+Codex 安全会先从最新提交开始向后扫描仓库。它会据此构建并刷新扫描上下文，以便在新提交进入时持续更新。
+
+配置仓库时：
+
+1.  选择 GitHub 组织。
+2.  选择仓库。
+3.  选择要扫描的分支。
+4.  选择环境。
+5.  选择 **history window**（历史窗口）。窗口越长，上下文越完整，但首次回填也会更久。
+6.  点击 **Create（创建）**。
+
+![创建安全扫描](/images/openai/developers.openai.com/_astro/create_scan.mEjmf4U_.webp)
+
+<span id="initial-scans-can-take-a-while"></span>
+
+## 3\. 首次扫描可能需要一些时间
+
+创建扫描后，Codex 安全会先针对所选 **history window** 做一次按提交逐个执行的安全扫描。首次回填可能需要数小时，尤其当仓库较大或历史窗口较长时。如果发现结果没有立刻出现，这是正常现象。在提交工单或开始排障之前，请先等待首次扫描完成。
+
+<Callout kind="note">
+
+首次扫描设置是自动且较为彻底的。因此即便第一批发现结果延迟数小时出现，也不必惊慌。
+
+</Callout>
+
+<span id="review-scans-and-improve-the-threat-model"></span>
+
+## 4\. 评审扫描并改进威胁模型
+
+[评审扫描](https://chatgpt.com/codex/security/scans)
+
+![Codex 安全中的威胁模型编辑器](/images/openai/developers.openai.com/_astro/review_threat_model.JTLMQEmx.webp)
+
+首次扫描完成后，打开扫描任务并评审自动生成的威胁模型。初始发现结果出现后，请继续更新威胁模型，使其更贴合你的架构、信任边界和业务上下文。这能帮助 Codex 安全更准确地为团队排序问题优先级。
+
+<Callout kind="note">
+
+如果你希望扫描结果发生变化，可以通过编辑威胁模型来调整作用域、优先级和假设。
+
+</Callout>
+
+初始发现结果出现后，建议持续回看并更新威胁模型，让扫描指导始终贴合当前优先级。保持其最新状态，有助于 Codex 安全提供更好的建议。
+
+关于威胁模型及其如何影响严重性（criticality）与分诊（triage）的更深入说明，请参见 [改进威胁模型](/docs/security/threat-model)。
+
+<span id="review-findings-and-patch"></span>
+
+## 5\. 评审发现结果并打补丁
+
+首次回填完成后，在 **Findings** 视图中评审发现结果。
+
+[打开发现结果](https://chatgpt.com/codex/security/findings)
+
+你可以使用两种视图：
+
+-   **Recommended Findings**：动态更新的前 10 条最关键问题列表
+-   **All Findings**：覆盖整个仓库、可排序且可筛选的发现结果表格
+
+![Recommended Findings 视图](/images/openai/developers.openai.com/_astro/aardvark_recommended_findings.Dj6eIPV0_1JQYfi.webp)
+
+点击某条发现结果，可以打开它的详情页，其中通常包含：
+
+-   对问题的简明描述
+-   关键元数据，例如提交信息和文件路径
+-   关于影响面的上下文推理
+-   相关代码摘录
+-   调用路径或数据流上下文（若可用）
+-   验证步骤与验证输出
+
+你也可以直接在详情页中评审该发现结果并创建 PR。
+
+[评审发现结果并创建 PR](https://chatgpt.com/codex/security/findings)
+
+<span id="related-docs"></span>
+
+## 相关文档
+
+-   [Codex 安全概览](/docs/security)
+-   [Codex Security 云端 FAQ](/docs/security/faq) 解答常见云端问题。
+-   [改进威胁模型](/docs/security/threat-model)

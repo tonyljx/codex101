@@ -1,0 +1,106 @@
+---
+title: "项目与聊天"
+description: "将相关聊天、文件和来源集中到 ChatGPT 项目中"
+locale: "zh"
+translationKey: "projects"
+section: "explore"
+order: 1001
+draft: false
+translationStatus: complete
+lastUpdated: 2026-08-06
+pageKind: article
+referenceHub: "features"
+sourceUrl: "https://www.codex-docs.com/docs/projects"
+outline:
+  - id: "选择项目或直接开始"
+    label: "选择项目或直接开始"
+  - id: "work-in-a-project"
+    label: "在项目中工作"
+  - id: "manage-project-threads"
+    label: "整理项目和聊天"
+  - id: "use-local-projects-for-folders-and-codebases"
+    label: "为文件夹和代码库使用本地项目"
+  - id: "start-without-a-project"
+    label: "不创建项目直接开始聊天"
+  - id: "start-a-standalone-chat"
+    label: "使用 Quick chat 快速提问"
+  - id: "引入其他工具和上下文"
+    label: "引入其他工具和上下文"
+  - id: "后续阅读"
+    label: "后续阅读"
+---
+
+使用项目来组织相关聊天，并向 ChatGPT 提供所需上下文。ChatGPT 桌面 App 中的 **Projects（项目）** 视图同时包含 ChatGPT 项目，以及连接到电脑文件夹的本地项目。
+
+## 选择项目或直接开始
+
+当工作会持续一段时间、产生多个结果，或依赖同一批文件和来源时，适合创建项目。当聊天可以独立完成、不需要共享项目上下文时，可以直接开始聊天而不创建项目。
+
+<span id="work-in-a-project"></span>
+
+## 在项目中工作
+
+<Screenshot src="/images/codex/app/multitask-light.webp" darkSrc="/images/codex/app/multitask-dark.webp" alt="ChatGPT 界面截图：侧边栏显示多个项目，主面板显示多个聊天" maxHeight={400} />
+
+**Projects** 视图把 ChatGPT 项目和本地项目集中在一起。ChatGPT 项目会让相关聊天共享项目文件与上下文；本地项目则允许聊天访问电脑上的一个或多个文件夹，例如一组源文件或代码库。
+
+每个明确结果建议使用独立聊天，让消息和产出保持聚焦，同时由项目统一组织相关工作。
+
+<span id="manage-project-threads"></span>
+
+## 整理项目和聊天
+
+让正在进行的工作保持可见，并把已经完成的内容收起来：
+
+-   **置顶项目**，让它持续显示在侧边栏靠前位置。也可以从 Projects 视图中置顶。
+-   **置顶聊天**，让经常返回的聊天不被更新的聊天挤到后面。
+-   **重命名聊天**，使用能描述结果的短标题，例如 “Q3 launch brief” 或 “Checkout accessibility review”。
+-   **搜索项目**。在 Projects 视图中搜索，或按 <kbd>Cmd</kbd>/<kbd>Ctrl</kbd>+<kbd>G</kbd> 搜索历史聊天。
+-   **归档聊天**。完成工作后归档；也可以从项目菜单选择 **Archive chats（归档聊天）**，批量归档项目中的聊天。
+
+置顶只会改变项目或聊天在侧边栏中的位置，不会增加上下文，也不会改变 ChatGPT 的访问范围。
+
+要恢复已归档聊天，请打开 **Settings > Archived chats（设置 > 已归档聊天）**。
+
+<span id="use-local-projects-for-folders-and-codebases"></span>
+
+## 为文件夹和代码库使用本地项目
+
+当 ChatGPT 需要读取或修改电脑上的文件时，可以添加本地项目。项目不一定要绑定文件夹，但你可以按需附加文件夹。
+
+要添加或更改文件夹，请打开项目菜单并选择 **Edit project（编辑项目）**。选择 **Add folder（添加文件夹）** 可以附加多个文件夹，ChatGPT 能读取和修改每个已附加文件夹中的文件。要更改默认工作目录，请指向某个文件夹并选择 **Make primary（设为主文件夹）**。
+
+新聊天会从主文件夹开始。Codex 还会默认使用该文件夹执行 Git 操作，并自动发现 `AGENTS.md`、skills 和 `config.toml`。辅助文件夹仍可用于搜索、读取和编辑文件，但 Codex 不会从辅助文件夹自动发现这些项目文件。
+
+当相关工作位于不同位置时，可以使用多个文件夹，例如 App 与其文档，或网站与其后端。对于无关工作，或者每个聊天只应访问仓库中的一部分时，请创建独立项目，让工作上下文保持聚焦。远程项目目前只支持一个文件夹。
+
+可以用[本地环境](/docs/environments/local-environment)定义项目的设置操作和常用命令。[评审面板](/docs/code-review?surface=app)可以显示附加到同一项目的多个仓库中的修改。pull request 和[工作树](/docs/environments/git-worktrees)操作都会以主仓库为目标。在工作树中开始聊天时，其他文件夹仍会保持附加状态。
+
+项目和工作树负责组织工作，而[沙箱](/docs/sandboxing)负责限制本地命令可以读取、修改或通过网络访问的内容。
+
+<span id="start-without-a-project"></span>
+
+## 不创建项目直接开始聊天
+
+当工作可以独立完成，不需要共享文件、指令或文件夹访问权限时，选择 **New chat（新建聊天）**。如果多个聊天会依赖同一上下文，请先创建项目。
+
+<span id="start-a-standalone-chat"></span>
+
+## 使用 Quick chat 快速提问
+
+Quick chat 会打开普通 ChatGPT 聊天。ChatGPT 聊天不会出现在 Codex 侧边栏中；该侧边栏只包含 Codex 聊天和项目。
+
+把鼠标指向 **New chat（新建聊天）**，再选择其右侧的 **Quick chat** 图标。也可以在 macOS 上按 <kbd>Cmd+Option+N</kbd>，或在 Windows 上按 <kbd>Ctrl+Alt+N</kbd>。从 **New chat** 还可以打开已有 ChatGPT 聊天，并把它加入 Codex 聊天。
+
+## 引入其他工具和上下文
+
+-   当文件或[图片输入](/docs/image-inputs)只与当前请求有关时，直接附加到聊天。
+-   安装 [plugins](/docs/plugins)，引入其他服务中的上下文和操作。
+-   当组织或开发环境通过 Model Context Protocol 提供工具时，配置 [MCP server](/docs/extend/mcp)。
+-   在可用时使用[记忆](/docs/customization/memories)，将过去工作中的有用上下文带入后续聊天。
+
+## 后续阅读
+
+-   [学习如何编写和迭代提示词](/docs/prompting)
+-   [学习如何使用 ChatGPT](/docs/use-chatgpt)
+-   [继续长时间运行的工作](/docs/long-running-work)

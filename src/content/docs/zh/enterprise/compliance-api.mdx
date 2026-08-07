@@ -1,0 +1,63 @@
+---
+title: "Compliance API 与审计事件"
+navTitle: "合规 API 与审计事件"
+description: "了解 Compliance API 的用途和管理边界"
+locale: "zh"
+translationKey: "enterprise/compliance-api"
+section: "explore"
+order: 1101
+draft: false
+translationStatus: complete
+lastUpdated: 2026-08-06
+pageKind: article
+referenceHub: "administration"
+sourceUrl: "https://www.codex-docs.com/docs/enterprise/compliance-api"
+outline:
+  - id: "何时使用-compliance-api"
+    label: "何时使用 Compliance API"
+  - id: "开始使用"
+    label: "开始使用"
+  - id: "确认管理边界"
+    label: "确认管理边界"
+  - id: "相关文档"
+    label: "相关文档"
+---
+
+Compliance API 适用于需要可审计记录的安全、法律、治理和调查工作流。衡量采用率和趋势时应使用分析数据，而不是合规记录。
+
+需要认证的 [Admin API 参考](https://chatgpt.com/admin/api-reference)是当前访问要求、事件覆盖范围、路由、schema、筛选器、保留规则和请求行为的事实源。
+
+可用合规入口和常见集成模式的概览请参见 [Compliance Platform 指南](https://help.openai.com/en/articles/9261474-compliance-api-for-chatgpt-enterprise-edu-and-chatgpt-for-teachers)。
+
+## 何时使用 Compliance API
+
+Compliance API 适用于以下需求：
+
+-   将受支持的记录导出到审计或调查系统。
+-   应用组织的保留与诉讼保全流程。
+-   将 Codex 活动与其他安全或身份数据关联。
+-   支持经过批准的安全、法律或治理调查。
+
+它不是生产力仪表板。不要用它推断代码质量或个人绩效。采用率报告请使用[工作区分析](/docs/enterprise/workspace-analytics)或 [Analytics API](/docs/enterprise/analytics-api)。
+
+## 开始使用
+
+1.  打开 [Admin API 参考](https://chatgpt.com/admin/api-reference)，确认你的管理员角色能够访问所需合规资源。
+2.  使用仅追加（append-only）的合规日志流进行持续采集。当前支持的资源和检索模式以认证后的参考为准。
+3.  在非生产安全信息和事件管理（SIEM）系统或数据湖中测试摄取。[Compliance Platform 指南](https://help.openai.com/en/articles/9261474-compliance-api-for-chatgpt-enterprise-edu-and-chatgpt-for-teachers)提供当前 API 文档和快速入门 notebook（笔记本）的链接。
+4.  安排持续采集，并对导出记录应用组织的访问、保留和诉讼保全控制。不要假设来源保留窗口可以取代组织自己的保留策略。
+
+例如，安全团队可以把不可变合规事件流式传输到 SIEM 用于调查，也可以将这些事件发送到经过批准的电子取证工作流。当前路由和 schema 应以认证后的参考为准，不要从本指南复制端点契约。
+
+## 确认管理边界
+
+合规覆盖范围取决于 ChatGPT 工作区，以及当前认证后参考所列出的产品。Platform API 组织数据遵循其自身的 API 数据与管理控制。
+
+当前路由、事件覆盖范围、schema、筛选器、保留行为、权限要求和请求机制以认证后的参考为准，本页不重复这份契约。
+
+## 相关文档
+
+-   [工作区分析](/docs/enterprise/workspace-analytics)
+-   [管理员发布指南](/docs/enterprise/admin-setup)
+-   [治理](/docs/enterprise/governance)
+-   [Analytics API](/docs/enterprise/analytics-api)

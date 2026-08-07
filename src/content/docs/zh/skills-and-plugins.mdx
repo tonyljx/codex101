@@ -1,0 +1,68 @@
+---
+title: "Skills 与 Plugins"
+navTitle: "技能与插件"
+description: "为 ChatGPT 添加可复用的工作流、专业知识和已连接工具"
+locale: "zh"
+translationKey: "skills-and-plugins"
+section: "foundations"
+order: 3
+draft: false
+translationStatus: complete
+lastUpdated: 2026-08-06
+---
+
+<p>Skills 和 plugins 可以为 ChatGPT 提供正确的指令、资源与工具，帮助它稳定完成重复工作，也能减少你在每次聊天中重复粘贴提示词、模板、要求或流程的需要。</p>
+
+<ul>
+  <li><strong>skill</strong> 为特定任务或工作流打包指令与配套资源。</li>
+  <li><strong>plugin</strong> 是可安装的组合包，可以包含 skills、连接器，或同时包含二者。连接器由 MCP server 提供支持，也可以包含自定义 ChatGPT UI。</li>
+</ul>
+
+<h2 id="使用-skills-处理重复工作">使用 skills 处理重复工作</h2>
+
+<p>skill 是一套可复用工作流，为 ChatGPT 提供与任务相关的指导。它可以固化你已经在使用的重复流程，让 ChatGPT 每次遇到同类任务时都遵循相同方法。</p>
+
+<p>一个 skill 可以组合以下内容：</p>
+
+<ul>
+  <li>帮助 ChatGPT 判断适用时机的名称与描述。</li>
+  <li>定义处理流程和预期结果的工作流指令。</li>
+  <li>模板、示例、品牌规范、schema 或连接工具等配套资源。</li>
+</ul>
+
+<p>当好结果依赖一套可重复的方法时，skills 最有价值。例如，skill 可以准备每日简报、评审文档、创建演示文稿、应用团队写作规范，或每周从相同的连接工具中收集信息。</p>
+
+<p>使用 skills 可以提高结果一致性，把团队最佳实践直接放入工作流，并用一套标准流程替代未记录的经验知识。</p>
+
+<p>当请求与 skill 的用途匹配时，ChatGPT 可以自行选择该 skill；你也可以从输入框中显式选择。ChatGPT 支持用 <code>@</code> 提及，Codex 则支持用 <code>$</code> 提及 skills。</p>
+
+<h2 id="创建-skills">创建 skills</h2>
+
+<p>可以先把一项已经反复执行的任务整理成 ChatGPT 可用的简单操作手册。适合作为第一个 skill 的任务包括每周更新、活动简报、会议跟进，或其他需要稳定步骤和输出格式的工作。</p>
+
+<p>创建实用 skill 的基本流程如下：</p>
+
+<ol>
+  <li><strong>选择一项聚焦任务。</strong> 记录你通常会提供的文件、链接或笔记，以及完成结果应达到的样子。</li>
+  <li><strong>向 ChatGPT 描述工作流。</strong> 新建聊天，以 “Build me a skill…” 开始，说明目标、执行步骤、预期格式，以及始终需要包含或避免的内容。可以附上模板或优质示例。</li>
+  <li><strong>评审并试用草稿。</strong> 检查指令，用真实请求测试 skill；如果遗漏步骤或偏离格式，就继续调整。</li>
+  <li><strong>安装并复用。</strong> 启用后，ChatGPT 可以在相关请求中使用该 skill，你也可以显式选择它。工作区设置允许时，还可以分享给团队成员。</li>
+</ol>
+
+<LinkCard href={"/docs/build-skills"} title={"创建 skills"} description={"了解如何使用 Codex 创建、测试和分享可复用 skills。"} icon={"tools"} />
+
+<h2 id="使用-plugins-接入工具和共享工作流">使用 plugins 接入工具和共享工作流</h2>
+
+<p>plugins 让可复用能力更容易安装和共享。一个 plugin 可以把 skills 与 GitHub、Google Drive 或 Slack 等服务的连接器组合起来，也可以包含提供额外工具与上下文的 MCP server。</p>
+
+<p>如果你想直接添加已有工作流，而不是自己创建，请浏览 Plugins Directory（插件目录）。安装后，可以直接描述任务，也可以输入 <code>@</code> 来选择具体 plugin 或其中的 skill。</p>
+
+<p><a href="/docs/plugins">了解如何安装和使用 plugins</a>。</p>
+
+<h2 id="在-skill-与-plugin-之间选择">在 skill 与 plugin 之间选择</h2>
+
+<p>需要针对单一任务提供可复用指令时，使用 skill；需要一个可安装的组合包，把指令与连接服务或其他工具放在一起时，使用 plugin。</p>
+
+<p>你也可以用 <a href="/docs/extend/record-and-replay">Record &amp; Replay</a> 演示工作流，并把录制过程转换成可复用 skill。要打包并分发自己的组合包，请参见<a href="/docs/build-plugins">创建 plugins</a>。</p>
+
+<p>如果 plugin 需要连接服务或公开 MCP 工具，请参见<a href="https://developers.openai.com/plugins/build/mcp-server">构建 MCP server</a>。准备好提交公开评审后，请参见<a href="https://developers.openai.com/plugins/deploy/submission">提交 plugins</a>。更多可复用工作流示例见 <a href="https://openai.com/academy/skills/">OpenAI Academy 中的 skills</a>。</p>

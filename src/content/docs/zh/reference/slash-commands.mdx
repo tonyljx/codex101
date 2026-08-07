@@ -1,0 +1,75 @@
+---
+title: "斜杠命令"
+description: "ChatGPT 桌面 App 的斜杠命令参考"
+locale: "zh"
+translationKey: "reference/slash-commands"
+section: "explore"
+order: 1020
+draft: false
+translationStatus: complete
+lastUpdated: 2026-08-06
+pageKind: article
+referenceHub: "features"
+sourceUrl: "https://www.codex-docs.com/docs/reference/slash-commands"
+outline:
+  - id: "使用斜杠命令"
+    label: "使用斜杠命令"
+  - id: "可用的斜杠命令"
+    label: "可用的斜杠命令"
+  - id: "使用-goal-设置或管理目标"
+    label: "使用 /goal 设置或管理目标"
+---
+
+斜杠命令让你无需离开聊天输入框就能执行操作。可用命令会因运行环境和访问权限而异。
+
+## 使用斜杠命令
+
+1.  在聊天输入框中输入 `/`。
+2.  从列表中选择命令，或继续输入以筛选，例如 `/status`。
+
+你也可以在聊天输入框中输入 `$`，显式调用 skill。详见 [Skills 与 Plugins](/docs/skills-and-plugins)。
+
+已启用的 skills 也会出现在斜杠命令列表中。自定义提示词会显示为 `/prompts:<name>` 命令。
+
+## 可用的斜杠命令
+
+<div className="doc-table-wrap">
+
+| 斜杠命令 | 说明 |
+| --- | --- |
+| `/approve` | 启用自动评审时，批准重试一次最近被自动评审拒绝的操作。 |
+| `/cloud` | 在云端执行可用时，把聊天放到云端运行。 |
+| `/cloud-environment` | 选择聊天使用的云端环境。 |
+| `/compact` | 压缩当前聊天的上下文。 |
+| `/fast` | 在可用时开启或关闭目录提供的 Fast service tier。 |
+| `/feedback` | 打开反馈对话框，可选择随反馈附加日志。 |
+| `/fork` | 把本地聊天复制成新的本地聊天或工作树。 |
+| `/goal` | 为 ChatGPT 设置持续推进的目标；建议先用 `/plan` 完善目标。 |
+| `/ide-context` | 开启或关闭共享 IDE 上下文。 |
+| `/init` | 为当前项目生成 `AGENTS.md` 骨架。 |
+| `/local` | 在选定的本地项目中运行聊天。 |
+| `/mcp` | 打开 MCP 状态，查看已连接的 MCP servers。 |
+| `/memories` | 在 Memories 可用时，配置聊天能否使用或生成记忆。 |
+| `/model` | 选择当前聊天使用的模型。 |
+| `/pet` | 唤醒或收起桌面 Pet。 |
+| `/personality` | 当前模型支持 personality 时，选择 Codex 的响应风格。 |
+| `/plan` | 切换用于多步骤规划的计划模式。 |
+| `/project` | 为新聊天选择项目。 |
+| `/reasoning` | 选择当前聊天的推理强度。 |
+| `/review` | 启动代码评审模式，检查未提交改动或与基础分支比较。 |
+| `/side` | 开启临时侧边聊天，不打断主聊天。 |
+| `/status` | 显示聊天 ID、上下文用量和速率限制。 |
+| `/task` | 启动一个不关联项目的聊天。 |
+| `/worktree` | 在新的 Git 工作树中运行聊天。 |
+
+</div>
+
+## 使用 `/goal` 设置或管理目标
+
+<Screenshot src="/images/codex/app/goal-dialog-light.webp" darkSrc="/images/codex/app/goal-dialog-dark.webp" alt="ChatGPT 界面截图：ChatGPT desktop app goal progress controls above the composer" />
+
+在 App 输入框中使用 `/goal` 启动 Goal mode（目标模式）。目标是 ChatGPT 持续推进的任务目标，直到任务完成、暂停或需要更多输入。若要先与 ChatGPT 一起明确目标，可先使用 `/plan`，再用 `/goal` 设置完善后的目标。
+
+目标生效后，App 会在输入框上方显示进度。你可以使用进度行中的按钮暂停或恢复目标、编辑目标文字或清除目标，无需再输入斜杠命令。目标运行期间仍可以通过后续消息继续引导 ChatGPT。
+
+有关有效目标的写法，请参阅[目标模式](/docs/prompting#goal-mode)。

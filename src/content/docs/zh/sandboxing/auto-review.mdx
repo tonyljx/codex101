@@ -1,0 +1,132 @@
+---
+title: "自动评审（Auto-review）"
+navTitle: "自动评审"
+description: "了解自动评审如何在沙箱边界上替代人工审批，并让独立评审智能体评审符合条件的升级请求。"
+locale: "zh"
+translationKey: "sandboxing/auto-review"
+section: "explore"
+order: 1062
+draft: false
+translationStatus: complete
+lastUpdated: 2026-08-06
+pageKind: article
+referenceHub: "security-administration"
+sourceUrl: "https://www.codex-docs.com/docs/sandboxing/auto-review"
+outline:
+  - id: "自动评审如何工作"
+    label: "自动评审如何工作"
+  - id: "何时触发"
+    label: "何时触发"
+  - id: "自动评审会阻止什么"
+    label: "自动评审会阻止什么"
+  - id: "评审智能体会看到什么"
+    label: "评审智能体会看到什么"
+  - id: "拒绝与失败行为"
+    label: "拒绝与失败行为"
+  - id: "配置"
+    label: "配置"
+  - id: "在不削弱安全性的前提下降低评审量"
+    label: "在不削弱安全性的前提下降低评审量"
+  - id: "限制"
+    label: "限制"
+---
+
+自动评审会在沙箱边界上用独立的评审智能体替代人工审批。主 Codex 智能体仍然运行在同一个沙箱内，使用相同的审批策略，以及相同的网络和文件系统限制。变化只在于：由谁来评审符合条件的升级请求。
+
+<Callout kind="note">
+
+自动评审只会在审批保持交互式时生效。实际使用中，这通常意味着 `approval_policy = "on-request"`，或者某个细粒度审批策略仍会显示相关提示类别。若设置为 `approval_policy = "never"`，就没有需要评审的审批提示。
+
+</Callout>
+
+## 自动评审如何工作
+
+从高层看，流程如下：
+
+1.  主智能体在 `read-only` 或 `workspace-write` 内工作。
+2.  当它需要越过沙箱边界时，会请求审批。
+3.  如果设置了 `approvals_reviewer = "auto_review"`，Codex 会把该审批请求路由给独立的评审智能体，而不是停下来等待人工确认。
+4.  评审智能体决定该动作是否应该执行，并返回理由。
+5.  如果动作获批，执行会继续；如果被拒绝，主智能体会被要求寻找实质上更安全的路径，或者停止并询问用户。
+
+自动评审只是更换了评审者，不是授予新的权限。它不会扩大 `writable_roots`、启用网络访问，也不会弱化受保护路径。它只改变 Codex 如何处理那些原本就需要审批的动作。
+
+## 何时触发
+
+自动评审会评审那些本来会暂停等待人工确认的审批请求，包括：
+
+-   请求提升沙箱权限的命令行（shell）或执行（exec）工具调用。
+-   被当前沙箱或策略阻止的网络请求。
+-   允许可写根目录之外的文件编辑。
+-   根据工具注解或配置的审批模式，需要审批的 MCP 或应用工具调用。
+-   Computer Use（计算机操作）访问新网站或新域名。
+
+自动评审不会为沙箱内已允许的常规动作运行。如果某条命令可以在当前 `sandbox_mode` 下执行，或者某个工具调用仍停留在允许策略内，主智能体会直接继续执行，不会经过评审。
+
+Computer Use（计算机操作）是一个单独场景。Computer Use 的应用审批仍会直接呈现给用户，因此自动评审不会替代这些应用级提示。
+
+## 自动评审会阻止什么
+
+从高层看，自动评审旨在阻止这类动作：
+
+-   向不可信目的地发送私有数据、密钥或凭据；
+-   探测凭据、令牌、Cookie 或会话材料；
+-   大范围或持续性削弱安全边界；
+-   存在重大不可逆损害风险的破坏性动作。
+
+具体策略位于开源 Codex 仓库： [policy\_template.md](https://github.com/openai/codex/blob/main/codex-rs/core/src/guardian/policy_template.md) 和 [policy.md](https://github.com/openai/codex/blob/main/codex-rs/core/src/guardian/policy.md)。企业可以通过 `guardian_policy_config` 自定义策略，个人用户也可以用本地 [`[auto_review].policy`](/docs/config-file/config-advanced#approval-policies-and-sandbox-modes) 自定义。
+
+## 评审智能体会看到什么
+
+评审智能体本身也是一个 Codex 智能体，但任务范围比主智能体更窄：判断某个具体的越界动作是否应该执行。
+
+它会看到压缩后的对话记录和精确的审批请求。通常包括用户消息、已展示的助手进度更新、相关工具调用与工具输出，以及当前被提议审批的动作。必要时，它也可以进行只读检查来补足缺失上下文，但这种情况很少发生。
+
+隐藏的助手推理过程不会包含在内。自动评审看到的是保留下来的聊天 item 和工具证据，而不是私有思维链。
+
+## 拒绝与失败行为
+
+显式拒绝不会被当作普通沙箱错误处理。Codex 会把评审理由返回给主智能体，并附加更强的指令：
+
+-   不要通过变通方法、间接执行或绕过策略来追求同一个结果。
+-   只有在存在实质上更安全的替代路径时才继续。
+-   否则停止并询问用户。
+
+Codex 还会按轮次应用拒绝熔断机制。在当前开源实现中，如果同一轮次内连续出现 `3` 次拒绝，或由最近 `50` 次评审组成的滚动窗口内出现 `10` 次拒绝，自动评审会中断该轮次。
+
+任何非拒绝结果都会重置连续拒绝计数器。当熔断机制触发时，Codex 会发出警告，并以中断方式中止当前轮次，而不是让智能体继续循环尝试更多升级。
+
+超时会和显式拒绝分开呈现，主智能体也会被告知：单独的超时并不能证明该动作不安全。
+
+对于被拒绝的动作，也存在显式覆盖路径。在当前开源 TUI 中，运行 `/approve` 可以打开 **Auto-review Denials（自动评审拒绝项）** 选择器，然后从最近被拒绝的动作中选择一个，为一次重试授予批准。Codex 每个任务最多记录 10 个最近拒绝项。这个批准范围很窄：只适用于被拒绝的那个精确动作，不适用于未来的类似动作；只记录为同一上下文中的一次重试；并且重试仍会经过自动评审。底层实现上，Codex 会为该精确动作注入开发者作用域的审批标记。评审智能体随后会把这个显式用户覆盖作为上下文，但仍会遵循策略；如果策略认为用户不能覆盖这类拒绝，它仍然可以再次拒绝。
+
+## 配置
+
+设置细节请参见[托管配置](/docs/enterprise/managed-configuration#configure-automatic-review-policy)。
+
+默认评审策略位于开源 Codex 仓库：[core/src/guardian/policy.md](https://github.com/openai/codex/blob/main/codex-rs/core/src/guardian/policy.md)。企业可以在托管要求中使用 `guardian_policy_config` 替换其中与租户相关的策略部分。个人用户也可以在 `config.toml` 中设置本地 [`[auto_review].policy`](/docs/config-file/config-advanced#approval-policies-and-sandbox-modes)，但托管要求优先级更高：
+
+<CodeBlock code={"[auto_review]\npolicy = \"\"\"\nYOUR POLICY GOES HERE\n\"\"\""} language="toml" />
+
+如果要自定义策略，先完整复制默认策略文本，再根据你的具体风险画像迭代。
+
+## 在不削弱安全性的前提下降低评审量
+
+当沙箱本身已经覆盖常见安全工作流时，自动评审的效果最好。如果太多日常动作都需要评审，应优先修正边界，而不是让评审智能体永远批准噪声型升级。
+
+实践中，最有效的调整包括：
+
+-   为临时目录或你有意使用的相邻仓库添加范围很窄的 [`writable_roots`](/docs/config-file/config-advanced#approval-policies-and-sandbox-modes)。
+-   添加范围很窄的[前缀规则](/docs/agent-configuration/rules)。优先使用精确命令前缀，例如 `["cargo", "test"]` 或 `["pnpm", "run", "lint"]`，而不是 `["python"]` 或 `["curl"]` 这类宽泛模式。宽泛规则常常会抹掉自动评审本来要守住的边界。
+
+自动评审会话记录默认保留在 `~/.codex/sessions` 下，因此你可以先让 Codex 分析那里的历史流量，再调整策略或权限。
+
+## 限制
+
+自动评审会改善长时间智能体式工作的默认运行点，但它不是确定性的安全保证。
+
+-   它只会评估那些请求越过边界的动作。
+-   它仍可能出错，尤其是在对抗性或非常规上下文中。
+-   它应该补充而不是替代良好的沙箱设计、监控和组织级策略。
+
+关于研究动机和已发布的评测结果，请参见 [Alignment Research 关于 Auto-review 的文章](https://alignment.openai.com/auto-review/)。

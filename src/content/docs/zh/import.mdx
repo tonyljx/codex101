@@ -1,0 +1,94 @@
+---
+title: "从其他智能体导入"
+description: "将受支持的设置和最近工作从其他智能体导入 ChatGPT。"
+locale: "zh"
+translationKey: "import"
+section: "start"
+order: 4
+draft: false
+translationStatus: complete
+lastUpdated: 2026-08-06
+---
+
+使用导入流程，可以把另一个智能体中的指令、设置、skills、plugins、项目和最近工作带入 ChatGPT 桌面 App 或 Codex CLI。Codex CLI 和桌面 App 都支持从 **Claude Code** 导入。
+
+桌面 App 会直接导入受支持的内容项，并让你为需要授权的 plugin 或连接完成后续设置。
+
+导入不会更改或删除你现有的智能体设置。
+
+![ChatGPT 导入页面，用于选择要从哪些其他 AI App 导入](/images/codex/import/import-source.png)
+
+## 开始导入
+
+### 在桌面 App 中导入
+
+<WorkflowSteps items={[
+  "在 ChatGPT 桌面应用中打开 Settings > Import（设置 > 导入）。如果设置中还没有独立的 Import 页面，请打开 General（通用），找到 Import other agent setup（导入其他智能体设置）。",
+  "选择 Import。",
+  "选择要从哪些智能体导入，然后选择 Continue。",
+  "在 Select items to import（选择要导入的内容） 页面选择要带入的内容，然后选择 Continue。",
+  "导入完成后，打开一个已导入的项目或聊天继续工作。"
+]} />
+
+### 在 Codex CLI 中导入
+
+1. 启动本地 Codex CLI session，然后输入 `/import`。
+2. 选择 **Claude Code**。
+3. 选择要导入的受支持设置、项目文件和最近聊天。
+4. 检查已导入的配置，然后继续在 Codex 中工作。
+
+Codex CLI 最多会导入最近 30 天内的 50 个聊天。任务运行中、远程 session 中，或连接到本地 app-server daemon 时，`/import` 命令不可用。详情见 [CLI slash commands](/docs/developer-commands?surface=cli#cli-import-claude-code-setup-with-import)。
+
+![ChatGPT 导入页面，用于选择要导入的设置、项目和近期聊天](/images/codex/import/import-overview.png)
+
+## 导入如何工作
+
+导入流程会同时检查用户级设置和现有项目。用户级设置来自你机器上的文件；项目级设置来自你选择的仓库和文件夹。
+
+导入时，ChatGPT 会：
+
+1. 检测支持的设置和最近工作。
+2. 导入你选择的内容项。
+3. 保持现有智能体设置不变。
+4. 检查已导入的 plugins 或连接是否仍需配置。
+5. 在需要完成后续设置时显示状态卡片。
+
+## ChatGPT 可以导入什么
+
+<div className="doc-table-wrap">
+
+| 导入内容 | 目标位置 |
+| --- | --- |
+| 指令文件 | [AGENTS.md](/docs/agent-configuration/agents-md) |
+| `settings.json` | [config.toml](/docs/config-file/config-basic) |
+| Skills | [Skills](/docs/build-skills) |
+| Plugins | Plugins |
+| 现有项目文件夹 | 使用同一文件夹的项目 |
+| 来自 Claude Code 的项目记忆 | [记忆](/docs/customization/memories) |
+| 最近 30 天的聊天 | ChatGPT 聊天 |
+| MCP server 配置 | [Codex MCP 配置](/docs/extend/mcp) |
+| Hooks | [Codex hooks](/docs/hooks) |
+| Slash commands | [Skills](/docs/build-skills) |
+| 子智能体 | [Codex 智能体](/docs/agent-configuration/subagents) |
+
+</div>
+
+## 完成导入后的设置
+
+导入结束后，应用会在左下角显示状态卡片。如果某个已导入的 plugin 或连接仍需设置，卡片会明确指出。
+
+当应用提示某项需要处理时，选择 **Finish（完成）**，然后按提示完成设置。
+
+## 导入后要检查什么
+
+在依赖已导入设置之前，尤其要检查：
+
+- 已导入 skills 和智能体中的工具限制或权限。
+- 使用自定义认证、headers、环境变量或 transports 的 MCP server 设置；你可能需要重新登录。
+- 导入后行为可能不同的 hooks。
+- 仍需人工配置的 plugins、marketplaces 或其他设置。
+- 依赖参数、shell 插值或文件路径占位符的提示词模板和命令式提示词。
+
+## 导入之后
+
+导入完成后，打开一个已导入的项目继续工作。如何开始下一个任务，请参阅[使用 ChatGPT](/docs/use-chatgpt)。

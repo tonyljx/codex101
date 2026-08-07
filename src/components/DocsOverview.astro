@@ -1,0 +1,87 @@
+---
+import { ArrowRight, BookOpen, Boxes, Monitor, Rocket, Sparkles } from 'lucide-react';
+import DocsLayout from '../layouts/DocsLayout.astro';
+import DocsOverviewIllustration from './docs/DocsOverviewIllustration.astro';
+import { getDocsNavigation } from '../lib/docs';
+import { copy, localizedPath, type Locale } from '../lib/site';
+
+type Props = {
+  locale: Locale;
+  currentPath: string;
+};
+
+const { locale, currentPath } = Astro.props;
+const c = copy[locale];
+const navigation = await getDocsNavigation(locale);
+const groups = navigation.groups;
+const isZh = locale === 'zh' || locale === 'zh-TW';
+const icons = [Rocket, BookOpen, Sparkles, Monitor, Boxes];
+---
+
+<DocsLayout locale={locale} title={c.docsOverview} description={c.docsDescription} currentPath={currentPath} navigation={navigation} wide>
+  <article class="docs-home">
+    <section class="docs-home__hero">
+      <div class="docs-home__hero-copy">
+        <h1>{c.docsOverview}</h1>
+        <p>{c.docsDescription}</p>
+        <div class="docs-home__actions">
+          <a class="docs-page-button" href={localizedPath(locale, '/docs/quickstart')}>{c.getStarted}</a>
+          <a class="docs-page-text-link" href="https://learn.chatgpt.com/use-cases">{c.useCases}</a>
+        </div>
+      </div>
+      <div class="docs-home__hero-media">
+        <DocsOverviewIllustration locale={locale} />
+      </div>
+    </section>
+
+    <section class="docs-home__updates">
+      <header class="docs-home__section-header">
+        <h2>{isZh ? '最新动态' : c.newsTitle}</h2>
+        <a href={localizedPath(locale, '/docs/whats-new')}>{c.viewUpdates}</a>
+      </header>
+      <ol class="docs-home__timeline">
+        <li>
+          <time datetime="2026-07-31">{isZh ? '2026 年 7 月 27–31 日' : 'July 27–31, 2026'}</time>
+          <span class="docs-home__timeline-dot" aria-hidden="true"></span>
+          <a href={localizedPath(locale, '/docs/whats-new')}>
+            <strong>{isZh ? '以更低费率使用 GPT-5.6 Terra 和 Luna' : 'Use GPT-5.6 Terra and Luna at lower rates'}</strong>
+            <span>{isZh ? '2026 年 7 月 27–31 日' : 'July 27–31, 2026'}</span>
+          </a>
+        </li>
+        <li>
+          <time datetime="2026-07-24">{isZh ? '2026 年 7 月 20–24 日' : 'July 20–24, 2026'}</time>
+          <span class="docs-home__timeline-dot" aria-hidden="true"></span>
+          <a href={localizedPath(locale, '/docs/whats-new')}>
+            <strong>{isZh ? '使用 ChatGPT Voice 边说边推进工作' : 'Keep work moving with ChatGPT Voice'}</strong>
+            <span>{isZh ? '2026 年 7 月 20–24 日' : 'July 20–24, 2026'}</span>
+          </a>
+        </li>
+      </ol>
+    </section>
+
+    <section class="docs-home__navigation" id="documentation">
+      <header class="docs-home__section-header"><h2>{c.docsNavigation}</h2></header>
+      <p>{c.docsNavigationDescription}</p>
+      <div class="docs-hub-groups">
+        {groups.map((group, index) => {
+          const Icon = icons[index];
+          return (
+            <details class="docs-hub-group">
+              <summary>
+                <span class="docs-hub-group__icon"><Icon aria-hidden="true" /></span>
+                <h2>{group.title}</h2>
+                <span class="docs-hub-group__description">{group.description}</span>
+                <ArrowRight className="docs-hub-group__arrow" aria-hidden="true" />
+              </summary>
+              <ul>
+                {group.items.map((item) => (
+                  <li><a href={localizedPath(locale, `/docs/${item.slug}`)}><span>{item.title}</span><ArrowRight aria-hidden="true" /></a></li>
+                ))}
+              </ul>
+            </details>
+          );
+        })}
+      </div>
+    </section>
+  </article>
+</DocsLayout>

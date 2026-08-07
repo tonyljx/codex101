@@ -1,0 +1,68 @@
+---
+title: "网络安全"
+description: "说明 OpenAI Codex 在高风险网络安全场景下的能力边界、访问限制与防护策略。"
+locale: "zh"
+translationKey: "cyber-safety"
+section: "explore"
+order: 1086
+draft: false
+translationStatus: complete
+lastUpdated: 2026-08-06
+pageKind: article
+referenceHub: "security-administration"
+sourceUrl: "https://www.codex-docs.com/docs/cyber-safety"
+outline:
+  - id: "为什么要这样做"
+    label: "为什么要这样做"
+  - id: "它是如何工作的"
+    label: "它是如何工作的"
+  - id: "trusted-access-for-cyber"
+    label: "网络安全可信访问（Trusted Access for Cyber）"
+  - id: "false-positives"
+    label: "误报"
+---
+
+[GPT-5.3-Codex](https://openai.com/index/introducing-gpt-5-3-codex/) 是 OpenAI 按照 [Preparedness Framework（准备度框架）](https://cdn.openai.com/pdf/18a02b5d-6b67-4cec-ab64-68cdfbddebcd/preparedness-framework-v2.pdf) 视作“高网络安全能力”的第一个模型，因此需要额外防护。这些防护包括训练模型拒绝明显恶意的请求，例如窃取凭据。
+
+除了安全训练之外，基于分类器的自动监控也会检测可疑网络安全活动信号，并把高风险流量切换到网络安全能力更低的模型 GPT-5.2。OpenAI 预计只有极少一部分流量会受到这些缓解措施影响，并正在持续打磨相应的策略、分类器和产品内通知。
+
+## 为什么要这样做
+
+最近几个月，模型在网络安全任务上的表现出现了明显提升，这既让开发者受益，也让安全专业人员受益。随着模型在漏洞发现等网络安全相关任务上越来越强，OpenAI 正采取一种预防式做法：在支持正当研究的同时，加强保护和执行，尽量减缓滥用。
+
+网络安全能力天然具有双重用途。支持重要防御工作的那些知识和技术，例如渗透测试、漏洞研究、大规模扫描、恶意软件分析和威胁情报，也同样可能被用于现实世界中的伤害。
+
+这些能力和技术需要在那些可以真正提升安全性的场景中变得更可用、更易用。OpenAI 的 [Trusted Access for Cyber](https://openai.com/index/trusted-access-for-cyber/) 试点，正是为了让个人和组织能够在不被打断的情况下，继续把模型用于可能属于高风险的网络安全活动。
+
+## 它是如何工作的
+
+从事网络安全相关工作，或进行其他可能被自动检测系统[误判](#false-positives)的活动的开发者和安全专业人员，可能会被切换到 GPT-5.2 作为后备模型。OpenAI 预计只有极少一部分流量会受到缓解措施影响，并正在积极校准相关策略和分类器。
+
+<Callout kind="primary">
+
+最新版 alpha 版 Codex CLI 已经会在请求被切换模型时显示产品内提示。这种提示会在接下来几天内扩展到所有客户端。
+
+</Callout>
+
+受这些缓解措施影响的账号，可以通过加入下文的[可信访问](#trusted-access-for-cyber)计划，恢复对 GPT-5.3-Codex 的访问。
+
+OpenAI 也意识到，加入可信访问并不适合所有人，因此随着这些缓解措施扩大规模、并继续[加强](https://openai.com/index/strengthening-cyber-resilience/)网络韧性，OpenAI 计划在多数情况下从账号级安全检查迁移到请求级检查。
+
+<span id="trusted-access-for-cyber"></span>
+
+## 网络安全可信访问（Trusted Access for Cyber）
+
+OpenAI 正在试点“可信访问”，以便在继续校准通用可用阶段的策略与分类器期间，让开发者仍能保留高级能力。OpenAI 的目标是，真正需要加入 [Trusted Access for Cyber](https://openai.com/index/trusted-access-for-cyber/) 的用户应当非常少。
+
+如果你要把模型用于潜在高风险的网络安全工作：
+
+-   个人用户可以在 [chatgpt.com/cyber](https://chatgpt.com/cyber) 完成身份验证
+-   企业客户可以通过自己的 OpenAI 代表，为整个团队默认申请 [trusted access](https://openai.com/form/enterprise-trusted-access-for-cyber/)
+
+如果安全研究人员和团队需要访问能力更强、限制更少的模型，以加速正当防御工作，也可以表达对 OpenAI [邀请制项目](https://docs.google.com/forms/d/e/1FAIpQLSea_ptovrS3xZeZ9FoZFkKtEJFWGxNrZb1c52GW4BVjB2KVNA/viewform?usp=header) 的兴趣。获得可信访问资格的用户仍然必须遵守 OpenAI 的 [使用政策](https://openai.com/policies/usage-policies/) 和 [使用条款](https://openai.com/policies/row-terms-of-use/)。
+
+<span id="false-positives"></span>
+
+## 误报
+
+正当活动，或并非网络安全相关的活动，也有可能偶尔被标记。当发生切换时，响应模型会显示在 API 请求日志中，也会在 CLI 中通过产品内提示展示；很快所有客户端入口都会支持这一提示。如果你认为自己遭遇的是错误切换，可以通过 `/feedback` 报告误报。

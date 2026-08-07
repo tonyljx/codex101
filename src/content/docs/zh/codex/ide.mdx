@@ -1,0 +1,209 @@
+---
+title: "结合编辑器中已有的上下文进行构建"
+navTitle: "Codex IDE 扩展"
+description: "让 Codex 与代码并行工作。把打开的文件和选中内容加入提示词、就地评审修改，并在不中断工作流的情况下委派较大任务。"
+locale: "zh"
+translationKey: "codex/ide"
+section: "available"
+order: 4
+draft: false
+translationStatus: complete
+lastUpdated: 2026-08-06
+pageKind: product
+---
+<ProductPage {...{
+  "product": "ide",
+  "hero": {
+    "eyebrow": "Codex IDE 扩展",
+    "titleLines": [
+      "结合编辑器中已有的",
+      "上下文进行构建"
+    ],
+    "lead": "让 Codex 与代码并行工作。把打开的文件和选中内容加入提示词、就地评审修改，并在不中断工作流的情况下委派较大任务。",
+    "primary": {
+      "href": "https://marketplace.visualstudio.com/items?itemName=openai.chatgpt",
+      "label": "安装扩展"
+    },
+    "secondary": {
+      "href": "#getting-started",
+      "label": "扩展快速开始"
+    },
+    "media": {
+      "type": "fragment",
+      "fragment": "codex-ide-hero.html"
+    }
+  },
+  "advantages": [
+    {
+      "number": "01",
+      "title": "使用已经打开的上下文",
+      "description": "Codex 可以使用打开的文件、选中的代码和你在工作区中提及的文件。"
+    },
+    {
+      "number": "02",
+      "title": "在代码旁评审改动",
+      "description": "在编辑器中检查 diff、继续对话，并在应用或发布结果前运行仓库已有的检查。"
+    },
+    {
+      "number": "03",
+      "title": "任务变大时进行委派",
+      "description": "把较大的任务交给 Codex 云端，在本地继续工作，完成后回到 IDE 评审返回的改动。"
+    }
+  ],
+  "quickstart": {
+    "label": "快速开始",
+    "title": "在 IDE 中开始使用",
+    "description": "安装或启用 Codex，打开侧边栏，然后结合编辑器上下文启动第一项任务。",
+    "steps": [
+      {
+        "title": "安装或启用 Codex",
+        "description": "Codex 可用于 Visual Studio Code、Cursor、Windsurf、VS Code Insiders、Xcode 和 JetBrains IDE。",
+        "action": {
+          "href": "https://marketplace.visualstudio.com/items?itemName=openai.chatgpt",
+          "label": "安装 VS Code 扩展"
+        }
+      },
+      {
+        "title": "打开 Codex",
+        "description": "点击活动栏中的 Codex 图标，或从 Command Palette 运行 Codex: Open Codex Sidebar。",
+        "action": {
+          "href": "/docs/developer-commands?surface=ide",
+          "label": "查看 IDE 命令"
+        }
+      },
+      {
+        "title": "开始第一个任务",
+        "description": "打开仓库，选中相关代码或文件，并描述明确目标、路径、约束、预期行为与验证命令。",
+        "action": {
+          "href": "/docs/prompting",
+          "label": "学习如何编写提示词"
+        }
+      }
+    ],
+    "nextSteps": {
+      "title": "后续步骤",
+      "links": [
+        {
+          "href": "/docs/developer-commands?surface=ide",
+          "label": "查看 IDE 开发者命令"
+        },
+        {
+          "href": "/docs/reference/slash-commands?surface=ide",
+          "label": "查看斜杠命令"
+        },
+        {
+          "href": "/docs/models",
+          "label": "选择模型"
+        },
+        {
+          "href": "/docs/environments/cloud-environment",
+          "label": "设置 Codex 云端环境"
+        }
+      ]
+    }
+  },
+  "capabilities": {
+    "title": "看看 Codex 在 IDE 中能做什么",
+    "description": "Codex IDE 扩展功能把编辑器上下文、建议补丁、diff 评审和云端委派放进同一个编码工作流。",
+    "features": [
+      {
+        "number": "01",
+        "title": "使用已经打开的上下文",
+        "description": "选中相关代码、保持文件打开，或用 @ 提及工作区文件；还可以把截图、设计稿和图表加入提示词。",
+        "action": {
+          "href": "/docs/prompting",
+          "label": "了解如何提供上下文"
+        },
+        "media": {
+          "type": "image",
+          "src": "/images/openai/cdn.openai.com/devhub/docs/codex-extension.webp",
+          "alt": "编辑器中的 Codex 扩展侧边栏",
+          "width": 422,
+          "height": 386
+        }
+      },
+      {
+        "number": "02",
+        "title": "在代码旁评审改动",
+        "description": "应用修改前检查建议 diff，再运行项目已有的 lint、类型检查、测试和构建命令。",
+        "action": {
+          "href": "/docs/code-review",
+          "label": "了解代码评审"
+        },
+        "media": {
+          "type": "image",
+          "src": "/images/learn/ide/ide-review.webp",
+          "alt": "编辑器中的 Codex 改动评审界面",
+          "width": 1600,
+          "height": 900
+        }
+      },
+      {
+        "number": "03",
+        "title": "任务变大时进行委派",
+        "description": "选择 Codex 云端环境并在云端运行任务，完成后在 IDE 中预览改动、发送后续指令并应用 diff。",
+        "action": {
+          "href": "/docs/environments/cloud-environment",
+          "label": "设置云端环境"
+        },
+        "media": {
+          "type": "image",
+          "src": "/images/codex/ide/start_cloud_task.png",
+          "alt": "从 Codex IDE 扩展启动云端任务",
+          "width": 1226,
+          "height": 332
+        }
+      }
+    ]
+  },
+  "useWhen": {
+    "title": "这些情况适合使用 Codex IDE 扩展…",
+    "items": [
+      {
+        "term": "正在进行聚焦编辑",
+        "description": "把提示词、选中的代码、建议补丁和验证闭环都放在编辑器中。"
+      },
+      {
+        "term": "正在理解陌生代码",
+        "description": "结合已经打开的文件与符号提问，再沿着引用继续阅读。"
+      },
+      {
+        "term": "想就地评审改动",
+        "description": "把建议 diff 与附近代码比较，并在应用或发布前运行仓库检查。"
+      },
+      {
+        "term": "想委派较大的任务",
+        "description": "把工作交给 Codex 云端，在本地继续推进，再把完成的 diff 带回编辑器评审。"
+      }
+    ]
+  },
+  "surfaces": {
+    "title": "其他 ChatGPT 与 Codex 使用界面",
+    "items": [
+      {
+        "href": "/docs/app",
+        "icon": "monitor",
+        "title": "ChatGPT 桌面应用",
+        "description": "在桌面端协调项目与长时间运行的任务。"
+      },
+      {
+        "href": "/docs/web",
+        "icon": "globe",
+        "title": "ChatGPT Web",
+        "description": "直接在浏览器中研究、分析并创建内容。"
+      },
+      {
+        "href": "/docs/codex/cli",
+        "icon": "square-terminal",
+        "title": "Codex CLI",
+        "description": "在终端中检查、编辑代码并运行自动化。"
+      },
+      {
+        "href": "/docs/cloud",
+        "icon": "cloud",
+        "title": "Codex 云端",
+        "description": "在并行云环境中运行编码任务。"
+      }
+    ]
+  }
+}} />

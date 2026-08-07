@@ -1,0 +1,61 @@
+---
+title: "工作区分析"
+description: "比较 ChatGPT 工作区分析、Codex 分析、报告 API 和审计记录"
+locale: "zh"
+translationKey: "enterprise/workspace-analytics"
+section: "explore"
+order: 1099
+draft: false
+translationStatus: complete
+lastUpdated: 2026-08-06
+pageKind: article
+referenceHub: "administration"
+sourceUrl: "https://www.codex-docs.com/docs/enterprise/workspace-analytics"
+outline:
+  - id: "选择报告入口"
+    label: "选择报告入口"
+  - id: "查看-chatgpt-工作区分析"
+    label: "查看 ChatGPT 工作区分析"
+  - id: "查看-codex-分析"
+    label: "查看 Codex 分析"
+  - id: "解读报告数据"
+    label: "解读报告数据"
+---
+
+使用 ChatGPT workspace analytics 了解整个工作区的采用情况；使用 Codex analytics 获取以 Codex 为重点的报告；使用 Analytics API 获取程序化聚合数据；使用 Compliance API 获取可审计记录。
+
+这些报告入口不会授予产品访问权限，也不会设置运行时策略。管理边界请参见[角色与工作区权限](/docs/enterprise/roles-and-workspace-permissions)。
+
+## 选择报告入口
+
+<div className="doc-table-wrap">
+
+| 入口 | 适用场景 | 契约来源 |
+| --- | --- | --- |
+| ChatGPT workspace analytics | 交互式、覆盖整个工作区的采用率与参与度报告 | [Workspace analytics Help Center 指南](https://help.openai.com/en/articles/10875114) |
+| Codex analytics | 以 Codex 采用率和活动为重点的交互式报告 | 需要认证的 [Codex analytics 仪表板](https://admin.openai.com/analytics/codex) |
+| Analytics API | 程序化、聚合式 Codex 报告 | 需要认证的 [Codex Analytics API 参考](https://chatgpt.com/codex/cloud/settings/apireference) |
+| Compliance API | 审计、安全、法律和调查记录 | 需要认证的 [Admin API 参考](https://chatgpt.com/admin/api-reference) |
+
+</div>
+
+## 查看 ChatGPT 工作区分析
+
+ChatGPT workspace analytics 提供交互式视图，用于了解受支持工作区功能的采用率与参与度。可用性、角色、仪表板分区、数据新鲜度、隐私行为和导出格式都可能变化。当前覆盖范围和操作流程请参见 [ChatGPT Enterprise 和 Edu 的 Workspace analytics](https://help.openai.com/en/articles/10875114)。
+
+下载的报告应视为可识别的组织数据。请应用组织的访问、存储和保留策略，不要假设导出文件与聚合仪表板具有相同的隐私特征。
+
+## 查看 Codex 分析
+
+需要认证的 [Codex analytics 仪表板](https://admin.openai.com/analytics/codex)专注于 Codex 报告。它适合交互式探索，不应被视为稳定的 schema 契约。仪表板类别、字段、筛选器和导出格式可以独立于本页变化。
+
+自动化报告请使用 [Analytics API](/docs/enterprise/analytics-api)，并遵循其认证后参考；可审计记录请使用 [Compliance API](/docs/enterprise/compliance-api)。
+
+## 解读报告数据
+
+请注意以下边界：
+
+-   ChatGPT workspace analytics 与 Codex analytics 覆盖不同的产品作用域。
+-   聚合分析与审计记录服务于不同目的，拥有各自独立的契约。
+-   分析用于描述活动，不会授予访问权限或改变运行时权限。
+-   [ChatGPT 使用限制与支出控制](/docs/enterprise/usage-limits)是另一项取决于计划的工作区边界。

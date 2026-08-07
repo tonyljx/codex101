@@ -1,0 +1,103 @@
+---
+title: "Codex GitHub Action"
+navTitle: "GitHub Action"
+description: "在 GitHub Actions 工作流中运行 Codex，并按你指定的权限执行 codex exec"
+locale: "zh"
+translationKey: "github-action"
+section: "explore"
+order: 1052
+draft: false
+translationStatus: complete
+lastUpdated: 2026-08-06
+pageKind: article
+referenceHub: "developers"
+sourceUrl: "https://www.codex-docs.com/docs/github-action"
+outline:
+  - id: "前提条件"
+    label: "前提条件"
+  - id: "示例工作流"
+    label: "示例工作流"
+  - id: "配置-codex-exec"
+    label: "配置 codex exec"
+  - id: "管理权限"
+    label: "管理权限"
+  - id: "捕获输出"
+    label: "捕获输出"
+  - id: "安全检查清单"
+    label: "安全检查清单"
+  - id: "故障排查"
+    label: "故障排查"
+---
+
+使用 Codex GitHub Action（`openai/codex-action@v1`）可以在 GitHub Actions 工作流中运行 Codex、应用补丁，或从工作流中发布评审结果。这个 action 会安装 Codex CLI，在你提供 API key 时启动 Responses API 代理，并按你指定的权限运行 `codex exec`。
+
+当你需要下面这些能力时，优先使用这个 action：
+
+-   在不自行管理 CLI 的前提下，为 pull request 或 release 自动运行 Codex 反馈
+-   将由 Codex 驱动的质量检查纳入 CI 流水线的准入条件
+-   通过工作流文件运行可重复的 Codex 任务，例如代码评审、发布准备或迁移
+
+有关完整的 CI 示例，可结合[非交互模式](/docs/non-interactive-mode)阅读，也可以直接查看 [openai/codex-action 仓库](https://github.com/openai/codex-action)。
+
+## 前提条件
+
+使用前请准备好：
+
+-   将 OpenAI API key 保存为 GitHub Secret，例如 `OPENAI_API_KEY`，并在工作流中引用它
+-   在 Linux 或 macOS 运行器上运行任务；如果必须在 Windows 上运行，需要显式设置 `safety-strategy: unsafe`
+-   在执行 action 之前先检出代码，让 Codex 能读取仓库内容
+-   预先确定提示词来源。你可以用 `prompt` 传内联文本，也可以用 `prompt-file` 指向仓库中已提交的文件
+
+## 示例工作流
+
+下面的示例会在新的 pull request 打开或更新时触发 Codex 评审，捕获 Codex 的回复，并把结果回贴到 PR：
+
+<CodeBlock code={"name: Codex pull request review\non:\n  pull_request:\n    types: [opened, synchronize, reopened]\n\njobs:\n  codex:\n    runs-on: ubuntu-latest\n    permissions:\n      contents: read\n    outputs:\n      final_message: ${{ steps.run_codex.outputs.final-message }}\n    steps:\n      - uses: actions/checkout@v5\n        with:\n          ref: refs/pull/${{ github.event.pull_request.number }}/merge\n          fetch-depth: 0\n          persist-credentials: false\n\n      - name: Run Codex\n        id: run_codex\n        uses: openai/codex-action@v1\n        with:\n          openai-api-key: ${{ secrets.OPENAI_API_KEY }}\n          prompt-file: .github/codex/prompts/review.md\n          output-file: codex-output.md\n\n  post_feedback:\n    runs-on: ubuntu-latest\n    needs: codex\n    if: needs.codex.outputs.final_message != ''\n    permissions:\n      issues: write\n      pull-requests: write\n    steps:\n      - name: Post Codex feedback\n        uses: actions/github-script@v7\n        with:\n          github-token: ${{ github.token }}\n          script: |\n            await github.rest.issues.createComment({\n              owner: context.repo.owner,\n              repo: context.repo.repo,\n              issue_number: context.payload.pull_request.number,\n              body: process.env.CODEX_FINAL_MESSAGE,\n            });\n        env:\n          CODEX_FINAL_MESSAGE: ${{ needs.codex.outputs.final_message }}"} language="yaml" />
+
+将 `.github/codex/prompts/review.md` 换成你自己的提示词文件即可；如果你更喜欢内联文本，也可以直接使用 `prompt`。这个示例还会把 Codex 的最终消息写入 `codex-output.md`，方便后续检查或上传为构建产物。
+
+## 配置 `codex exec`
+
+这个 action 的很多输入项都直接映射到 `codex exec`：
+
+-   `prompt` 或 `prompt-file`：二选一。可以传内联任务说明，或者引用仓库中的 Markdown / 文本路径；常见做法是把提示词放在 `.github/codex/prompts/`
+-   `codex-args`：附加 CLI 参数，可以传 JSON 数组（例如 `["--ephemeral"]`），也可以传 shell 风格字符串（例如 `--profile ci`），用于配置会话、配置档案或 MCP 设置
+-   `model` 和 `effort`：控制本次运行的 Codex 智能体配置；留空则使用默认值
+-   `sandbox`：把 `workspace-write`、`read-only`、`danger-full-access` 这类沙箱模式和任务所需权限对齐
+-   `output-file`：把最终消息写入磁盘，方便后续上传构建产物或比较差异
+-   `codex-version`：固定某个 CLI 版本；留空则使用最新发布版本
+-   `codex-home`：如果你要在多个步骤间复用配置文件或 MCP 设置，可以指定共享的 Codex 主目录
+
+## 管理权限
+
+在 GitHub 托管运行器上，Codex 默认能接触到的环境很广，所以你应显式收紧权限。常见控制项包括：
+
+-   `safety-strategy`：默认是 `drop-sudo`，会在运行 Codex 前移除 `sudo`。这是对整个作业不可逆的操作，适合用来保护内存中的敏感信息。在 Windows 上必须改为 `unsafe`
+-   `unprivileged-user`：需要与 `safety-strategy: unprivileged-user` 和 `codex-user` 搭配使用，让 Codex 以指定账号运行。要确保该用户对仓库检出目录具有读写权限；必要时可参考 [`unprivileged-user` 示例](https://github.com/openai/codex-action/blob/main/examples/unprivileged-user.yml)中的 ownership 修复方式
+-   `read-only`：阻止 Codex 修改文件或使用网络，但它仍然可能以高权限身份运行，所以不要只靠这一项来保护敏感信息
+-   `sandbox`：限制 Codex 自身的文件系统与网络访问范围，应选择能完成任务的最小权限
+-   `allow-users` 与 `allow-bots`：限制哪些用户或机器人可以触发该工作流。默认只有拥有写权限的用户能运行这个 action；如果需要放行额外的受信任账号，请显式列出，留空则保持默认行为
+
+## 捕获输出
+
+这个 action 会通过 `final-message` 输出 Codex 的最后一条消息。你可以像上面的示例一样把它映射成作业输出，或者在后续步骤里直接使用。
+
+如果你还想收集运行器上的完整输出，可以把 `output-file` 与构建产物上传一起使用；如果你需要结构化数据，则可以通过 `codex-args` 传入 `--output-schema`，强制最终结果满足指定 JSON 结构。
+
+## 安全检查清单
+
+在把 Codex 接入 GitHub Actions 前，至少确认以下几点：
+
+-   限制能够触发工作流的对象。优先使用受信任事件或显式审批，不要让所有人都能对仓库运行 Codex
+-   清洗来自 PR、commit message 或 issue body 的提示词输入，避免提示词注入。尤其要留意 HTML 注释或隐藏文本
+-   用 `drop-sudo` 或 `unprivileged-user` 保护 `OPENAI_API_KEY`；在多租户运行器上不要让 action 停留在 `unsafe` 模式
+-   尽量把 Codex 放在作业的最后一步，避免后续步骤继承意外状态
+-   如果怀疑代理日志或 action 输出暴露了敏感信息，立即轮换密钥
+
+## 故障排查
+
+-   **同时设置了 `prompt` 和 `prompt-file`**：二者只能二选一
+-   **responses-api-proxy 没有写出服务端信息**：确认 API key 存在且有效；只有在提供 `openai-api-key` 时代理才会启动
+-   **预期移除了 `sudo`，但 `sudo` 仍然成功**：确认没有更早的步骤恢复 `sudo`，并确认运行器是 Linux 或 macOS；必要时用全新 job 重跑
+-   **`drop-sudo` 后出现权限错误**：可以在 action 运行前给工作目录补足写权限，例如执行 `chmod -R g+rwX "$GITHUB_WORKSPACE"`，或者改用 `unprivileged-user` 模式
+-   **触发者未被允许，工作流被阻止**：如果你需要放行默认写权限协作者之外的服务账号，请检查 `allow-users` 和 `allow-bots`

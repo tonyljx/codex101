@@ -1,0 +1,72 @@
+---
+title: "改进威胁模型"
+description: "优化 Codex 安全的上下文，让发现结果排序更准、评审更快"
+locale: "zh"
+translationKey: "security/threat-model"
+section: "explore"
+order: 1078
+draft: false
+translationStatus: complete
+lastUpdated: 2026-08-06
+pageKind: article
+referenceHub: "security-administration"
+sourceUrl: "https://www.codex-docs.com/docs/security/threat-model"
+outline:
+  - id: "what-a-threat-model-is"
+    label: "什么是威胁模型"
+  - id: "improving-and-revisiting-the-threat-model"
+    label: "改进并持续回看威胁模型"
+  - id: "related-docs"
+    label: "相关文档"
+---
+
+了解什么是威胁模型，以及为什么编辑它能改善 Codex 安全给出的建议。
+
+<span id="what-a-threat-model-is"></span>
+
+## 什么是威胁模型
+
+威胁模型是一段简短的安全摘要，用来描述你的仓库是如何工作的。在 Codex 安全中，你会以 `project overview` 的形式编辑它，系统会把它作为后续扫描、优先级排序和评审时的上下文。
+
+Codex 安全会先根据代码自动生成第一版。如果你觉得发现结果的关注点不对，第一件应该修改的通常就是威胁模型。
+
+一个有用的威胁模型，应该简洁地说明系统如何工作，以及哪些区域值得重点评审。
+
+通常它会明确指出：
+
+-   入口点和不可信输入
+-   信任边界和认证假设
+-   敏感数据路径或高权限操作
+-   你希望团队优先评审的区域
+
+例如：
+
+> 用于账户变更的公开 API。接受 JSON 请求和文件上传。使用内部认证服务做身份校验，并通过内部服务写入计费变更。评审时重点关注认证检查、上传解析，以及服务间信任边界。
+
+这会让 Codex 安全在后续扫描和发现结果排序时拥有更好的起点。
+
+<span id="improving-and-revisiting-the-threat-model"></span>
+
+## 改进并持续回看威胁模型
+
+如果你想让结果更好，优先先改威胁模型。当发现结果没覆盖你关心的区域，或者结果总是出现在你并不预期的位置时，就应该先从这里入手。威胁模型会直接影响后续扫描的上下文。
+
+<Callout kind="note">
+
+有些用户会把当前威胁模型复制到 Codex 里，在聊天中根据希望重点评审的区域改进它，再把更新后的版本粘贴回 Web 界面。
+
+</Callout>
+
+<span id="where-to-edit"></span>
+
+### 在哪里编辑
+
+如果你要查看或更新威胁模型，请前往 [Codex 安全扫描页](https://chatgpt.com/codex/security/scans)，打开目标仓库，然后点击 **Edit**。
+
+<span id="related-docs"></span>
+
+## 相关文档
+
+-   [Codex 安全云端设置](/docs/security/setup) 介绍仓库设置和发现结果评审。
+-   [Codex 安全](/docs/security) 提供产品概览。
+-   [Codex Security 云端常见问题](/docs/security/faq) 解答常见云端问题。

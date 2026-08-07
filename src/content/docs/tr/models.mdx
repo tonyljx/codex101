@@ -1,0 +1,46 @@
+---
+title: "Modeller"
+description: "Modeller konusunun temel kavramlarını öğrenin ve doğrulanabilir ilk iş akışını tamamlayın."
+locale: "tr"
+translationKey: "models"
+section: "explore"
+order: 2
+draft: false
+translationStatus: needs-review
+lastUpdated: 2026-08-06
+---
+<Callout title="Gerçek bir sonuçla başlayın">
+
+Görevin üretmesini istediğiniz dosyayı, sayfayı veya doğrulanmış sonucu açıkça belirtin.
+
+</Callout>
+
+## Modeller ile başlayın
+
+Önce istediğiniz sonucu açıklayın; ardından gerekli dosyaları, bağlamı ve kısıtları verin. Codex’in gerçek projeyi incelemesini ve her önemli adımdan sonra sonucu doğrulamasını sağlayın.
+
+<Example>
+
+“Bu Astro sitesini incele, görünümü değiştirmeden çoklu dil ekle ve mobilde doğrula.”
+
+</Example>
+
+## Güvenilir bir iş akışı
+
+1. Sonucu ve kabul ölçütlerini açıklayın
+2. İlgili dosyaları ve mevcut kuralları inceleyin
+3. Değişikliği yapıp riske uygun kontrolleri çalıştırın
+4. Sonucu, farkı ve sonraki adımı gözden geçirin
+
+## Bir sorun olduğunda
+
+Hata mesajının tamamını saklayın, çalışma dizinini ve izinleri doğrulayın, ardından sorunu en küçük yeniden üretilebilir adıma indirin. Tahmin yerine gerçek çıktıyı kullanın.
+
+```bash
+npm run check
+npm run build
+```
+
+## Tamamlama kontrolü
+
+<Checklist items={["Sayfa veya komut beklenen sonucu üretir","Yeni konsol hatası veya yatay taşma yoktur","Dil, tema ve mobil gezinme çalışmaya devam eder"]} />

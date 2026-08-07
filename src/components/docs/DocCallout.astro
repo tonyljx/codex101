@@ -1,0 +1,14 @@
+---
+import { Info } from 'lucide-react';
+
+type Props = { title?: string; kind?: 'default' | 'note' | 'warning' | 'danger' | 'primary' };
+const { title, kind = 'default' } = Astro.props;
+---
+
+<aside class:list={['doc-callout', `doc-callout--${kind}`, { 'doc-callout--compact': !title }]}> 
+  <Info aria-hidden="true" />
+  <div>
+    {title && <strong>{title}</strong>}
+    <slot />
+  </div>
+</aside>

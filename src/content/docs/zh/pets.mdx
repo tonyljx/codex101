@@ -1,0 +1,76 @@
+---
+title: "Pets"
+navTitle: "桌面伙伴"
+description: "选择动画伙伴，并在受支持的界面中跟踪聊天活动"
+locale: "zh"
+translationKey: "pets"
+section: "explore"
+order: 1007
+draft: false
+translationStatus: complete
+lastUpdated: 2026-08-06
+pageKind: article
+referenceHub: "features"
+sourceUrl: "https://www.codex-docs.com/docs/pets"
+outline:
+  - id: "使用浮动-pet"
+    label: "使用浮动 Pet"
+  - id: "相关文档"
+    label: "相关文档"
+---
+
+Pet 是可选的动画伙伴，可帮助你跟踪工作。Pet 出现的位置和显示的内容取决于你使用的界面。选择 Pet 只会改变它的外观，不会影响 ChatGPT 完成任务的方式。
+
+## 使用浮动 Pet
+
+在 ChatGPT 桌面 App 中，Pet 可以悬浮在其他 App 窗口上方，帮助你跟踪多个聊天的活动。
+
+### 选择并唤醒 Pet
+
+1.  打开 App 底部的个人资料菜单并选择 **Pets**。你也可以打开 [**Settings（设置）**](/docs)，然后进入 **Pets**。
+2.  选择内置或自定义 Pet。
+3.  输入 `/pet`，或打开命令菜单并选择 **Wake Pet（唤醒 Pet）**。
+
+要隐藏 Pet，请在 **Settings > Pets（设置 > Pets）** 或命令菜单中选择 **Tuck Away Pet（收起 Pet）**，也可以再次输入 `/pet`。重新打开 App 后，你选择的 Pet 及其位置都会保留。
+
+选择自定义 Pet 后，它也会显示在 **Profile（个人资料）** 视图中。
+
+### 了解 Pet 状态
+
+<div className="doc-table-wrap">
+
+| 状态 | 含义 |
+| --- | --- |
+| **Running（运行中）** | 聊天正在处理。 |
+| **Needs input（需要输入）** | 聊天需要你的审批、回答或其他决定。 |
+| **Ready（就绪）** | 聊天已经完成，并有未读活动。 |
+| **Blocked（受阻）** | 聊天失败或遇到系统错误。 |
+
+</div>
+
+当多个聊天都有活动时，Pet 会依次优先显示需要输入、受阻、就绪和运行中的聊天。打开活动托盘可以选择聊天。
+
+选择 Pet 可返回 ChatGPT；选择一项活动可打开对应聊天。活动托盘与[系统通知](/docs/notifications?surface=app)相互独立。
+
+### 跟随 Computer Use
+
+在 macOS 上，[Computer Use](/docs/computer-use) 的画中画窗口可以附着到已唤醒的 Pet。移动 Pet 时，该窗口会随之移动。
+
+### 创建自定义 Pet
+
+1.  打开 **Settings > Pets（设置 > Pets）**，然后选择 **Create your own pet（创建自己的 Pet）**。
+2.  App 会安装内置的 `hatch-pet` skill、重新加载 skills，并打开一个新聊天。
+3.  描述你想要的 Pet，然后发送提示词。
+4.  任务完成后，返回 **Settings > Pets**，选择 **Refresh（刷新）**，再选择新 Pet。
+
+在桌面 App 中创建的自定义 Pet 会保存在你的电脑本地，不会自动同步到 ChatGPT Web。
+
+### 减少动画
+
+Pet 会遵循操作系统的 **Reduce Motion（减少动态效果）** 设置。启用后，Pet 将显示静止帧，不再播放精灵动画。
+
+## 相关文档
+
+-   [通知](/docs/notifications)
+-   [长时间运行的工作](/docs/long-running-work)
+-   [ChatGPT 桌面 App 设置](/docs/reference/settings#pets)

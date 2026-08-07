@@ -1,0 +1,21 @@
+---
+type Props = {
+  code: string;
+  language?: string;
+  copyLabel?: string;
+};
+
+const { code, language = 'text', copyLabel = '复制代码' } = Astro.props;
+const lines = code.split('\n');
+---
+
+<pre class="shiki shiki-plain code-copy-host has-copy-button"><button
+    type="button"
+    class="code-copy-button"
+    data-copy-prompt={code}
+    data-state="idle"
+    aria-label={copyLabel}
+    title={copyLabel}
+  ></button><code class={`language-${language}`}>{lines.map((line) => (
+    <span class="line"><span>{line}</span></span>
+  ))}</code></pre>

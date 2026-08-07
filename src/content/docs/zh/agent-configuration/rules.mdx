@@ -1,0 +1,128 @@
+---
+title: "规则"
+description: "控制 Codex 在沙箱外可以运行哪些命令"
+locale: "zh"
+translationKey: "agent-configuration/rules"
+section: "explore"
+order: 1034
+draft: false
+translationStatus: complete
+lastUpdated: 2026-08-06
+pageKind: article
+referenceHub: "configuration"
+sourceUrl: "https://www.codex-docs.com/docs/agent-configuration/rules"
+outline:
+  - id: "创建-rules-文件"
+    label: "创建 rules 文件"
+  - id: "理解规则字段"
+    label: "理解规则字段"
+  - id: "shell-wrapper-与复合命令"
+    label: "Shell wrapper 与复合命令"
+  - id: "测试规则文件"
+    label: "测试规则文件"
+  - id: "理解规则语言"
+    label: "理解规则语言"
+---
+
+使用 rules 可以控制 Codex 哪些命令允许在 sandbox 之外运行。
+
+<Callout kind="note">
+
+rules 仍属实验性功能，后续可能变化。
+
+</Callout>
+
+## 创建 rules 文件
+
+1.  在当前激活配置层旁边的 `rules/` 目录下创建一个 `.rules` 文件，例如 `~/.codex/rules/default.rules`。
+    
+2.  添加一条规则。下面这个例子会在允许 `gh pr view` 于沙箱外运行前先提示用户确认。
+    
+    <CodeBlock code={"# Prompt before running commands with the prefix `gh pr view` outside the sandbox.\nprefix_rule(\n    # The prefix to match.\n    pattern = [\"gh\", \"pr\", \"view\"],\n\n    # The action to take when Codex requests to run a matching command.\n    decision = \"prompt\",\n\n    # Optional rationale for why this rule exists.\n    justification = \"Viewing PRs is allowed with approval\",\n\n    # `match` and `not_match` are optional \"inline unit tests\" where you can\n    # provide examples of commands that should (or should not) match this rule.\n    match = [\n        \"gh pr view 7888\",\n        \"gh pr view --repo openai/codex\",\n        \"gh pr view 7888 --json title,body,comments\",\n    ],\n    not_match = [\n        # Does not match because the `pattern` must be an exact prefix.\n        \"gh pr --repo openai/codex view 7888\",\n    ],\n)"} language="python" />
+    
+3.  重启 Codex。
+    
+
+Codex 会在启动时扫描每个激活配置层下的 `rules/` 目录，包括 [Team Config](/docs/enterprise/admin-setup#step-4-standardize-local-configuration-with-team-config) 位置和用户层 `~/.codex/rules/`。位于 `<repo>/.codex/rules/` 的项目本地规则只会在项目 `.codex/` 配置层受信任时加载。
+
+当你在 TUI 中把某条命令加入允许列表时，Codex 会把规则写入用户层的 `~/.codex/rules/default.rules`，这样后续运行就可以跳过同类提示。
+
+启用 Smart approvals（智能审批）时，Codex 在升级权限请求期间可能会为你建议一条 `prefix_rule`。接受前，请仔细检查它建议的命令前缀。
+
+管理员也可以通过 [`requirements.toml`](/docs/enterprise/managed-configuration#admin-enforced-requirements-requirementstoml) 强制下发更严格的 `prefix_rule`。
+
+## 理解规则字段
+
+`prefix_rule()` 支持这些字段：
+
+-   `pattern`（必填）：一个非空列表，用来定义要匹配的命令前缀。列表中的每个元素可以是：
+    -   一个字面量字符串，例如 `"pr"`
+    -   一个由多个字面量构成的并集，例如 `["view", "list"]`，表示在这一参数位置匹配多个备选值
+-   `decision`（默认值为 `"allow"`）：当规则命中时要采取的动作。如果多条规则同时命中，Codex 会采用最严格的决策（`forbidden` > `prompt` > `allow`）。
+    -   `allow`：不提示，直接在 sandbox 外运行命令
+    -   `prompt`：每次命中都先请求确认
+    -   `forbidden`：不提示，直接阻止该请求
+-   `justification`（可选）：非空的人类可读说明。Codex 可能会在 approval 提示或拒绝消息中显示它。如果使用 `forbidden`，适合在这里顺带给出一个推荐替代方案，例如 `"Use \`rg\` instead of \`grep\`."\`
+-   `match` 和 `not_match`（默认都是 `[]`）：在加载 rules 时由 Codex 校验的命令示例，用来在规则真正生效前发现配置错误
+
+当 Codex 评估一条待运行命令时，它会把命令的参数数组与 `pattern` 做比较。在内部，Codex 会把命令视为一个参数列表，类似 `execvp(3)` 接收到的形式。
+
+## Shell wrapper 与复合命令
+
+有些工具会把多条 shell 命令包装成一次调用，例如：
+
+<CodeBlock code={"[\"bash\", \"-lc\", \"git add . && rm -rf /\"]"} language="text" />
+
+由于这种调用会把多个动作隐藏在一段字符串里，Codex 会对 `bash -lc`、`bash -c` 以及对应的 `zsh` / `sh` 变体做特殊处理。
+
+### Codex 何时可以安全拆分脚本
+
+如果 shell 脚本只是由下列元素组成的线性命令链：
+
+-   纯字面量单词，不包含变量展开、`VAR=...`、`$FOO`、`*` 等特殊语法
+-   只通过安全运算符连接，例如 `&&`、`||`、`;` 或 `|`
+
+那么 Codex 会使用 tree-sitter 解析它，并在应用 rules 前把它拆成多条独立命令。
+
+上面的脚本会被视为两条命令：
+
+-   `["git", "add", "."]`
+-   `["rm", "-rf", "/"]`
+
+Codex 会分别用你的 rules 评估每条命令，并以最严格的结果为准。
+
+即使你允许 `pattern=["git", "add"]`，Codex 也不会自动放行 `git add . && rm -rf /`，因为其中的 `rm -rf /` 会被单独评估，从而阻止整个调用被自动允许。
+
+这可以防止危险命令混在安全命令后面一起“偷渡”执行。
+
+### Codex 何时不会拆分脚本
+
+如果脚本使用了更复杂的 shell 特性，例如：
+
+-   重定向，例如 `>`、`>>`、`<`
+-   替换表达式，例如 `$(...)` 或反引号
+-   环境变量赋值，例如 `FOO=bar`
+-   通配符模式，例如 `*`、`?`
+-   控制流，例如 `if`、`for`，或带赋值的 `&&`
+
+那么 Codex 就不会尝试解释或拆分它。
+
+在这种情况下，整次调用会被当作：
+
+<CodeBlock code={"[\"bash\", \"-lc\", \"<full script>\"]"} language="text" />
+
+并按**一次单独调用**整体应用你的 rules。
+
+这种处理方式意味着：在可以安全拆分时，Codex 会按单条命令逐项评估；在不能安全拆分时，则采用更保守的整体判断。
+
+## 测试规则文件
+
+使用 `codex execpolicy check` 可以测试 rules 对某条命令会产生什么效果：
+
+<CodeBlock code={"codex execpolicy check --pretty \\\n  --rules ~/.codex/rules/default.rules \\\n  -- gh pr view 7888 --json title,body,comments"} language="bash" />
+
+这个命令会输出 JSON，展示最严格的决策结果以及命中的规则，其中也包括命中规则里的 `justification`。你可以传多个 `--rules` 来组合多份规则文件；加上 `--pretty` 则会得到格式化输出。
+
+## 理解规则语言
+
+`.rules` 文件使用的是 Starlark（参见 [language spec](https://github.com/bazelbuild/starlark/blob/master/spec.md)）。它的语法看起来像 Python，但设计目标是安全执行，因此 rules 引擎可以在不产生副作用的前提下运行它，例如不会触碰文件系统。

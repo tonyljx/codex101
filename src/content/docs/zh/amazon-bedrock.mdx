@@ -1,0 +1,281 @@
+---
+title: "通过 Amazon Bedrock 使用 ChatGPT Work 与 Codex"
+navTitle: "Amazon Bedrock"
+description: "配置本地 ChatGPT Work 与 Codex 界面，使用 Amazon Bedrock 上可用的 OpenAI 模型。"
+locale: "zh"
+translationKey: "amazon-bedrock"
+section: "explore"
+order: 1105
+draft: false
+translationStatus: complete
+lastUpdated: 2026-08-06
+pageKind: article
+referenceHub: "administration"
+sourceUrl: "https://www.codex-docs.com/docs/amazon-bedrock"
+outline:
+  - id: "工作方式"
+    label: "工作方式"
+  - id: "开始之前"
+    label: "开始之前"
+  - id: "配置模型提供方"
+    label: "配置模型提供方"
+  - id: "认证选项"
+    label: "认证选项"
+  - id: "桌面应用与-ide-扩展"
+    label: "桌面应用与 IDE 扩展"
+  - id: "验证配置"
+    label: "验证配置"
+  - id: "支持的模型"
+    label: "支持的模型"
+  - id: "功能可用性"
+    label: "功能可用性"
+  - id: "故障排查"
+    label: "故障排查"
+  - id: "支持边界"
+    label: "支持边界"
+---
+
+配置完成后，本地客户端会通过 AWS 管理的认证与访问控制，把模型请求发送到 Bedrock。
+
+## 工作方式
+
+当你把 Amazon Bedrock 配置为本地 ChatGPT Work 或 Codex 界面的模型提供方时，OpenAI 托管的 Responses API 不在请求路径中。本地客户端会把模型请求发送到 Amazon Bedrock，由 Bedrock 为受支持的 OpenAI 模型提供兼容 OpenAI Responses API 的实现。
+
+<Callout kind="note">
+
+认证采用 AWS 原生方式。用户使用 Bedrock API key 或 AWS IAM 凭据认证；这个提供方不使用 ChatGPT 登录，也不使用 `OPENAI_API_KEY`。
+
+</Callout>
+
+## 开始之前
+
+请确认你已经具备：
+
+-   Amazon Bedrock 中受支持 OpenAI 模型的访问权限。
+-   所选模型可用的 AWS Region。
+-   已为 AWS 账户配置 Amazon Bedrock Mantle 路径的认证。
+
+## 配置模型提供方
+
+在 `~/.codex/config.toml` 中加入 Amazon Bedrock Mantle 路径的 `amazon-bedrock` 模型提供方。ChatGPT 桌面应用、Codex CLI、IDE 扩展和 SDK 读取相同的本地配置层。是否指定模型是可选的；需要时可以显式选择一个受支持模型。
+
+<CodeBlock code={"model_provider = \"amazon-bedrock\""} language="toml" />
+
+<Callout kind="note">
+
+本指南覆盖受支持商业 AWS Region 中的 Amazon Bedrock Mantle 路径。本地 ChatGPT Work 与 Codex 界面不支持 AWS GovCloud Region 中的 Bedrock Mantle 端点。
+
+</Callout>
+
+## 认证选项
+
+本地 ChatGPT Work 与 Codex 界面支持两条 Bedrock 认证路径，并按以下顺序检查：
+
+1.  Bedrock API key。
+2.  AWS SDK 凭据链。
+
+### 选项 1：Bedrock API key
+
+在本地客户端会读取的环境中设置 Bedrock API key。使用 API key 认证时，必须指定 Region。
+
+<CodeBlock code={"export AWS_BEARER_TOKEN_BEDROCK=<your-bedrock-api-key>\nexport AWS_REGION=us-east-2"} language="bash" />
+
+### 选项 2：AWS SDK 凭据
+
+如果你的组织通过 AWS SDK 凭据链管理 Bedrock 访问，请使用这条路径。本地客户端可以使用以下标准 AWS SDK 凭据来源：
+
+#### 共享 AWS 配置文件
+
+配置共享的 AWS `config` 和 `credentials` 文件：
+
+<CodeBlock code={"aws configure"} language="bash" />
+
+#### 环境变量
+
+设置标准 AWS SDK 凭据环境变量：
+
+<CodeBlock code={"export AWS_ACCESS_KEY_ID=<your-access-key-id>\nexport AWS_SECRET_ACCESS_KEY=<your-secret-access-key>\nexport AWS_SESSION_TOKEN=<your-session-token>"} language="bash" />
+
+#### AWS Management Console 凭据
+
+使用 AWS Management Console 凭据登录：
+
+<CodeBlock code={"aws login"} language="bash" />
+
+#### AWS SSO 或具名 profile
+
+使用 AWS SSO 登录并选择具名 profile：
+
+<CodeBlock code={"aws sso login --profile codex-bedrock\nexport AWS_PROFILE=codex-bedrock"} language="bash" />
+
+#### 联合身份
+
+对于企业 SSO 或 OIDC 联合身份，请在本地客户端之外使用 `credential_process` 配置联合身份，让 AWS SDK 解析凭据。浏览器登录、token 交换、缓存和刷新应放在 AWS profile 的 `credential_process` helper 中。
+
+## 桌面应用与 IDE 扩展
+
+桌面 App 和 IDE 扩展可能不会继承 shell 中的环境变量。请把必需值写入 `~/.codex/.env`，然后重启 App 或扩展。
+
+<CodeBlock code={"export AWS_BEARER_TOKEN_BEDROCK=<your-bedrock-api-key>\nexport AWS_REGION=us-east-2"} language="bash" />
+
+## 验证配置
+
+-   在 Codex CLI 中打开 `/status`，确认 Codex 正在使用 `amazon-bedrock` 模型提供方。
+-   在 ChatGPT 桌面应用中选择 Work 或 Codex，重启应用后再开始新任务。
+-   在 IDE 扩展中，重启扩展后再开始新会话。
+-   确认所选模型在配置的 AWS Region 中可用，并且 AWS identity 有权访问该 Bedrock 模型。
+
+## 支持的模型
+
+使用精确模型 ID：
+
+<CodeBlock code={"openai.gpt-5.6-sol\nopenai.gpt-5.6-terra\nopenai.gpt-5.6-luna\nopenai.gpt-5.5\nopenai.gpt-5.4"} language="text" />
+
+模型可用性会因 AWS Region 而异。选择模型前，请查看 [AWS Region 对模型的支持情况](https://docs.aws.amazon.com/bedrock/latest/userguide/models-region-compatibility.html)。
+
+## 功能可用性
+
+此配置支持本地 ChatGPT Work 与 Codex 工作流。Web 端托管的 ChatGPT Work、Codex 云端，以及依赖 OpenAI 托管云服务、托管工具或云端管理发现能力的功能当前不可用。
+
+<Callout kind="note">
+
+Fast Mode 不适用于 Amazon Bedrock。Fast Mode 使用优先级处理，而 Amazon Bedrock 的初始方案仅支持按需推理。
+
+</Callout>
+
+Detailed feature availability（详细功能可用性）
+
+**访问与使用界面**
+
+<div className="doc-table-wrap">
+
+| 能力 | Amazon Bedrock |
+| --- | --- |
+| [Web 端 ChatGPT Work](/docs/get-started-with-work) | 不可用 |
+| [Codex 云端](/docs/cloud) | 不可用 |
+| [ChatGPT 桌面应用中的 ChatGPT Work 或 Codex](/docs/app) | 可用 |
+| [Codex CLI](/docs/codex/cli) | 可用 |
+| [IDE 扩展](/docs/codex/ide) | 可用 |
+| [Codex SDK、`codex exec` 与可脚本化工作流](/docs/codex-sdk) | 可用 |
+
+</div>
+
+**模型与多模态**
+
+<div className="doc-table-wrap">
+
+| 能力 | Amazon Bedrock |
+| --- | --- |
+| 使用受支持 OpenAI 模型的 Bedrock-backed inference | 可用 |
+| [Fast Mode](/docs/agent-configuration/speed) | 不可用 |
+| [图片生成与编辑](/docs/image-generation?surface=app) | 不可用 |
+| [语音听写](/docs/prompting#use-voice-dictation) | 不可用 |
+| [Web 搜索](/docs/web-search?surface=app) | 不可用 |
+
+</div>
+
+**本地功能**
+
+<div className="doc-table-wrap">
+
+| 能力 | Amazon Bedrock |
+| --- | --- |
+| [使用 `/review` 的本地代码评审](/docs/prompting#do-a-local-code-review) | 可用 |
+| [审批请求的自动评审](/docs/sandboxing/auto-review) | 可用 |
+| [沙箱与权限控制](/docs/permissions) | 可用 |
+| [项目与独立定时任务](/docs/automations) | 可用 |
+| [定时任务](/docs/automations) | 可用 |
+| [工作树与内置 Git 工具](/docs/environments/git-worktrees) | 可用 |
+| [本地环境与可重复动作](/docs/environments/local-environment) | 可用 |
+| [Appshots](/docs/appshots) | 可用 |
+
+</div>
+
+**浏览器与远程控制**
+
+<div className="doc-table-wrap">
+
+| 能力 | Amazon Bedrock |
+| --- | --- |
+| [内置浏览器预览与评论](/docs/browser?surface=app) | 可用 |
+| [浏览器中的 Computer Use](/docs/browser?surface=app#app-computer-use-in-the-browser) | 有限支持（\*） |
+| [通过 Chrome 使用 ChatGPT](/docs/chrome-extension) | 有限支持（\*） |
+| [Computer Use](/docs/computer-use) | 有限支持（\*） |
+| [SSH 远程连接](/docs/remote-connections#connect-to-an-ssh-host) | 可用 |
+| [移动端远程控制](/docs/remote-connections) | 不可用 |
+
+</div>
+
+**自定义与扩展**
+
+<div className="doc-table-wrap">
+
+| 能力 | Amazon Bedrock |
+| --- | --- |
+| [通过 `AGENTS.md` 编写自定义指令](/docs/agent-configuration/agents-md) | 可用 |
+| [技能](/docs/build-skills) | 可用 |
+| [插件](/docs/plugins) | 有限支持（†） |
+| [插件共享](/docs/build-plugins#share-a-local-plugin-with-your-workspace) | 不可用 |
+| [连接器](/docs/plugins) | 不可用 |
+| [MCP](/docs/extend/mcp) | 可用 |
+| [子智能体与自定义智能体](/docs/agent-configuration/subagents) | 可用 |
+| [Memories](/docs/customization/memories) | 有限支持（\*） |
+| [Chronicle](/docs/customization/chronicle) | 不可用 |
+
+</div>
+
+**云端与集成**
+
+<div className="doc-table-wrap">
+
+| 能力 | Amazon Bedrock |
+| --- | --- |
+| [Codex 云端聊天](/docs/cloud) | 不可用 |
+| [Sites](/docs/sites) | 不可用 |
+| [通过 `@codex` 委派 GitHub issue 与 PR 任务](/docs/third-party/github#give-codex-other-tasks) | 不可用 |
+| [GitHub 代码评审与自动 PR 评审](/docs/third-party/github) | 不可用 |
+| [Slack 云端集成](/docs/third-party/slack) | 不可用 |
+| [Linear 云端集成](/docs/third-party/linear) | 不可用 |
+
+</div>
+
+**管理、安全与分析**
+
+<div className="doc-table-wrap">
+
+| 能力 | Amazon Bedrock |
+| --- | --- |
+| [SAML SSO、MFA 与工作区用户管理](/docs/enterprise/admin-setup) | 不可用 |
+| [`requirements.toml` 托管配置](/docs/enterprise/managed-configuration) | 可用 |
+| [云端托管配置策略](/docs/enterprise/managed-configuration#cloud-managed-requirements) | 不可用 |
+| [ChatGPT 工作区 RBAC 与自定义角色](/docs/enterprise/roles-and-workspace-permissions) | 不可用 |
+| [SCIM、EKM 与域名验证](/docs/enterprise/admin-setup#enterprise-grade-security-and-privacy) | 不可用 |
+| [企业数据保留与驻留控制](/docs/enterprise/admin-setup#enterprise-grade-security-and-privacy) | 不可用 |
+| [API 或业务数据默认不用于训练](https://openai.com/business-data/) | 可用 |
+| [分析仪表盘](/docs/enterprise/workspace-analytics) | 不可用 |
+| [Analytics API](/docs/enterprise/analytics-api) | 不可用 |
+| [Compliance API 与审计日志](/docs/enterprise/compliance-api) | 不可用 |
+| [连接 GitHub 仓库的 Codex Security](/docs/security) | 不可用 |
+
+</div>
+
+\* 功能当前只在特定区域或特定能力范围内可用。请查看对应功能文档了解地域限制。
+
+† 当能力不需要 ChatGPT 认证时，支持本地插件包。OpenAI 精选插件发现，以及依赖连接器或云端托管共享的功能不可用。
+
+## 故障排查
+
+如果配置失败，请检查以下内容：
+
+-   模型 ID 与受支持模型完全匹配。
+-   你指定的是该模型可用的 AWS Region。
+-   Bedrock API key 或 AWS 凭据有效且未过期。
+-   AWS identity 有权访问所选 Bedrock 模型。
+-   `AWS_BEARER_TOKEN_BEDROCK` 没有被设为已过期或非预期的 key。
+-   对于桌面应用或 IDE 扩展用法，必需的环境变量已经存在于 `~/.codex/.env`。
+
+## 支持边界
+
+OpenAI Support 可以帮助处理 ChatGPT Work 与 Codex 客户端设置、配置、本地 CLI 行为、桌面应用行为、IDE 扩展行为，以及本地产品体验。
+
+对于 AWS 凭据、IAM 权限、Bedrock 模型访问、配额、计费、区域可用性、Bedrock 请求失败、AWS 服务日志或 Bedrock 服务行为，请联系客户的 AWS 管理员或 AWS Support。

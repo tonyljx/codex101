@@ -1,0 +1,61 @@
+---
+title: "开发者设置"
+description: "配置跨 ChatGPT 和 Codex 客户端的开发设置"
+locale: "zh"
+translationKey: "developer-settings"
+section: "explore"
+order: 1059
+draft: false
+translationStatus: complete
+lastUpdated: 2026-08-06
+pageKind: article
+referenceHub: "developers"
+sourceUrl: "https://www.codex-docs.com/docs/developer-settings"
+outline:
+  - id: "项目与终端行为"
+    label: "项目与终端行为"
+  - id: "代码评审"
+    label: "代码评审"
+  - id: "ide-扩展同步"
+    label: "IDE 扩展同步"
+  - id: "智能体配置"
+    label: "智能体配置"
+  - id: "git"
+    label: "Git"
+  - id: "集成与-mcp"
+    label: "集成与 MCP"
+  - id: "浏览器开发者模式"
+    label: "浏览器开发者模式"
+---
+
+通用[设置](/docs/reference/settings)页面介绍 App 偏好，包括个人资料、键盘快捷键、通知、外观、个性化、记忆和已归档聊天。
+
+## 项目与终端行为
+
+选择文件的打开位置、聊天中显示多少命令输出，以及默认在哪里打开终端标签页。
+
+## 代码评审
+
+在 **Settings > Git（设置 > Git）** 中，通过 **Review delivery（评审交付方式）** 选择 **Inline（内联）** 或 **Detached（分离）**。Inline 会尽可能在当前聊天中运行 `/review`；Detached 则会启动独立的评审聊天。
+
+## IDE 扩展同步
+
+当 ChatGPT 桌面 App 和 IDE 扩展在同一项目中打开时，两者会共享当前聊天和编辑器上下文。在 App 输入框中开启 **IDE context（IDE 上下文）**，可让 Codex 使用当前在编辑器中打开的文件；如果不希望 App 提示词包含这些编辑器上下文，请将其关闭。
+
+你可以从 IDE 扩展打开 App 聊天，也可以在 App 中继续 IDE 聊天。两个产品形态通过同一个项目判断要共享哪些聊天和上下文。
+
+## 智能体配置
+
+App 中的 Codex 智能体会继承 IDE 扩展和 CLI 使用的同一份配置。常用设置可以通过 App 内控件调整；高级选项则编辑 `config.toml`。详情参见[智能体审批与安全](/docs/agent-approvals-security)和[基础配置](/docs/config-file/config-basic)。
+
+## Git
+
+使用 Git 设置统一分支命名，并选择 Codex 是否可以执行 force push。你还可以设置 Codex 生成 commit message 和 PR 描述时使用的提示词。
+
+## 集成与 MCP
+
+通过 Model Context Protocol（MCP）连接外部工具。你可以启用推荐的 MCP server，也可以添加自己的 MCP server。如果 MCP server 需要 OAuth，App 会启动认证流程。由于 MCP 配置保存在 `config.toml` 中，这些设置也会应用于 Codex CLI 和 IDE 扩展。详情参见 [Model Context Protocol](/docs/extend/mcp)。
+
+## 浏览器开发者模式
+
+在 **Developer mode（开发者模式）** 中开启 **Enable full CDP access（启用完整 CDP 访问）**，ChatGPT 就可以使用 Chrome DevTools Protocol 进行性能分析和更深入的浏览器调试。如果组织已禁用完整 CDP 访问，则无法在本地重新开启。设置方式、风险、审批和管理员要求参见[开发者模式](/docs/browser?surface=app#app-developer-mode)。

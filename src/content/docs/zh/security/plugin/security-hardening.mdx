@@ -1,0 +1,64 @@
+---
+title: "提出安全强化建议"
+navTitle: "提出安全加固方案"
+description: "开发有证据支持的结构强化选项，而无需修改仓库。"
+locale: "zh"
+translationKey: "security/plugin/security-hardening"
+section: "explore"
+order: 1075
+draft: false
+translationStatus: complete
+lastUpdated: 2026-08-06
+pageKind: article
+referenceHub: "security-administration"
+sourceUrl: "https://www.codex-docs.com/docs/security/plugin/security-hardening"
+outline:
+  - id: "准备证据"
+    label: "准备证据"
+  - id: "运行工作流"
+    label: "运行工作流"
+  - id: "评审投资组合"
+    label: "评审投资组合"
+  - id: "使用扫描的强化指导"
+    label: "使用扫描的强化指导"
+---
+
+使用`$codex-security:propose-security-hardening`到turn的集合 结构或建筑强化选项的安全证据。这 工作流可以分析完整的 Codex 安全扫描或从提供的开始 调查结果、披露报告、事件评审、评估文件以及 源代码。
+
+结果是一个设计组合，而不是一个补丁，并且不能证明它修复了一个问题 脆弱性。 Codex 仅在你选择一个选项并 明确要求它做出改变。
+
+## 准备证据
+
+提供工作流：
+
+-   扫描目录或结果和报告的明确集合。
+-   目标源树和相关修订或快照（如果可用）。
+-   PoC、痕迹、事件证据或支持的评估材料 发现。
+-   性能、内存、兼容性、可靠性、操作的限制， 交货时间，或更改范围。
+
+该工作流使用证据来识别重复破坏的不变量、分散的不变量 控制、特权阻塞点、弱隔离边界和重复出现的问题 补救模式。它还可以得出结论，本地修复更有效 比架构变化更成比例​​。
+
+## 运行工作流
+
+发送如下提示：
+
+<CodeBlock code={"Use $codex-security:propose-security-hardening to analyze [scan directory or finding paths] against [source tree and revision]. Develop evidence-backed structural hardening options with engineering tradeoffs, before-and-after diagrams, a migration plan, and an implementation handoff. Do not modify the repository."} language="text" />
+
+## 评审投资组合
+
+一个有用的投资组合应该：
+
+-   将每个提议的变更与具体的发现、来源和威胁模型联系起来 证据。
+-   描述当前的设计和新设计应具有的安全不变量 保存。
+-   比较不同的选项，包括剩余风险、性能、 可靠性、操作、兼容性和迁移成本。
+-   仅在证据支持且明确的情况下推荐选项 假设和开放性问题。
+-   包括推出、验证、回滚和实施指南。
+-   将观察到的事实、推论和提议的设计属性分开。
+
+在选择选项之前查看证据和权衡。一个架构 图表或设计建议不会取代原始的验证 发现或实施的修复。
+
+## 使用扫描的强化指导
+
+当标准、深度或更改扫描有可报告的结果时，Codex 运行此 详细漏洞报告准备好后的工作流。它写的是 投资组合为 `hardening/hardening.md`，结构化分析为 `hardening/hardening.json`，以及支持提案或图表 `hardening/`。扫描链接来自 `report.md` 的投资组合。
+
+将完整的扫描目录放在一起，以便这些链接仍然可用。评审 通知投资组合的各个报告，请参阅[编写漏洞 报告](/docs/security/plugin/vulnerability-reports)。

@@ -1,0 +1,176 @@
+---
+title: "Computer Use"
+navTitle: "计算机操作"
+description: "让 ChatGPT 在工作时使用桌面 App。"
+locale: "zh"
+translationKey: "computer-use"
+section: "explore"
+order: 1010
+draft: false
+translationStatus: complete
+lastUpdated: 2026-08-06
+pageKind: article
+referenceHub: "features"
+sourceUrl: "https://www.codex-docs.com/docs/computer-use"
+outline:
+  - id: "设置-computer-use"
+    label: "设置 Computer Use"
+  - id: "何时使用-computer-use"
+    label: "何时使用 Computer Use"
+  - id: "开始-computer-use-任务"
+    label: "开始 Computer Use 任务"
+  - id: "权限与审批"
+    label: "权限与审批"
+  - id: "locked-use"
+    label: "Locked use"
+  - id: "安全指南"
+    label: "安全指南"
+---
+
+<Callout kind="note">
+
+在受支持的地区，ChatGPT 桌面 App 的 Computer Use 可用于 macOS 和 Windows 上的 ChatGPT Work 与 Codex。请安装 Computer Use plugin；在 macOS 上，按提示授予 Screen Recording（屏幕录制）和 Accessibility（辅助功能）权限。
+
+</Callout>
+
+Computer Use 允许 ChatGPT 查看并操作 macOS 或 Windows 图形界面。它适合命令行工具或结构化集成无法完成的任务，例如检查桌面 App、使用浏览器、修改 App 设置、处理尚未通过 plugin 提供的数据源，或复现仅在图形界面中出现的 bug。
+
+Computer Use 可能影响项目工作区之外的 App 和系统状态，因此应保持任务范围明确，并在继续前检查权限提示。
+
+## 设置 Computer Use
+
+在 ChatGPT 桌面 App 中选择 ChatGPT 并在切换器中切换到 Work，或选择 Codex。打开 **Plugins > Computer Use**，并在出现提示时选择 **Install plugin（安装 plugin）**。如果 ChatGPT 显示 **Enable（启用）**，请选择它。开启 Computer Use server 和 skill，然后选择 **Try now（立即试用）**。
+
+⌘**Computer Use**_Installed_
+
+Use ChatGPT to see and operate graphical interfaces on your computer.
+
+MCP server
+
+Computer Use skill
+
+Try now
+
+接着打开 **Settings > Computer use（设置 > Computer use）** 检查 App 访问。已连接的浏览器控件会显示 **Manage（管理）**；你批准后续任务直接使用的 App 会出现在 **Always-allowed apps（始终允许的 App）** 区域。
+
+⚙**Computer use**
+
+Manage which apps ChatGPT can see and operate.
+
+**Connected browser controls**Browser[Manage](#)
+
+Always-allowed apps
+
+▣  CalculatorAllowed
+
+在 Windows 上，任务运行期间应让目标 App 保持显示在当前桌面。在 macOS 上，请按提示授予 Screen Recording 和 Accessibility 权限，使 ChatGPT 能够查看并操作目标 App。
+
+macOS 需要授予：
+
+-   **Screen Recording**：让 ChatGPT 能看到目标 App。
+-   **Accessibility**：让 ChatGPT 能够点击、输入和导航。
+
+## 何时使用 Computer Use
+
+当任务依赖图形界面，而且仅通过文件或命令输出难以验证时，请选择 Computer Use。
+
+适合的场景包括：
+
+-   测试 ChatGPT 正在构建的 macOS App、Windows App、iOS 模拟器流程或其他桌面 App。
+-   执行需要使用你的 Web 浏览器的任务。
+-   复现只在图形界面中出现的 bug。
+-   修改必须通过点击 UI 才能完成的 App 设置。
+-   检查尚未通过 plugin 提供的 App 或数据源中的信息。
+-   在 macOS 上于后台运行范围明确的任务，同时继续处理其他工作。
+-   执行跨越多个 App 的工作流。
+
+对于正在本地构建的 Web App，应优先使用[内置浏览器](/docs/browser?surface=app)。
+
+### Windows 前台使用
+
+在 Windows 上，Computer Use 运行于当前桌面。它无法在你继续使用同一 Windows 会话时于后台操作，因此任务运行期间，ChatGPT 会移动指针、输入内容并接管前台。
+
+如果 Windows 任务需要在你离开时继续运行，应保持设备解锁并连接互联网。你可以从手机使用[远程控制](/docs/remote-connections)检查进度或发送后续指令，也可以把 ChatGPT 桌面 App 放在 Windows 虚拟机中，让 Computer Use 接管 VM，而不是主桌面。
+
+## 开始 Computer Use 任务
+
+在提示词中提及 `@Computer` 或 `@AppName`，或直接要求 ChatGPT 使用 Computer Use。明确描述要操作的 App、窗口或流程。
+
+<CodeBlock code={"Open the app with Computer Use, reproduce the onboarding bug, and fix the\nsmallest code path that causes it. After each change, run the same UI flow\nagain."} language="text" />
+
+<CodeBlock code={"Open @Chrome and verify the checkout page still works after the latest changes."} language="text" />
+
+如果目标 App 提供专用 plugin 或 MCP server，应优先通过该结构化集成访问数据并执行可重复操作。只有 ChatGPT 确实需要目视检查或操作 App 时，才选择 Computer Use。
+
+## 权限与审批
+
+Computer Use 的系统权限与 ChatGPT 中的 App 审批相互独立。在 macOS 上，Screen Recording 和 Accessibility 权限允许 ChatGPT 查看并操作 App；App 审批则决定你允许 ChatGPT 使用哪些 App。文件读取、文件修改和 shell 命令仍遵守当前任务的沙箱与审批设置。
+
+ChatGPT 只能在你允许的 App 中查看和执行操作。任务期间，使用电脑上的某个 App 前会请求权限。选择 **Always allow（始终允许）** 后，ChatGPT 以后可以直接使用该 App。可以从 ChatGPT 桌面 App 设置的 **Computer Use** 区域，把 App 从 **Always allow** 列表中移除。
+
+<Screenshot src="/images/codex/app/computer-use-approval-light.webp" darkSrc="/images/codex/app/computer-use-approval-dark.webp" alt="ChatGPT 界面截图：ChatGPT 桌面 App 请求使用 Calculator 执行 Computer Use" maxHeight={420} />
+
+执行敏感或具有破坏性的操作前，ChatGPT 也可能请求权限。
+
+如果 ChatGPT 无法查看或控制 App，请在 macOS 的 **System Settings > Privacy & Security（系统设置 > 隐私与安全性）** 中检查 **Codex Computer Use** 的 **Screen Recording** 和 **Accessibility**。在 Windows 上，请确认目标 App 显示在当前桌面会话中。
+
+配置 Windows App 策略
+
+在 Windows 上，Computer Use 把持久 App 决策保存到 `$CODEX_HOME/config.toml`。通过以下配置列出无需提示即可打开的 App：
+
+<CodeBlock code={"[computer_use.windows]\nalways_allowed_app_ids = [\"mspaint.exe\"]"} language="toml" />
+
+请使用 Windows Computer Use 报告的 App 标识符，例如桌面 App 的可执行文件名，或 package App 的 app user model ID。不在列表中的 App 会触发提示。要撤销已保存的决定，请从 **Settings > Computer Use > Always allow** 移除该 App。
+
+该表保存的是本地 Computer Use 决策，与管理员强制执行的 `requirements.toml` 相互独立。管理员可在后者中通过 `[features].computer_use = false` 禁用 Computer Use。旧 `$CODEX_HOME/computer-use/config.toml` 中的 allow-list 条目会迁移到当前设置；其 `denied` 列表不属于当前策略 schema。
+
+## Locked use
+
+<Callout kind="note">
+
+Locked use 适用于 macOS；在 Windows 上，Computer Use 只在前台工作。
+
+</Callout>
+
+启用 Locked use 后，即使 Mac 已锁定，ChatGPT 仍可使用 Computer Use。它适合 Mac 锁定后，ChatGPT 任务仍需从已连接设备操作桌面 App 的情况。
+
+启用后，ChatGPT 会安装参与 macOS 解锁流程的 Apple [authorization plug-in](https://developer.apple.com/documentation/security/authorization-plug-ins)。
+
+Locked use 的范围有意保持严格：它不是 Mac 的通用远程解锁方式，也不会允许其他 App 或本地进程解锁电脑。
+
+使用方式：
+
+1.  在 App 中打开 **Settings > Computer Use**。
+2.  启用 Locked use。
+3.  Mac 屏幕锁定后，从已连接设备开始一项使用 Computer Use 的任务。
+
+当 ChatGPT 任务在 Mac 锁定后通过 Computer Use 访问 App 时，ChatGPT 会暂时解锁 Mac，同时阻止本地使用并保留锁屏保护。解锁前，ChatGPT 会确认本次尝试对应当前活跃且可信的 Computer Use 会话轮次。超过这个短时窗口后，ChatGPT 会拒绝解锁，并在需要时要求你手动解锁。
+
+Locked use 包含以下保护措施：
+
+-   授权窗口持续时间很短，且只适用于当前解锁尝试。
+-   只有 ChatGPT 在活跃 Computer Use 会话轮次中可以自动解锁。
+-   桌面暂时解锁时，ChatGPT 会覆盖每一块显示器。
+-   如果检测到本地键盘或指针输入，ChatGPT 会重新锁定 Mac，并暂停自动解锁，直到你手动解锁。
+
+## 安全指南
+
+Computer Use 可以查看屏幕内容、截图，并与目标 App 中的窗口、菜单、键盘输入和剪贴板状态交互。任务运行时，应把可见 App 内容、浏览器页面、截图和目标 App 打开的文件都视为 ChatGPT 可能处理的上下文。
+
+保持任务范围明确，并在敏感流程中留在现场：
+
+-   每次只给 ChatGPT 一个明确的目标 App 或流程。
+-   你可以随时停止任务或接管电脑。
+-   除非任务确实需要，否则关闭敏感 App。
+-   在 Windows 上，预期 ChatGPT 会接管前台输入；此时使用辅助设备或 VM，或在自己使用该桌面前停止任务。
+-   除非你在场并能批准每一步，否则避免需要 secrets 的任务。
+-   允许 ChatGPT 使用 App 前，检查 App 权限提示。
+-   仅对你信任 ChatGPT 今后自动使用的 App 选择 **Always allow**。
+-   涉及账号、安全、隐私、网络、支付或凭据设置时，应留在现场。
+-   如果 ChatGPT 开始操作错误窗口，立即取消任务。
+
+如果 ChatGPT 使用你的浏览器，它可以与已经登录的页面交互。请像自己操作一样检查网站动作：网页可能包含恶意或误导内容，而且站点可能把已批准的点击、表单提交和登录后操作视为来自你的账号。如果你希望在 ChatGPT 工作时继续使用浏览器，请让它改用另一个浏览器。
+
+该功能不能自动操作终端 App 或 ChatGPT 本身，因为这可能绕过 ChatGPT 安全策略；它也不能以管理员身份认证，或代你批准电脑上的安全与隐私权限提示。
+
+在适用时，文件修改和 shell 命令仍遵循 ChatGPT 的审批与沙箱设置。通过桌面 App 完成的修改，在保存到磁盘并由项目跟踪前，可能不会出现在评审面板中。你的 ChatGPT 数据控制会应用于所有经 ChatGPT 处理的内容，包括 Computer Use 截图。

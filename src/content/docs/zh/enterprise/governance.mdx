@@ -1,0 +1,82 @@
+---
+title: "治理"
+description: "为每个管理问题选择合适的分析、用量和审计入口"
+locale: "zh"
+translationKey: "enterprise/governance"
+section: "explore"
+order: 1098
+draft: false
+translationStatus: complete
+lastUpdated: 2026-08-06
+pageKind: article
+referenceHub: "administration"
+sourceUrl: "https://www.codex-docs.com/docs/enterprise/governance"
+outline:
+  - id: "打开管理界面"
+    label: "打开管理界面"
+  - id: "analytics-仪表盘"
+    label: "Analytics 仪表盘"
+  - id: "相关-chatgpt-用量控制"
+    label: "相关 ChatGPT 用量控制"
+  - id: "analytics-api"
+    label: "Analytics API"
+  - id: "compliance-api"
+    label: "Compliance API"
+  - id: "相关文档"
+    label: "相关文档"
+---
+
+Codex 活动治理横跨交互式分析、程序化报告、相关 ChatGPT 用量控制和审计记录。请根据要回答的问题选择合适的管理界面；分析数据与合规数据服务于不同目的。
+
+<div className="doc-table-wrap">
+
+| 需求 | 建议从这里开始 |
+| --- | --- |
+| 了解整个 ChatGPT 的采用情况 | [Workspace analytics](/docs/enterprise/workspace-analytics) |
+| 以交互方式查看 Codex 的采用情况和活动 | [Codex analytics](#analytics-dashboard) |
+| 把聚合后的 Codex 报告载入其他系统 | [Analytics API](/docs/enterprise/analytics-api) |
+| 导出用于审计或调查的记录 | [Compliance API](/docs/enterprise/compliance-api) |
+| 查看与套餐相关的 ChatGPT 工作区 credits 控制 | [ChatGPT 用量限制与支出控制](/docs/enterprise/usage-limits) |
+
+</div>
+
+## 打开管理界面
+
+-   打开 [Workspace analytics](https://chatgpt.com/admin/usage)，查看交互式工作区报告。当前角色和视图参见 [Workspace analytics 指南](https://help.openai.com/en/articles/10875114-workspace-analytics-for-chatgpt-enterprise-and-edu)。
+-   需要定时、程序化报告时，打开需要登录的 [Codex Analytics API 参考](https://chatgpt.com/codex/cloud/settings/apireference)。
+-   要集成审计与调查流程，请打开需要登录的 [Admin API 参考](https://chatgpt.com/admin/api-reference)，并阅读 [Compliance Platform 指南](https://help.openai.com/en/articles/9261474-compliance-api-for-chatgpt-enterprise-edu-and-chatgpt-for-teachers)。
+
+例如，可以用 Workspace analytics 快速检查采用情况，通过 Analytics API 把聚合后的 Codex 报告载入商业智能系统，再通过 Compliance API 把可审计记录发送到 SIEM 或电子取证工作流。
+
+## Analytics 仪表盘
+
+ChatGPT 提供覆盖整个工作区的分析，用于查看总体采用情况和参与度；Codex analytics 则聚焦 Codex 活动。两者都是交互式报告界面，并非原始审计日志。
+
+请通过 [Workspace analytics](/docs/enterprise/workspace-analytics)比较两种体验，并找到其当前由产品维护的权威来源；也可以直接打开 [Workspace analytics](https://chatgpt.com/admin/usage)。不要把仪表盘标签或下载报告中的字段当作长期稳定的报告契约，因为它们可能随产品演进而变化。
+
+## 相关 ChatGPT 用量控制
+
+ChatGPT 工作区用量控制与分析功能相互独立，也不负责配置功能授权。根据具体套餐，符合条件的 Codex 活动可能消耗 ChatGPT 工作区 credits；额度用尽后，相关功能可能暂停使用。这些控制不会设置统一的 Codex 用量上限，也不管理 Platform API 计费。
+
+稳定的边界说明和当前 Help Center 来源参见 [ChatGPT 用量限制与支出控制](/docs/enterprise/usage-limits)。
+
+## Analytics API
+
+Analytics API 用于获取程序化、聚合后的 Codex 报告，适合数据仓库、商业智能系统，以及不应依赖交互式仪表盘的内部报告。
+
+需要登录的 API 参考负责定义访问要求、路由、schema、字段、报告时间窗口和分页方式。[Analytics API](/docs/enterprise/analytics-api)页面则说明概念层面的集成边界，并提供权威参考入口。
+
+## Compliance API
+
+Compliance API 面向需要可审计记录的安全、法律和治理工作流；它不是采用情况或生产力仪表盘。
+
+需要登录的 API 参考负责定义事件覆盖范围、schema、权限、过滤条件、保留策略和请求行为。[Compliance API](/docs/enterprise/compliance-api)页面则说明概念层面的集成边界，并提供权威参考入口。
+
+如需安排这些界面的上线顺序并完成验证，请参阅[管理员上线指南](/docs/enterprise/admin-setup)。
+
+## 相关文档
+
+-   [管理员上线指南](/docs/enterprise/admin-setup)
+-   [Workspace analytics](/docs/enterprise/workspace-analytics)
+-   [Analytics API](/docs/enterprise/analytics-api)
+-   [Compliance API](/docs/enterprise/compliance-api)

@@ -1,0 +1,12 @@
+---
+import DocsOverview from '../../../components/DocsOverview.astro';
+import { locales, type Locale } from '../../../lib/site';
+
+export function getStaticPaths() {
+  return locales.filter((locale) => locale !== 'zh').map((lang) => ({ params: { lang } }));
+}
+
+const locale = Astro.params.lang as Locale;
+---
+
+<DocsOverview locale={locale} currentPath={Astro.url.pathname} />

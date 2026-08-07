@@ -1,0 +1,214 @@
+---
+import { ArrowRight, Cloud, Code, Globe, Monitor, SquareTerminal } from 'lucide-react';
+import DocCodeBlock from './DocCodeBlock.astro';
+import DocDownloadMenu from './DocDownloadMenu.astro';
+import DocProductMedia from './DocProductMedia.astro';
+
+type Link = { href: string; label: string };
+type Media =
+  | { type: 'image'; src: string; alt: string; width?: number; height?: number }
+  | { type: 'video'; src: string; title: string }
+  | { type: 'fragment'; fragment: string };
+type DownloadMenu = { label: string; items: Link[]; footer?: Link };
+
+type Props = {
+  product: string;
+  hero: {
+    eyebrow: string;
+    titleLines: string[];
+    lead: string;
+    primary?: Link;
+    download?: DownloadMenu;
+    secondary?: Link;
+    media: Media;
+  };
+  advantages: Array<{ number: string; title: string; description: string }>;
+  quickstart: {
+    label: string;
+    title: string;
+    description: string;
+    steps: Array<{
+      title: string;
+      description: string;
+      action?: Link;
+      download?: boolean;
+      code?: { value: string; language: string };
+    }>;
+    nextSteps: { title: string; links: Link[] };
+  };
+  capabilities: {
+    title: string;
+    description: string;
+    features: Array<{ number: string; title: string; description: string; action?: Link; media: Media }>;
+  };
+  workflow?: {
+    title: string;
+    description: string;
+    items: Array<{ meta: string[]; action: Link; description: string }>;
+  };
+  useWhen: { title: string; items: Array<{ term: string; description: string }> };
+  surfaces: {
+    title: string;
+    items: Array<{ href: string; icon: 'globe' | 'square-terminal' | 'code' | 'monitor' | 'cloud'; title: string; description: string }>;
+  };
+};
+
+const { product, hero, advantages, quickstart, capabilities, workflow, useWhen, surfaces } = Astro.props;
+const surfaceIcons = { globe: Globe, 'square-terminal': SquareTerminal, code: Code, monitor: Monitor, cloud: Cloud };
+---
+
+<article class="docs-product-landing" data-product={product} data-pagefind-body>
+  <section class="docs-product-landing__hero" aria-labelledby={`${product}-product-hero-title`}>
+    <p class="docs-product-landing__eyebrow">{hero.eyebrow}</p>
+    <h1 id={`${product}-product-hero-title`}>
+      {hero.titleLines.map((line) => <span>{line}</span>)}
+    </h1>
+    <p class="docs-product-landing__lead">{hero.lead}</p>
+    <div class="docs-product-landing__actions">
+      {hero.download ? (
+        <DocDownloadMenu menu={hero.download} />
+      ) : hero.primary && (
+        <a class="docs-product-landing__primary-action" href={hero.primary.href}>{hero.primary.label}</a>
+      )}
+      {hero.secondary && (
+        <a class="docs-product-landing__secondary-action" href={hero.secondary.href}>
+          <span>{hero.secondary.label}</span><ArrowRight aria-hidden="true" />
+        </a>
+      )}
+    </div>
+    <figure class="docs-product-landing__hero-media">
+      <DocProductMedia media={hero.media} />
+    </figure>
+  </section>
+
+  <section class="docs-product-landing__advantages" aria-label={`${hero.eyebrow} · 优势`}>
+    {advantages.map((item) => (
+      <article><span>{item.number}</span><h2>{item.title}</h2><p>{item.description}</p></article>
+    ))}
+  </section>
+
+  <section id="getting-started" class="docs-product-landing__quickstart" aria-labelledby={`${product}-quickstart-title`}>
+    <p class="docs-product-landing__section-label">{quickstart.label}</p>
+    <h2 id={`${product}-quickstart-title`}>{quickstart.title}</h2>
+    <p class="docs-product-landing__section-lead">{quickstart.description}</p>
+    <ol class="docs-product-landing__steps">
+      {quickstart.steps.map((step, index) => (
+        <li>
+          <span class="docs-product-landing__step-number" aria-hidden="true">{index + 1}</span>
+          <div>
+            <h3>{step.title}</h3>
+            <p>{step.description}</p>
+            {step.download && hero.download && <DocDownloadMenu menu={hero.download} />}
+            {step.code && <DocCodeBlock code={step.code.value} language={step.code.language} />}
+            {step.action && (
+              <a href={step.action.href}><span>{step.action.label}</span><ArrowRight aria-hidden="true" /></a>
+            )}
+          </div>
+        </li>
+      ))}
+    </ol>
+    <nav class="docs-product-landing__next-steps" aria-label={`${hero.eyebrow} · 后续步骤`}>
+      <h2>{quickstart.nextSteps.title}</h2>
+      <ul>{quickstart.nextSteps.links.map((link) => <li><a href={link.href}>{link.label}</a></li>)}</ul>
+    </nav>
+  </section>
+
+  <section id="capabilities" class="docs-product-landing__capabilities" aria-labelledby={`${product}-capabilities-title`}>
+    <header>
+      <h2 id={`${product}-capabilities-title`}>{capabilities.title}</h2>
+      <p>{capabilities.description}</p>
+    </header>
+    <div class="docs-product-landing__feature-list">
+      {capabilities.features.map((feature) => (
+        <article>
+          <div class="docs-product-landing__feature-copy">
+            <span>{feature.number}</span><h3>{feature.title}</h3><p>{feature.description}</p>
+            {feature.action && (
+              <a href={feature.action.href}><span>{feature.action.label}</span><ArrowRight aria-hidden="true" /></a>
+            )}
+          </div>
+          <figure class="docs-product-landing__feature-media"><DocProductMedia media={feature.media} /></figure>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  {workflow && (
+    <section class="docs-product-landing__workflow">
+      <header><h2>{workflow.title}</h2><p>{workflow.description}</p></header>
+      <div class="docs-product-landing__workflow-grid">
+        {workflow.items.map((item) => (
+          <article>
+            <div class="docs-product-landing__workflow-meta">
+              {item.meta.map((value, index) => index === item.meta.length - 1 ? <code>{value}</code> : <span>{value}</span>)}
+            </div>
+            <h3><a href={item.action.href}><span>{item.action.label}</span><ArrowRight aria-hidden="true" /></a></h3>
+            <p>{item.description}</p>
+          </article>
+        ))}
+      </div>
+    </section>
+  )}
+
+  <section id="use-when" class="docs-product-landing__use-when" aria-labelledby={`${product}-use-when-title`}>
+    <h2 id={`${product}-use-when-title`}>{useWhen.title}</h2>
+    <dl>{useWhen.items.map((item) => <div><dt>{item.term}</dt><dd>{item.description}</dd></div>)}</dl>
+  </section>
+
+  <section id="surfaces" class="docs-product-landing__surfaces" aria-labelledby={`${product}-surfaces-title`}>
+    <h2 id={`${product}-surfaces-title`}>{surfaces.title}</h2>
+    <nav aria-label={surfaces.title}>
+      {surfaces.items.map((item) => {
+        const Icon = surfaceIcons[item.icon] ?? Globe;
+        return (
+          <a href={item.href}>
+            <span class="docs-product-landing__surface-icon" aria-hidden="true"><Icon /></span>
+            <h3>{item.title}</h3><p>{item.description}</p><ArrowRight aria-hidden="true" />
+          </a>
+        );
+      })}
+    </nav>
+  </section>
+</article>
+
+<script>
+  const initializeProductPage = () => {
+    document.querySelectorAll<HTMLElement>('[data-docs-download-menu]').forEach((menu) => {
+      if (menu.dataset.initialized === 'true') return;
+      menu.dataset.initialized = 'true';
+      const toggle = menu.querySelector<HTMLButtonElement>('[data-docs-download-menu-toggle]');
+      const panel = menu.querySelector<HTMLElement>('[data-docs-download-menu-panel]');
+      if (!toggle || !panel) return;
+
+      const close = () => { toggle.setAttribute('aria-expanded', 'false'); panel.hidden = true; };
+      toggle.addEventListener('click', () => {
+        const open = toggle.getAttribute('aria-expanded') !== 'true';
+        document.querySelectorAll<HTMLElement>('[data-docs-download-menu]').forEach((other) => {
+          if (other === menu) return;
+          other.querySelector('[data-docs-download-menu-toggle]')?.setAttribute('aria-expanded', 'false');
+          const otherPanel = other.querySelector<HTMLElement>('[data-docs-download-menu-panel]');
+          if (otherPanel) otherPanel.hidden = true;
+        });
+        toggle.setAttribute('aria-expanded', String(open));
+        panel.hidden = !open;
+      });
+      document.addEventListener('click', (event) => { if (!menu.contains(event.target as Node)) close(); });
+    });
+
+    document.querySelectorAll<HTMLElement>('.deferred-video').forEach((host) => {
+      if (host.dataset.initialized === 'true') return;
+      host.dataset.initialized = 'true';
+      const video = host.querySelector<HTMLVideoElement>('[data-deferred-video]');
+      const button = host.querySelector<HTMLButtonElement>('[data-deferred-video-play]');
+      if (!video || !button) return;
+      button.addEventListener('click', async () => {
+        if (!video.src) { video.src = video.dataset.videoSrc ?? ''; video.load(); }
+        await video.play();
+        host.classList.add('is-playing');
+      });
+    });
+  };
+
+  initializeProductPage();
+  document.addEventListener('astro:page-load', initializeProductPage);
+</script>

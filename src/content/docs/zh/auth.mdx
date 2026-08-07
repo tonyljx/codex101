@@ -1,0 +1,146 @@
+---
+title: "认证"
+navTitle: "认证概览"
+description: "ChatGPT 网页版和 Codex 客户端的登录方式"
+locale: "zh"
+translationKey: "auth"
+section: "explore"
+order: 1089
+draft: false
+translationStatus: complete
+lastUpdated: 2026-08-06
+pageKind: article
+referenceHub: "administration"
+sourceUrl: "https://www.codex-docs.com/docs/auth"
+outline:
+  - id: "openai-认证"
+    label: "OpenAI 认证"
+  - id: "保护-codex-云端账户"
+    label: "保护 Codex 云端账户"
+  - id: "login-caching"
+    label: "登录缓存"
+  - id: "credential-storage"
+    label: "凭据存储"
+  - id: "强制登录方式或工作区"
+    label: "强制登录方式或工作区"
+  - id: "其他模型提供商"
+    label: "其他模型提供商"
+---
+
+## OpenAI 认证
+
+使用 OpenAI 模型时，Codex 支持两种登录方式：
+
+-   使用 ChatGPT 登录，以使用订阅权益。
+-   使用 API key 登录，以按用量计费。
+
+ChatGPT 桌面 App、Codex CLI 和 IDE 扩展在本地工作时都支持这两种方式。Codex 云端则必须使用 ChatGPT 登录。
+
+登录方式还会决定适用哪些管理员控制和数据处理策略：
+
+-   使用 ChatGPT 登录时，Codex 会遵循 ChatGPT 工作区权限、基于角色的访问控制（RBAC），以及 ChatGPT Enterprise 的数据保留和驻留设置。
+-   使用 API key 时，则遵循 API 组织的数据保留和共享设置。
+
+对于受管理工作区，认证只是访问控制的一层。工作区成员身份和预配决定谁能登录；席位和工作区角色则决定用户可以使用哪些产品界面和功能。本地使用 ChatGPT 桌面 App、Codex CLI 或 IDE 扩展时，权限配置档案还会限制智能体能在设备上执行什么操作。规划这些控制时，请参阅[群组与预配](/docs/enterprise/groups-and-provisioning)和[角色与工作区权限](/docs/enterprise/roles-and-workspace-permissions)。
+
+### 使用 ChatGPT 登录
+
+在 ChatGPT 桌面 App、Codex CLI 或 IDE 扩展中使用 ChatGPT 登录时，系统会打开浏览器窗口。完成登录后，浏览器会把凭据返回给 Codex。
+
+#### ChatGPT 桌面 App
+
+在未登录页面选择 **Continue to sign in（继续登录）**，然后完成浏览器中的登录流程。
+
+<span id="sign-in-with-an-api-key"></span>
+
+### 使用 API key 登录
+
+你也可以使用 API key 登录 ChatGPT 桌面 App、Codex CLI 或 IDE 扩展。API key 可从 [OpenAI 控制面板](https://platform.openai.com/api-keys)获取。
+
+<span id="chatgpt-桌面-app-2"></span>
+
+#### ChatGPT 桌面 App
+
+在未登录页面选择 **Sign in another way（使用其他方式登录）**，输入 API key，然后选择 **Continue（继续）**。
+
+使用 API key 产生的费用会按标准 API 费率计入 OpenAI Platform 账户。参阅 [API 定价页面](https://openai.com/api/pricing/)。
+
+API key 认证支持本地 Codex 工作流，但部分依赖 ChatGPT 工作区访问或云服务的功能会受限或不可用。可在[功能可用性](/docs/pricing#feature-availability)中按套餐比较支持情况。
+
+使用 API key 登录时，Codex 使用标准 API 定价，而不是 ChatGPT 套餐内含的额度。
+
+API key 认证适合程序化 Codex CLI 工作流，例如 CI/CD job。不要把 Codex 执行能力暴露在不受信任或公开的环境中。
+
+### 检查认证状态或退出登录
+
+打开个人资料菜单，可以查看当前账户或 API key 状态。选择 **Log out（退出登录）** 会清除当前凭据。
+
+### 使用 Codex 访问令牌进行企业自动化
+
+在 ChatGPT Enterprise 工作区中，管理员可以授予访问令牌权限，让获准成员为可信、非交互式的 Codex 本地工作流创建 Codex access token。当自动化需要 ChatGPT 工作区访问、由 ChatGPT 管理的 Codex 权益或企业工作区控制，并且不适合使用浏览器登录时，可以使用访问令牌。
+
+访问令牌面向可信脚本、调度器和私有 CI 运行器。普通 OpenAI API 调用仍应使用 Platform API key。
+
+设置步骤、权限、轮换和撤销方式请参阅[访问令牌](/docs/enterprise/access-tokens)。
+
+## 保护 Codex 云端账户
+
+Codex 云端会直接与代码库交互，因此需要比许多其他 ChatGPT 功能更严格的保护。请启用多重身份验证（MFA）。
+
+如果使用 Google、Microsoft 或 Apple 等社交登录提供商，不强制在 ChatGPT 账户中启用 MFA，但可以在对应提供商中配置：
+
+-   [Google](https://support.google.com/accounts/answer/185839)
+-   [Microsoft](https://support.microsoft.com/en-us/topic/what-is-multifactor-authentication-e5e39437-121c-be60-d123-eda06bddf661)
+-   [Apple](https://support.apple.com/en-us/102660)
+
+通过单点登录（SSO）访问 ChatGPT 时，组织的 SSO 管理员应为所有用户强制启用 MFA。
+
+如果使用邮箱和密码登录，必须先为账户设置 MFA，才能访问 Codex 云端。如果账户支持多种登录方式，其中一种是邮箱和密码，那么即使本次采用其他方式登录，也必须先设置 MFA 才能访问 Codex。
+
+<span id="login-caching"></span>
+
+## 登录缓存
+
+无论使用 ChatGPT 还是 API key 登录，ChatGPT 桌面 App、Codex CLI 或 IDE 扩展都会缓存并复用登录信息。CLI 与扩展共享同一份缓存凭据；从任一端退出后，下次启动 CLI 或扩展时都需要重新登录。
+
+Codex 会把登录信息缓存在明文文件 `~/.codex/auth.json`，或保存在操作系统的凭据存储中。
+
+对于 ChatGPT 登录会话，Codex 会在 token 过期前自动刷新，因此活跃会话通常无需再次通过浏览器登录。
+
+<span id="credential-storage"></span>
+
+## 凭据存储
+
+使用 `cli_auth_credentials_store` 控制 Codex CLI 把缓存凭据保存在哪里：
+
+<CodeBlock code={"# file | keyring | auto\ncli_auth_credentials_store = \"keyring\""} language="toml" />
+
+-   `file`：把凭据存储在 `CODEX_HOME` 下的 `auth.json` 中；默认目录是 `~/.codex`。
+-   `keyring`：使用操作系统的凭据存储。
+-   `auto`：优先使用操作系统凭据存储；不可用时回退到 `auth.json`。
+
+完整 `config.toml` schema 请参阅[配置参考](/docs/config-file/config-reference)。
+
+<Callout kind="note">
+
+如果使用文件存储，请像保护密码一样保护 `~/.codex/auth.json`：其中包含访问令牌。不要提交到仓库、粘贴到工单或分享到聊天中。
+
+</Callout>
+
+## 强制登录方式或工作区
+
+在受管理环境中，管理员可以限制允许用户使用的认证方式：
+
+<CodeBlock code={"# Only allow ChatGPT login or only allow API key login.\nforced_login_method = \"chatgpt\" # or \"api\"\n\n# When using ChatGPT login, restrict users to a specific workspace.\nforced_chatgpt_workspace_id = \"00000000-0000-0000-0000-000000000000\""} language="toml" />
+
+如果当前凭据不符合配置限制，Codex 会退出登录并结束运行。
+
+这些设置通常通过受管理配置统一应用，而不是由每位用户单独设置。参阅[受管理配置](/docs/enterprise/managed-configuration)。
+
+## 其他模型提供商
+
+在配置文件中定义[自定义模型提供商](/docs/config-file/config-advanced#custom-model-providers)时，可以选择以下认证方式：
+
+-   **OpenAI authentication**：设置 `requires_openai_auth = true`，使用 OpenAI 认证。之后可以通过 ChatGPT 或 API key 登录。通过 LLM 代理服务器访问 OpenAI 模型时可使用此方式。当 `requires_openai_auth = true` 时，Codex 会忽略 `env_key`。
+-   **Environment variable authentication**：设置 `env_key = "<ENV_VARIABLE_NAME>"`，从名为 `<ENV_VARIABLE_NAME>` 的本地环境变量读取提供商专用 API key。
+-   **No authentication**：不设置 `requires_openai_auth`（或设为 `false`），同时不设置 `env_key` 时，Codex 会假定提供商无需认证。这适合本地模型。

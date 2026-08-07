@@ -1,0 +1,41 @@
+---
+title: "速度"
+description: "在不牺牲智能水平的前提下提升速度"
+locale: "zh"
+translationKey: "agent-configuration/speed"
+section: "explore"
+order: 1033
+draft: false
+translationStatus: complete
+lastUpdated: 2026-08-06
+pageKind: article
+referenceHub: "configuration"
+sourceUrl: "https://www.codex-docs.com/docs/agent-configuration/speed"
+outline:
+  - id: "fast-mode"
+    label: "Fast mode"
+  - id: "codex-spark"
+    label: "Codex-Spark"
+---
+
+<Callout kind="note">
+
+**ChatGPT Work 与 Codex 共享用量。** 两者采用相同的定价、credits 和用量限制。详情参见 [Codex 定价](/docs/pricing)。
+
+</Callout>
+
+## Fast mode
+
+Codex 可以通过增加 credits 消耗来提升模型速度。
+
+Fast mode 会把受支持模型的速度提高 1.5 倍，并以高于 Standard mode 的倍率消耗 credits。目前它支持 GPT-5.6、GPT-5.5 和 GPT-5.4：GPT-5.6 与 GPT-5.5 的 credits 消耗为 Standard 的 2.5 倍，GPT-5.4 为 2 倍。
+
+在 CLI 中使用 `/fast on`、`/fast off` 或 `/fast status` 可以修改或检查当前设置。也可以在 `config.toml` 中同时设置 `service_tier = "fast"` 与 `[features].fast_mode = true`，保存默认值。通过 ChatGPT 登录时，Fast mode 可用于 ChatGPT 桌面 App、Codex CLI 和 IDE 扩展。Fast mode 是 ChatGPT credits 功能；使用 API key 时，Codex 改按 API token 定价，ChatGPT credits 倍率不适用。API Priority processing 有单独费率；GPT-5.6 的价格是 Standard API token 费率的 2 倍。
+
+<Video src="https://developers.openai.com/videos/codex/fast-mode-demo.mp4?v=6698643eb2ab" />
+
+## Codex-Spark
+
+GPT-5.3-Codex-Spark 是独立的快速 Codex 模型，能力相对较低，针对近乎即时的实时编码迭代进行了优化。Fast mode 是以更高 credits 倍率加速受支持模型，而 Codex-Spark 本身就是单独的模型选择，并有独立的用量限制。
+
+在研究预览期间，Codex-Spark 仅面向 ChatGPT Pro 订阅用户提供。

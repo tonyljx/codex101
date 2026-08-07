@@ -1,0 +1,35 @@
+/* The source site globally resets margins; scope that reset to imported special-page prose. */
+.docs-special-page .doc-content {
+  margin-top: 0;
+}
+
+.docs-special-page .doc-content > p {
+  color: var(--tw-prose-body);
+  font-size: 1rem;
+  line-height: 1.92;
+}
+
+.docs-special-page .doc-content > h2 {
+  padding-top: 0;
+}
+
+.docs-special-page .doc-content figure {
+  margin-inline: 0;
+}
+
+.docs-special-page .docs-changelog__entry-body > p {
+  line-height: 1.8;
+}
+
+.docs-special-page .doc-content .doc-callout p {
+  font-size: inherit;
+  line-height: inherit;
+}
+
+.docs-special-page .code-copy-host.has-copy-button {
+  padding-right: 3.5rem;
+}
+
+.docs-special-page [data-glossary-count] {
+  margin: 0;
+}

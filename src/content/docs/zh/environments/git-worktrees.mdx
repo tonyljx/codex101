@@ -1,0 +1,195 @@
+---
+title: "工作树"
+navTitle: "Git 工作树"
+description: "在 ChatGPT 桌面 App 中使用 Git worktrees，让 Codex 并行运行聊天"
+locale: "zh"
+translationKey: "environments/git-worktrees"
+section: "explore"
+order: 1048
+draft: false
+translationStatus: complete
+lastUpdated: 2026-08-06
+pageKind: article
+referenceHub: "developers"
+sourceUrl: "https://www.codex-docs.com/docs/environments/git-worktrees"
+outline:
+  - id: "什么是工作树"
+    label: "什么是工作树"
+  - id: "术语"
+    label: "术语"
+  - id: "为什么使用工作树"
+    label: "为什么使用工作树"
+  - id: "开始使用"
+    label: "开始使用"
+  - id: "在本地检出与工作树之间工作"
+    label: "在本地检出与工作树之间工作"
+  - id: "高级细节"
+    label: "高级细节"
+  - id: "常见问题"
+    label: "常见问题"
+---
+
+在 ChatGPT 桌面 App 中，工作树让 Codex 可以在同一项目内运行多个互不干扰的独立聊天。对于 Git 仓库，[定时任务](/docs/automations)可以在专用后台工作树中运行，避免与当前工作冲突；未使用版本控制的项目则直接在项目目录中运行。你也可以手动在工作树中开始聊天，并通过 Handoff（交接）在本地检出与工作树之间移动聊天。
+
+<Callout kind="note">
+
+工作树只能在 ChatGPT 桌面 App 的 Codex 中使用。开始工作树聊天前，请先选择 **Codex**。
+
+</Callout>
+
+## 什么是工作树
+
+工作树只适用于 Git 仓库，因为底层使用 [Git worktree](https://git-scm.com/docs/git-worktree)。工作树会创建仓库的第二份检出副本。每个工作树都有完整文件副本，但共享提交、分支等 `.git` 元数据，因此可以并行检出和处理多个分支。
+
+## 术语
+
+-   **Local checkout（本地检出）**：你创建的仓库，在 ChatGPT 桌面 App 中有时简称 **Local**。
+-   **Worktree（工作树）**：ChatGPT 桌面 App 从本地检出创建的 [Git worktree](https://git-scm.com/docs/git-worktree)。
+-   **Handoff（交接）**：在本地检出与工作树之间移动聊天的流程。Codex 会处理安全迁移工作所需的 Git 操作。
+
+## 为什么使用工作树
+
+1.  与 Codex 并行工作，而不影响当前 Local 设置。
+2.  让后台工作排队运行，同时继续专注于前台工作。
+3.  准备好检查、测试或更直接协作时，再把聊天移动到 Local。
+
+## 开始使用
+
+工作树要求项目位于 Git 仓库中。
+
+1.  选择 **Worktree（工作树）**
+    
+    在新聊天视图的 composer（输入框）下方选择 **Worktree（工作树）**。也可以选择[本地环境](/docs/environments/local-environment)，为工作树运行初始化脚本。
+    
+2.  选择起始分支
+    
+    在 composer 下方选择工作树的基准 Git 分支。它可以是 `main`、`master`、功能分支，也可以是当前带有未暂存改动的分支。
+    
+3.  提交提示词
+    
+    Codex 会根据所选分支创建 Git 工作树。默认情况下，Codex 在 [detached HEAD](https://git-scm.com/docs/git-checkout#_detached_head) 状态下工作。
+    
+4.  选择继续工作的地方
+    
+    之后可以继续在工作树中工作，也可以把聊天交接到本地检出。无论移入还是移出 Local，Handoff 都会同时移动聊天和代码。
+    
+
+## 在本地检出与工作树之间工作
+
+工作树的体验与本地检出很接近，区别在于它们在流程中的位置。可以把本地检出看作前台，把工作树看作后台；Handoff 用于在两者之间移动聊天。
+
+Handoff 会处理在两个检出目录之间安全移动工作所需的 Git 操作。这里有一个关键限制：**Git 只允许一个分支同时在一个位置被检出**。分支已经在工作树中检出时，不能同时在本地检出中使用，反之亦然。
+
+常见路径有两种：
+
+1.  [始终在工作树中工作](#option-1-working-on-the-worktree)。当你可以直接在工作树中验证改动时最合适，例如已通过[本地环境初始化脚本](/docs/environments/local-environment)安装依赖和工具。
+2.  [把聊天交接到 Local](#option-2-handing-a-chat-off-to-local)。需要在常用 IDE 中检查改动，或应用只能运行一个实例时使用。
+
+<span id="option-1-working-on-the-worktree"></span>
+
+### 方案 1：始终在工作树中工作
+
+如果要把改动留在工作树中，请使用聊天标题栏的 **Create branch here（在此创建分支）** 按钮，把工作树转换成分支。
+
+之后可以提交改动、把分支推送到远程仓库，并在 GitHub 上创建 pull request。
+
+使用标题栏中的 **Open（打开）** 按钮，可以让 IDE 打开该工作树；也可以使用集成终端或其他需要从工作树目录运行的工具。
+
+<Screenshot src="/images/codex/app/worktree-light.webp" darkSrc="/images/codex/app/worktree-dark.webp" alt="带有分支控件和工作树详情的工作树聊天视图（浅色模式）" />
+
+请注意，在工作树中创建分支后，不能在任何其他工作树或本地检出中同时检出该分支。
+
+<span id="option-2-handing-a-task-off-to-local"></span>
+
+### 方案 2：把聊天交接到 Local
+
+要把聊天带回前台，请在聊天标题栏选择 **Hand off（交接）**，然后移动到 **Local**。
+
+当你想在日常使用的 IDE 窗口中查看改动、运行已有开发服务器，或在常用本地环境中验证工作时，这种路径很合适。
+
+Codex 会处理在工作树与本地检出之间安全移动聊天所需的 Git 步骤。
+
+每个聊天始终关联同一个工作树。如果之后把聊天再次交接到工作树，Codex 会回到同一个后台环境，从上次停下的位置继续。
+
+<Screenshot src="/images/codex/app/handoff-light.webp" darkSrc="/images/codex/app/handoff-dark.webp" alt="把聊天从工作树移动到 Local 的 Handoff 对话框（浅色模式）" />
+
+也可以反向操作：已经在 Local 中工作时，使用 **Hand off** 把聊天移动到工作树，让 Codex 在后台继续工作，同时释放本地前台。
+
+Handoff 使用 Git 操作，因此 `.gitignore` 中的文件不会随聊天移动，除非 Codex 通过 `.worktreeinclude` 把它们复制到本地托管工作树。
+
+## 高级细节
+
+### Codex 托管工作树与永久工作树
+
+默认情况下，聊天使用 Codex 托管工作树。这类工作树轻量且可丢弃，通常只服务一个聊天；如果聊天之后被交接回来，Codex 会让它回到同一个工作树。
+
+需要长期环境时，从侧边栏项目的三点菜单创建永久工作树。它会作为独立项目存在，不会自动删除，并且允许从同一工作树启动多个聊天。
+
+### Codex 如何管理工作树
+
+Codex 在 `$CODEX_HOME/worktrees` 中创建工作树。起始提交是启动聊天时所选分支的 `HEAD`。如果该分支带有本地改动，Codex 也会把未提交改动应用到工作树。工作树不会作为分支检出，而是处于 [detached HEAD](https://git-scm.com/docs/git-checkout#_detached_head) 状态，因此 Codex 可以创建多个工作树而不污染分支列表。
+
+<span id="copy-ignored-local-files-into-managed-worktrees"></span>
+
+### 把被忽略的本地文件复制到托管工作树
+
+本地 Codex 托管工作树从 Git checkout 开始，因此已跟踪文件已经存在。如果仓库忽略了新工作树需要的本地设置文件，请在仓库根目录添加 `.worktreeinclude`，列出 Codex 创建托管工作树时应复制的被忽略路径或 `.gitignore` 风格模式。
+
+它适合 Git 有意忽略的文件，例如 `.env`、`.env.local` 或 `config/secrets.json`。Codex 只复制匹配 `.worktreeinclude` 的被忽略文件，不复制其他未跟踪文件。不要列出已跟踪文件。
+
+Codex 会自动把被忽略的 `AGENTS.override.md` 复制到本地托管工作树，因此无需在 `.worktreeinclude` 中列出。
+
+<CodeBlock code={"# .worktreeinclude\n.env\n.env.local\nconfig/secrets.json"} language="text" />
+
+Codex 会跳过源符号链接，也不会覆盖新检出目录中已经存在的文件。此行为只适用于 ChatGPT 桌面 App 的本地托管工作树，不适用于远程工作树或你从命令行创建的 Git 工作树。
+
+### 分支限制
+
+假设 Codex 在工作树中完成了一些工作，你使用 **Create branch here** 创建 `feature/a`。如果随后尝试在本地检出中检出同一分支，会看到：
+
+<CodeBlock code={"fatal: 'feature/a' is already used by worktree at '<WORKTREE_PATH>'"} language="text" />
+
+要解决问题，需要让工作树检出 `feature/a` 以外的分支。
+
+如果计划在本地使用该分支，请通过 Handoff 把聊天移动到 Local，不要让同一分支同时在两个位置保持检出。
+
+为什么会有这个限制
+
+Git 会阻止同一分支同时在多个工作树中检出，因为分支是单一的可变引用（`refs/heads/<name>`），代表一个工作树的“当前检出状态”。
+
+分支被检出后，Git 会把其 HEAD 视为由该工作树拥有，并要求 commit、reset、rebase、merge 等操作以明确、串行的方式推进该引用。如果多个工作树同时检出同一分支，就会产生哪个工作树负责更新引用的歧义和竞态，可能导致 commit 丢失、index 不一致或冲突处理不明确。
+
+通过一条分支只对应一个工作树，Git 确保每个分支只有一个权威工作副本，同时仍允许其他工作树通过 detached HEAD 或独立分支安全引用相同 commit。
+
+### 工作树清理
+
+每个工作树都有自己的仓库文件、依赖和构建缓存，可能占用大量磁盘空间。ChatGPT 桌面 App 会尽量把数量控制在合理范围内。
+
+默认情况下，Codex 保留最近 15 个托管工作树。你可以在设置中调整上限或关闭自动删除，自行管理磁盘占用。
+
+以下工作树不会自动删除：
+
+-   有已固定聊天与之关联。
+-   聊天仍在进行。
+-   它是永久工作树。
+
+以下情况下会自动删除：
+
+-   你归档了关联聊天。
+-   Codex 需要删除较旧工作树，才能维持配置的数量上限。
+
+删除托管工作树前，Codex 会保存工作快照。如果重新打开一个工作树已被删除的聊天，界面会提供恢复选项。
+
+## 常见问题
+
+可以控制工作树创建位置吗？
+
+可以。Codex 默认在 `$CODEX_HOME/worktrees` 中创建托管工作树。需要更改位置时，打开 **Settings > Worktrees（设置 > 工作树）**，修改 **Worktree root（工作树根目录）**。
+
+可以在本地检出与工作树之间移动聊天吗？
+
+可以。在聊天标题栏使用 **Hand off**，可以在本地检出和工作树之间移动聊天。Codex 会处理安全迁移所需的 Git 操作。之后把聊天再次交接到工作树时，Codex 会让它回到关联的同一工作树。
+
+工作树被删除后，聊天会怎样？
+
+即使底层工作树目录被删除，聊天仍可保留在历史记录中。对于 Codex 托管工作树，Codex 会在删除前保存快照；重新打开关联聊天时，可以恢复该工作树。归档聊天不会自动删除永久工作树。

@@ -1,0 +1,46 @@
+---
+title: "Prompts"
+description: "Aprende los conceptos básicos de Prompts y completa un primer flujo práctico y verificable."
+locale: "es"
+translationKey: "prompting"
+section: "foundations"
+order: 1
+draft: false
+translationStatus: needs-review
+lastUpdated: 2026-08-06
+---
+<Callout title="Empieza con un resultado real">
+
+Indica el archivo, la página o el resultado verificado que quieres obtener.
+
+</Callout>
+
+## Empieza con Prompts
+
+Comienza por el resultado que buscas y aporta los archivos, el contexto y las restricciones necesarias. Deja que Codex inspeccione el proyecto real y verifique cada paso importante.
+
+<Example>
+
+«Revisa este sitio Astro, añade varios idiomas sin cambiar el diseño y compruébalo en móvil.»
+
+</Example>
+
+## Un flujo de trabajo fiable
+
+1. Describe el resultado y los criterios de aceptación
+2. Inspecciona los archivos y convenciones relevantes
+3. Realiza el cambio y ejecuta comprobaciones según el riesgo
+4. Revisa el resultado, las diferencias y el siguiente paso
+
+## Cuando algo falla
+
+Conserva el error completo, confirma el directorio y los permisos y reduce el problema al caso mínimo reproducible. Prioriza la salida real frente a las suposiciones.
+
+```bash
+npm run check
+npm run build
+```
+
+## Comprobación final
+
+<Checklist items={["La página o el comando produce el resultado esperado","No hay errores nuevos ni desbordamiento horizontal","El idioma, el tema y la navegación móvil siguen funcionando"]} />

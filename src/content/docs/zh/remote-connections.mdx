@@ -1,0 +1,235 @@
+---
+title: "远程连接"
+description: "使用 Remote 访问已连接电脑上的工作，或通过 SSH 将 ChatGPT 桌面 App 连接到项目"
+locale: "zh"
+translationKey: "remote-connections"
+section: "explore"
+order: 1104
+draft: false
+translationStatus: complete
+lastUpdated: 2026-08-06
+pageKind: article
+referenceHub: "administration"
+sourceUrl: "https://www.codex-docs.com/docs/remote-connections"
+outline:
+  - id: "可以远程完成什么"
+    label: "可以远程完成什么"
+  - id: "before-you-set-up-mobile-access"
+    label: "设置 Remote 前"
+  - id: "set-up-mobile-access"
+    label: "设置 Remote"
+  - id: "选择要连接的设备"
+    label: "选择要连接的设备"
+  - id: "已连接主机提供什么"
+    label: "已连接主机提供什么"
+  - id: "从另一台设备继续工作"
+    label: "从另一台设备继续工作"
+  - id: "connect-to-an-ssh-host"
+    label: "连接 SSH 主机"
+  - id: "hand-off-a-task-between-hosts"
+    label: "在主机之间交接聊天"
+  - id: "认证与网络暴露"
+    label: "认证与网络暴露"
+  - id: "故障排查"
+    label: "故障排查"
+  - id: "另请参阅"
+    label: "另请参阅"
+---
+
+远程连接让你访问运行在另一台设备或机器上的工作。在 ChatGPT 移动 App 中打开 **Remote**，可以处理已连接 Mac 或 Windows 设备上的 ChatGPT 或 Codex 聊天。你也可以从另一台运行 ChatGPT 桌面 App 的受支持设备继续工作，或让桌面 App 连接 SSH 主机上的项目。
+
+远程访问会使用已连接主机上的项目、聊天、文件、凭据、权限、插件、Computer Use、浏览器设置和本地工具。
+
+## 可以远程完成什么
+
+-   在主机项目中开始新聊天，或继续现有聊天。
+-   发送后续指令、回答问题并引导进行中的工作。
+-   批准命令和其他操作。
+-   评审输出、diff、测试结果、终端输出和截图。
+-   在 ChatGPT 完成任务或需要你关注时接收通知。
+-   在已连接主机和聊天之间切换。
+
+下面介绍如何在 ChatGPT 移动 App 中打开 **Remote** 并访问桌面主机。要把 Codex 连接到 SSH 主机上的项目，请参阅[连接 SSH 主机](#connect-to-an-ssh-host)。
+
+<Screenshot src="/images/codex/app/mobile-setup-light.webp" darkSrc="/images/codex/app/mobile-setup-dark.webp" alt="ChatGPT 移动 App 中的 Remote 设置页面（浅色模式）" />
+
+<span id="before-you-set-up-mobile-access"></span>
+
+## 设置 Remote 前
+
+<Callout kind="note">
+
+Remote 支持运行 macOS 或 Windows 版 ChatGPT 桌面 App 的主机。你可以从 iOS 或 Android 版 ChatGPT 控制主机；当 **Control other devices（控制其他设备）** 可用时，也可以从另一台 Mac 或 Windows 设备控制。实际可用性可能随分批发布而变化。
+
+</Callout>
+
+请准备：
+
+-   目标 ChatGPT 账户和工作区中的 Codex 访问权限。
+-   iOS 或 Android 设备上的最新版 ChatGPT 移动 App。如果没有 **Remote**，请先更新 ChatGPT。
+-   在主机上运行的最新版 macOS 或 Windows 版 ChatGPT 桌面 App。主机需要保持唤醒、联网，并登录同一账户和工作区。移动端设置必须从桌面 App 开始，不能从 Codex CLI 或 IDE 扩展设置。
+-   该账户或工作区要求的多重身份验证、SSO 或 passkey 配置。
+
+如果通过 ChatGPT 工作区使用 Codex，管理员可能需要先启用 Remote Control 访问权限，手机才能连接。
+
+<span id="set-up-mobile-access"></span>
+
+## 设置 Remote
+
+从要连接的主机上的 ChatGPT 桌面 App 开始。设置流程会为该主机启用远程访问，并显示可由手机扫描的 QR code。QR code 会将手机与主机配对；每台手机或受支持的桌面 App 设备，都需要分别与要控制的主机配对。
+
+<Callout kind="note">
+
+自 2026 年 6 月 8 日以来使用过的现有连接会保持配对。如果从那以后没有使用某个旧连接，请更新两端应用并重新配对。
+
+</Callout>
+
+1.  启动 Remote 设置
+    
+    在主机应用侧边栏选择 **Set up Remote（设置 Remote）**。
+    
+2.  扫描 QR code
+    
+    用手机扫描 App 显示的 QR code。它会打开 ChatGPT，以完成移动 App 与主机的连接。
+    
+3.  在 ChatGPT 中完成设置
+    
+    ChatGPT 会打开 Remote 设置流程。确认使用同一 ChatGPT 账户和工作区，再完成所需的多重身份验证、SSO 或 passkey。成功后，主机会出现在手机的 **Remote** 中。
+    
+4.  检查主机设置
+    
+    在主机应用中打开 **Settings > Connections（设置 > 连接）**，管理已连接设备。还可以选择是否让电脑保持唤醒、启用 Computer Use，或安装 Chrome 扩展。
+    
+
+## 选择要连接的设备
+
+先连接日常使用 ChatGPT 的笔记本或台式机。需要持续访问或不同环境时，再添加常开电脑或 SSH 主机。
+
+### 笔记本或台式机
+
+连接已安装桌面 App 的 Mac 或 Windows PC，即可远程访问日常使用的相同项目、聊天、凭据、插件和本地设置。
+
+电脑休眠、失去网络或关闭应用后，远程访问会停止，直到它重新可用。如果把日常电脑作为主机，请连接电源，并在主机连接设置中启用保持唤醒（如果可用）。
+
+Mac 笔记本在打开屏幕并连接电源时可以保持远程访问；合上屏幕后还需要连接外部显示器。选择 **Sleep（睡眠）** 仍会停止远程访问。
+
+Windows 主机上的任务需要 [Computer Use](/docs/computer-use) 时，请保持会话解锁并可用。Windows 的 Computer Use 在前台运行，因此更适合通过 Remote 启动或检查工作，同时把主机桌面专门留给该任务。
+
+### 专用常开电脑
+
+希望 ChatGPT 在长时间工作中始终可访问时，可以使用专用常开 Mac 或 Windows PC。
+
+请在该机器上安装 ChatGPT 需要使用的项目、凭据、MCP server、技能和工具。
+
+### 远程开发环境
+
+如果项目已经位于远程环境，请使用 SSH 主机或受管理远程开发环境。先把桌面 App 主机连接到该环境；手机仍连接同一台桌面主机，而 ChatGPT 会在远程环境中使用它的依赖、安全策略和计算资源。
+
+SSH 设置详情见[连接 SSH 主机](#connect-to-an-ssh-host)。
+
+<Callout kind="note">
+
+常开电脑或远程主机需要执行浏览器、桌面任务时，请在该主机上启用 [Computer Use](/docs/computer-use) 并安装 Chrome 扩展。
+
+</Callout>
+
+## 已连接主机提供什么
+
+手机向 ChatGPT 发送提示词、审批和后续消息；已连接主机提供 ChatGPT 实际使用的环境。这意味着：
+
+-   仓库文件和本地文档来自已连接主机。
+-   Shell 命令运行在该主机或远程环境上。
+-   MCP server、技能、浏览器访问和 Computer Use 来自主机配置。
+-   只有主机本身能够访问时，才可使用已登录网站和桌面 App。
+-   沙箱设置、安全控制和操作审批仍适用于远程会话。
+
+安全中继层让可信机器可以在已授权 ChatGPT 设备之间保持可访问，而无需直接暴露到公共互联网。
+
+## 从另一台设备继续工作
+
+你可以从另一台已登录、运行 ChatGPT 桌面 App 并支持远程控制的设备继续工作。例如，笔记本不可用时，可以从手机在常开主机上开始聊天；之后再在笔记本中打开 App 并继续同一聊天。
+
+功能可用时，在 Mac 或 Windows 设备上打开 **Settings > Connections > Control other devices（设置 > 连接 > 控制其他设备）** 添加其他主机。同一台设备可以同时允许其他设备远程访问，也可以控制另一台设备。
+
+<span id="connect-to-an-ssh-host"></span>
+
+## 连接 SSH 主机
+
+在 ChatGPT 桌面 App 中，可以添加 SSH 主机上的远程项目，并针对远程文件系统和 shell 运行聊天。远程项目聊天会在远程主机上运行命令、读取文件并写入改动。
+
+请按照正常 SSH 访问的安全标准配置远程主机：使用可信 key、最小权限账户，并避免未经认证的公共监听器。
+
+1.  把主机加入 SSH config，以便 Codex 自动发现。
+    
+    <CodeBlock code={"Host devbox\n  HostName devbox.example.com\n  User you\n  IdentityFile ~/.ssh/id_ed25519"} language="text" />
+    
+    Codex 从 `~/.ssh/config` 读取具体主机别名，通过 OpenSSH 解析，并忽略只使用通配模式的主机。
+    
+2.  确认运行桌面 App 的机器可以通过 SSH 连接该主机。
+    
+    <CodeBlock code={"ssh devbox"} language="bash" />
+    
+3.  在远程主机上安装并认证 Codex。
+    
+    桌面 App 通过 SSH 启动远程 `Codex app-server`，并使用远程用户的登录 shell。请确认 `codex` 命令在该 shell 的远程 `PATH` 中可用。
+    
+4.  在应用中打开 **Settings > Connections**，添加或启用 SSH 主机，再选择远程项目文件夹。
+    
+
+<span id="hand-off-a-task-between-hosts"></span>
+
+## 在主机之间交接聊天
+
+Handoff 会在本地电脑和已连接远程主机之间移动现有聊天及其 Git 状态。可以先在本地开始，再到远程电脑的工作树继续，最后把聊天带回来。
+
+交接前，请连接目标主机，并在该主机上保存同一 Git 仓库的项目。如果项目是仓库子目录，两台主机必须保存相同子目录。Codex 只会显示具有匹配已保存项目的目标。
+
+交接聊天：
+
+1.  在桌面 App 中打开聊天。
+2.  在聊天底部选择当前运行位置，再选择目标主机。要把远程聊天交回本地，请选择 **This computer（这台电脑）**。
+3.  检查目标和分支，再选择 **Hand off**。
+
+Codex 会在目标主机创建或复用工作树、传输聊天和 Git 状态，并把聊天切换到该主机。聊天仍在运行时，Handoff 会先中断当前回复，再执行传输。
+
+也可以在另一个聊天中，让 Codex 把指定聊天交接给已连接主机。Codex 不能交接正在发出该请求的聊天，也不支持交接到 Codex 云端环境。
+
+## 认证与网络暴露
+
+远程连接通过 SSH 启动和管理远程 `Codex app-server`。不要直接在共享或公共网络中暴露 `app-server` 传输端点。
+
+需要从当前网络之外访问远程机器时，请使用 VPN 或 mesh 网络工具，不要把 app-server 直接暴露到互联网。
+
+## 故障排查
+
+### 手机上看不到主机
+
+确认主机正在运行桌面 App、已启用 **Allow other devices to connect（允许其他设备连接）**，并且两台设备使用同一 ChatGPT 账户和工作区。如果该连接自 2026 年 6 月 8 日以来没有使用过，请更新两端应用并重新配对。
+
+### 重新登录后 Remote Control 关闭
+
+退出 ChatGPT 会关闭 **Remote Control**，但不会删除已有设备配对。重新登录后，再次启用 **Remote Control** 即可恢复之前的连接状态。
+
+如果打开 **Remote Control** 并选择 **Add** 后出现错误，请重启主机上的 ChatGPT 桌面 App 再重试。
+
+### 审批请求没有出现
+
+在 ChatGPT 移动 App 中打开 **Remote**。确认手机与主机使用相同的 ChatGPT 账户和工作区，然后重新扫描 QR code，或从主机重新开始设置。如果使用 ChatGPT 工作区，请让管理员确认已启用 Remote Control。
+
+### 远程会话断开
+
+检查主机是否休眠、断网或关闭了应用。ChatGPT 工作期间应让主机保持唤醒和联网。
+
+### 认证阻止设置
+
+完成设置过程中显示的账户或工作区认证。如果组织要求 SSO、多重身份验证或 passkey，请先完成对应流程。仍然失败时，请让工作区管理员确认 Remote Control 已启用。
+
+## 另请参阅
+
+-   [ChatGPT 桌面 App](/docs/app)
+-   [功能](/docs/features)
+-   [ChatGPT 桌面 App 设置](/docs/reference/settings)
+-   [Computer Use](/docs/computer-use)
+-   [Chrome 扩展](/docs/chrome-extension)
+-   [命令行选项](/docs/developer-commands?surface=cli)
+-   [认证](/docs/auth)

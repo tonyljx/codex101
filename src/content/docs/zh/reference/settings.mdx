@@ -1,0 +1,113 @@
+---
+title: "设置"
+description: "配置 ChatGPT 桌面 App 的偏好设置"
+locale: "zh"
+translationKey: "reference/settings"
+section: "explore"
+order: 1021
+draft: false
+translationStatus: complete
+lastUpdated: 2026-08-06
+pageKind: article
+referenceHub: "features"
+sourceUrl: "https://www.codex-docs.com/docs/reference/settings"
+outline:
+  - id: "通用"
+    label: "通用"
+  - id: "个人资料"
+    label: "个人资料"
+  - id: "键盘快捷键"
+    label: "键盘快捷键"
+  - id: "通知"
+    label: "通知"
+  - id: "外观"
+    label: "外观"
+  - id: "pets"
+    label: "Pets"
+  - id: "browser-use"
+    label: "Browser"
+  - id: "computer-use"
+    label: "Computer Use"
+  - id: "个性化"
+    label: "个性化"
+  - id: "建议提示词"
+    label: "建议提示词"
+  - id: "记忆"
+    label: "记忆"
+  - id: "archived-tasks"
+    label: "已归档聊天"
+  - id: "keep-an-app-task-near-your-work"
+    label: "让聊天靠近工作区"
+---
+
+使用设置面板个性化 App 并管理日常偏好。可以从 App 菜单打开 [**Settings（设置）**](/docs)，也可以在 macOS 上按 <kbd>Cmd</kbd>+<kbd>,</kbd>，或在 Windows 上按 <kbd>Ctrl</kbd>+<kbd>,</kbd>。
+
+## 通用
+
+你可以要求使用 <kbd>Cmd</kbd>+<kbd>Enter</kbd> 发送多行提示词，或开启 **Prevent sleep while running（运行时阻止休眠）**，让你暂时离开时本地聊天仍可继续。在 **Follow-up behavior（后续消息行为）** 下，可以选择 ChatGPT 工作期间发送的消息是引导当前会话轮次，还是等待下一轮再处理。
+
+## 个人资料
+
+使用 **Profile（个人资料）** 查看活动洞察、累计 token、峰值 token、连续使用记录、最长任务和 token 活动。你还可以更新头像、显示名称和用户名等资料，并保存包含用量亮点的个人资料卡。个人版 ChatGPT 套餐支持分享个人资料卡。
+
+符合条件的用户还可以从个人资料菜单发送 Codex 邀请：在符合条件的个人套餐中选择 **Invite a friend（邀请朋友）**，或在符合条件的 Business 工作区中选择 **Invite a coworker（邀请同事）**。当前奖励、限制和资格参见[邀请朋友和同事](/docs/pricing#invite-friends-and-coworkers)。
+
+## 键盘快捷键
+
+打开 **Keyboard Shortcuts（键盘快捷键）**，查看命令、更改按键绑定，或把自定义快捷键恢复为默认值。可以按命令名称搜索，也可以切换到按键搜索并按下组合键，查找占用它的命令。
+
+## 通知
+
+选择何时显示会话轮次完成通知，以及 App 是否应请求通知权限。
+
+## 外观
+
+在 **Settings** 中，可以选择基础主题，调整强调色、背景色和前景色，并更改 UI 字体与代码字体。你也可以与朋友分享自定义主题。
+
+<Screenshot src="/images/codex/app/theme-selection-light.webp" darkSrc="/images/codex/app/theme-selection-dark.webp" alt="ChatGPT 界面截图：ChatGPT 桌面 App 的 Appearance 设置显示主题、颜色控件和字体选项" maxHeight={720} />
+
+## Pets
+
+Pets 是可选的 App 动画伙伴。在 **Settings > Pets（设置 > Pets）** 中选择内置或自定义 Pet，再使用 `/pet`、**Wake Pet** 或 **Tuck Away Pet** 控制浮动层。
+
+参见 [Pets](/docs/pets?surface=app)，了解 Pet 状态、如何跟随不同聊天的活动，或创建自己的 Pet。
+
+<span id="browser-use"></span>
+
+## Browser
+
+通过这些设置安装或启用内置 Browser plugin、设置 [Chrome extension](/docs/chrome-extension)，并管理允许或阻止的网站。除非你已允许某个网站，否则 ChatGPT 会在使用前请求确认。移除被阻止的网站后，ChatGPT 下次在浏览器中使用它之前可以再次询问。
+
+浏览器预览、批注和 Computer Use 工作流参见[内置浏览器](/docs/browser?surface=app)。
+
+## Computer Use
+
+完成设置后，可以在 Computer Use 设置中检查桌面 App 访问权限和相关偏好。在 macOS 上，如需撤销系统级访问，请在 macOS **Privacy & Security（隐私与安全性）** 设置中更新 **Screen Recording（屏幕录制）** 或 **Accessibility（辅助功能）** 权限。
+
+## 个性化
+
+选择 **Friendly（友好）**、**Pragmatic（务实）** 或 **None（无）** 作为默认性格。选择 None 会禁用性格指令；你可以随时更改。
+
+还可以添加自定义指令。编辑自定义指令会更新 [`AGENTS.md` 中的个人指令](/docs/agent-configuration/agents-md)。
+
+## 建议提示词
+
+使用上下文感知建议，在开始使用或返回 ChatGPT 时显示可能需要继续处理的后续事项与任务。
+
+## 记忆
+
+在可用时启用 Memories，让 ChatGPT 把过去聊天中的有用上下文带入未来工作。单个聊天的设置、存储和控制参见[记忆](/docs/customization/memories)。
+
+<span id="archived-tasks"></span>
+
+## 已归档聊天
+
+**Archived chats（已归档聊天）** 区域会列出已归档聊天及其日期和项目上下文。使用 **Unarchive（取消归档）** 恢复聊天。
+
+<span id="keep-an-app-task-near-your-work"></span>
+
+## 让聊天靠近工作区
+
+在 ChatGPT 桌面 App 中，可以把当前聊天弹出为独立窗口，放在浏览器、编辑器或设计预览旁边。如果希望切换到其他 App 时聊天仍保持可见，请开启 **Always on top（始终置顶）**。
+
+<Screenshot src="/images/codex/app/popover-light.webp" darkSrc="/images/codex/app/popover-dark.webp" alt="ChatGPT 界面截图：ChatGPT 桌面 App 中显示在浮动弹出窗口里的聊天" maxHeight={400} />

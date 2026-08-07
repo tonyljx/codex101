@@ -1,0 +1,124 @@
+---
+import { ArrowUp, ChevronDown, Plus, Zap } from 'lucide-react';
+
+type Props = {
+  labels: string[];
+  prompts: string[];
+  pickerLabel: string;
+  copyLabel: string;
+  copiedLabel: string;
+  exampleSuffix: string;
+  modelName?: string;
+  effort?: string;
+};
+
+const {
+  labels,
+  prompts,
+  pickerLabel,
+  copyLabel,
+  copiedLabel,
+  exampleSuffix,
+  modelName = '5.6 Sol',
+  effort = 'Extra High',
+} = Astro.props;
+
+if (labels.length !== prompts.length || labels.length === 0) {
+  throw new Error('QuickstartPromptPicker requires matching, non-empty labels and prompts.');
+}
+---
+
+<div
+  class="quickstart-v2__prompt"
+  data-prompt-picker
+  data-labels={JSON.stringify(labels)}
+  data-prompts={JSON.stringify(prompts)}
+  data-copy-label={copyLabel}
+  data-copied-label={copiedLabel}
+  data-example-suffix={exampleSuffix}
+>
+  <div role="radiogroup" aria-label={pickerLabel}>
+    {labels.map((label, index) => (
+      <button type="button" role="radio" aria-checked={index === 0 ? 'true' : 'false'} tabindex={index === 0 ? 0 : -1}>
+        {label}
+      </button>
+    ))}
+  </div>
+  <div class="quickstart-v2__composer" role="region" aria-label={`${labels[0]} ${exampleSuffix}`}>
+    <button type="button" class="quickstart-v2__composer-prompt" title={copyLabel} aria-label={copyLabel}>
+      {prompts[0]}
+    </button>
+    <div class="quickstart-v2__composer-tools" aria-hidden="true">
+      <span class="quickstart-v2__composer-add"><Plus size={21} strokeWidth={1.8} /></span>
+      <span class="quickstart-v2__composer-model">
+        <Zap size={20} strokeWidth={1.8} />
+        <span class="quickstart-v2__composer-model-name">{modelName}</span>
+        <span class="quickstart-v2__composer-effort">{effort}</span>
+        <ChevronDown size={18} strokeWidth={1.8} />
+      </span>
+      <span class="quickstart-v2__composer-send"><ArrowUp size={22} strokeWidth={2} /></span>
+    </div>
+    <span class="quickstart-v2__prompt-live" aria-live="polite"></span>
+  </div>
+</div>
+
+<script>
+  const setupPromptPickers = () => {
+    document.querySelectorAll<HTMLElement>('[data-prompt-picker]:not([data-prompt-ready])').forEach((picker) => {
+      picker.dataset.promptReady = 'true';
+
+      const labels = JSON.parse(picker.dataset.labels ?? '[]') as string[];
+      const prompts = JSON.parse(picker.dataset.prompts ?? '[]') as string[];
+      const copyLabel = picker.dataset.copyLabel ?? '';
+      const copiedLabel = picker.dataset.copiedLabel ?? '';
+      const exampleSuffix = picker.dataset.exampleSuffix ?? '';
+      const radios = [...picker.querySelectorAll<HTMLButtonElement>('[role="radio"]')];
+      const composer = picker.querySelector<HTMLElement>('.quickstart-v2__composer');
+      const prompt = picker.querySelector<HTMLButtonElement>('.quickstart-v2__composer-prompt');
+      const live = picker.querySelector<HTMLElement>('.quickstart-v2__prompt-live');
+
+      const select = (index: number, focus = false) => {
+        radios.forEach((radio, radioIndex) => {
+          const selected = radioIndex === index;
+          radio.setAttribute('aria-checked', selected ? 'true' : 'false');
+          radio.tabIndex = selected ? 0 : -1;
+        });
+        if (prompt) prompt.textContent = prompts[index] ?? '';
+        if (composer) composer.setAttribute('aria-label', `${labels[index] ?? ''} ${exampleSuffix}`.trim());
+        if (live) live.textContent = '';
+        if (focus) radios[index]?.focus();
+      };
+
+      radios.forEach((radio, index) => {
+        radio.addEventListener('click', () => select(index));
+        radio.addEventListener('keydown', (event) => {
+          if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+          event.preventDefault();
+          const next = event.key === 'Home'
+            ? 0
+            : event.key === 'End'
+              ? radios.length - 1
+              : (index + (event.key === 'ArrowRight' ? 1 : -1) + radios.length) % radios.length;
+          select(next, true);
+        });
+      });
+
+      prompt?.addEventListener('click', async () => {
+        try {
+          await navigator.clipboard.writeText(prompt.textContent?.trim() ?? '');
+          if (live) live.textContent = copiedLabel;
+          prompt.title = copiedLabel;
+          window.setTimeout(() => {
+            prompt.title = copyLabel;
+            if (live) live.textContent = '';
+          }, 1600);
+        } catch {
+          if (live) live.textContent = copyLabel;
+        }
+      });
+    });
+  };
+
+  setupPromptPickers();
+  document.addEventListener('astro:page-load', setupPromptPickers);
+</script>

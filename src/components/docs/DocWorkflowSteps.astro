@@ -1,0 +1,8 @@
+---
+type Props = { items: string[] };
+const { items } = Astro.props;
+---
+
+<ol class="doc-workflow-steps">
+  {items.map((item) => <li>{item}</li>)}
+</ol>

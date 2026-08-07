@@ -1,0 +1,168 @@
+---
+title: "快速开始"
+description: "在 Web 或桌面 App 中开始使用 ChatGPT。"
+locale: "zh"
+translationKey: "quickstart"
+section: "start"
+order: 1
+draft: false
+translationStatus: complete
+lastUpdated: 2026-08-06
+outline:
+  - id: "where-to-use-chatgpt"
+    label: "在哪里使用 ChatGPT"
+  - id: "setup"
+    label: "设置"
+  - id: "desktop-app"
+    label: "桌面 App"
+  - id: "web"
+    label: "Web"
+  - id: "next-steps"
+    label: "后续步骤"
+---
+
+<div className="quickstart-v2" data-quickstart>
+  <section aria-labelledby="where-to-use-chatgpt">
+    <h2 id="where-to-use-chatgpt">在哪里使用 ChatGPT</h2>
+    <div className="quickstart-v2__intro doc-content">
+
+你可以在不同产品形态中使用 ChatGPT，包括 [ChatGPT 桌面 App](/docs/app) 和 [ChatGPT Web 版](/docs/web)。请选择符合当前工作方式的入口。
+
+    </div>
+    <div className="quickstart-v2__surface-cards" aria-label="ChatGPT 使用方式对比">
+      <div className="quickstart-v2__surface-card">
+        <div className="quickstart-v2__surface-media">
+          <img src="/images/learn/quickstart/desktop-app-card.webp" alt="桌面 App 使用方式插图" width="854" height="437" loading="eager" decoding="async" />
+        </div>
+        <div className="quickstart-v2__surface-copy">
+          <strong>桌面 App</strong>
+          <small>ChatGPT 桌面 App 支持 Windows 和 macOS，适合处理项目、本地文件、长时间任务和快速聊天。</small>
+          <span className="quickstart-v2__surface-badge">推荐</span>
+        </div>
+      </div>
+      <div className="quickstart-v2__surface-card">
+        <div className="quickstart-v2__surface-media">
+          <img src="/images/learn/quickstart/web-card.webp" alt="Web 使用方式插图" width="854" height="437" loading="eager" decoding="async" />
+        </div>
+        <div className="quickstart-v2__surface-copy">
+          <strong>Web</strong>
+          <small>ChatGPT 可直接在 Web 上使用，其中包括 Chat 和 ChatGPT Work。</small>
+          <span className="quickstart-v2__surface-badge">无需安装</span>
+        </div>
+      </div>
+    </div>
+    <div className="quickstart-v2__callout doc-content">
+
+<Callout kind="note">
+
+如果你是开发者，希望在终端或代码编辑器中使用 Codex，可以尝试 [Codex CLI](/docs/codex/cli) 或 [Codex IDE 扩展](/docs/codex/ide)。
+
+</Callout>
+
+    </div>
+  </section>
+
+  <section aria-labelledby="setup">
+    <h2 id="setup">设置</h2>
+    <div className="quickstart-v2__chooser">
+      <span className="quickstart-v2__chooser-label">选择一种方式</span>
+      <div role="tablist" aria-label="ChatGPT 使用方式">
+        <button type="button" role="tab" id="quickstart-tab-1" aria-controls="quickstart-panel-1" aria-selected="true" tabIndex="0" data-surface-tab="1">桌面 App</button>
+        <button type="button" role="tab" id="quickstart-tab-2" aria-controls="quickstart-panel-2" aria-selected="false" tabIndex="-1" data-surface-tab="2">Web</button>
+      </div>
+    </div>
+
+    <section className="quickstart-v2__panel doc-content" id="quickstart-panel-1" role="tabpanel" aria-labelledby="quickstart-tab-1" data-surface-panel="1">
+      <span id="desktop-app" className="quickstart-v2__panel-anchor" aria-hidden="true"></span>
+
+ChatGPT 桌面 App 支持 Windows 和 macOS，适合处理项目、本地文件、长时间任务和快速聊天。
+
+<ol className="doc-workflow-steps">
+  <li>
+    <p><strong>安装 ChatGPT 桌面 App。</strong> 前往[桌面 App 页面](/docs/app)，选择适用于当前操作系统的版本。</p>
+  </li>
+  <li>
+    <p><strong>打开 ChatGPT 桌面 App 并登录。</strong> 使用 ChatGPT 账号登录。你也可以通过 API key 使用 Codex，但[部分功能可能不可用](/docs/pricing#feature-availability)。</p>
+  </li>
+  <li>
+    <p><strong>选择 ChatGPT 的工作位置。</strong> 开始一个聊天、创建项目或打开文件夹。ChatGPT 可以读取并修改你所选文件夹中的文件。进一步了解[聊天与项目](/docs/projects)。</p>
+  </li>
+  <li>
+    <p><strong>开始聊天。</strong></p>
+    <ul>
+      <li>对于研究、分析，或文档、演示文稿、电子表格和 Sites 等交付物，请选择 <strong>ChatGPT</strong>，再在新聊天页面顶部、输入框上方切换到 <strong>Work</strong>。</li>
+      <li>对于需要代码库上下文和开发者工具的软件开发工作，请从 ChatGPT 下拉菜单中选择 <strong>Codex</strong>。</li>
+      <li>对于简短问题或普通聊天，请选择 <strong>ChatGPT</strong>，再从新聊天页面顶部、输入框上方的切换器中选择 <strong>Chat</strong>。在 Codex 中，将指针移到 <strong>New chat</strong> 上，再选择右侧的 <strong>Quick chat</strong> 图标。</li>
+    </ul>
+    <p>进一步了解[如何使用 ChatGPT](/docs/use-chatgpt)。</p>
+  </li>
+  <li className="quickstart-v2__message-step">
+    <p><strong>发送第一条消息。</strong> 描述目标，并附上 ChatGPT 所需的文件或上下文。可以从以下示例开始：</p>
+    <PromptPicker
+      labels={["准备决策", "分析电子表格", "改进这个应用"]}
+      prompts={[
+        "Review the reports and notes in this project, compare the options, and create a one-page decision memo with a recommendation, risks, open questions, and source links.",
+        "Combine the spreadsheets in this folder, clean inconsistent records, identify the most important trends, and create a concise report with charts and plain-English takeaways.",
+        "Inspect this app, identify one high-impact usability improvement, implement it, update the relevant tests, and verify the result on mobile and desktop."
+      ]}
+      pickerLabel="选择示例提示词"
+      copyLabel="复制当前提示词"
+      copiedLabel="已复制提示词"
+      exampleSuffix="示例"
+    />
+    <p>继续探索更多[使用场景](https://learn.chatgpt.com/use-cases)。</p>
+  </li>
+</ol>
+    </section>
+
+    <section className="quickstart-v2__panel doc-content" id="quickstart-panel-2" role="tabpanel" aria-labelledby="quickstart-tab-2" hidden data-surface-panel="2">
+      <span id="web" className="quickstart-v2__panel-anchor" aria-hidden="true"></span>
+
+ChatGPT 可直接在 Web 上使用，其中包括 Chat 和 ChatGPT Work。
+
+<ol className="doc-workflow-steps">
+  <li>
+    <p><strong>打开 ChatGPT 并登录。</strong> 前往 [chatgpt.com](https://chatgpt.com)，使用 ChatGPT 账号登录。</p>
+  </li>
+  <li>
+    <p><strong>开始聊天。</strong></p>
+    <ul>
+      <li>选择 <strong>Chat</strong>，以对话方式提出问题、探索想法或深入讨论某个主题。</li>
+      <li>选择 <strong>Work</strong>，开展研究、分析信息，并创建文档、演示文稿、电子表格、Sites 或其他完成度较高的交付物。</li>
+    </ul>
+    <p>进一步了解[如何使用 ChatGPT](/docs/use-chatgpt)。</p>
+  </li>
+  <li>
+    <p><strong>选择 ChatGPT 的工作位置。</strong> 开始聊天或选择项目。项目可以包含聊天、文件和指令。</p>
+  </li>
+  <li className="quickstart-v2__message-step">
+    <p><strong>发送第一条消息。</strong> 描述目标，并附上 ChatGPT 所需的文件或上下文。可以从以下示例开始：</p>
+    <PromptPicker
+      labels={["做出决策", "每日简报", "规划活动"]}
+      prompts={[
+        "Research whether I should [decision], compare the best options, explain the tradeoffs for my situation, and recommend one with citations.",
+        "Every weekday at 8:00 a.m., review my connected calendar and recent messages, then send me a briefing with today's priorities, meeting prep, replies I owe, and blockers.",
+        "Help me plan my event. Ask me about the occasion, guests, date, location, budget, and anything else you need. Then create a timeline, budget, invitation copy, and checklist, and publish a Site I can use to invite guests and collect RSVPs."
+      ]}
+      pickerLabel="选择示例提示词"
+      copyLabel="复制当前提示词"
+      copiedLabel="已复制提示词"
+      exampleSuffix="示例"
+    />
+  </li>
+</ol>
+    </section>
+  </section>
+
+  <section className="quickstart-v2__next" aria-labelledby="next-steps">
+    <h2 id="next-steps">后续步骤</h2>
+    <div className="doc-content">
+      <ul>
+        <li>[进一步了解 ChatGPT 桌面 App](/docs/app)：使用桌面 App 处理本地项目。</li>
+        <li>[导入现有设置](/docs/import)：把受支持的设置、项目和近期工作带入 ChatGPT。</li>
+      </ul>
+    </div>
+  </section>
+
+  <QuickstartBehavior />
+</div>

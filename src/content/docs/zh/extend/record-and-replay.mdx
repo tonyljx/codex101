@@ -1,0 +1,82 @@
+---
+title: "Record & Replay"
+navTitle: "录制与回放"
+description: "在 Mac 上演示一次工作流，并把它变成可复用技能。"
+locale: "zh"
+translationKey: "extend/record-and-replay"
+section: "explore"
+order: 1035
+draft: false
+translationStatus: complete
+lastUpdated: 2026-08-06
+pageKind: article
+referenceHub: "configuration"
+sourceUrl: "https://www.codex-docs.com/docs/extend/record-and-replay"
+outline:
+  - id: "开始之前"
+    label: "开始之前"
+  - id: "开始录制"
+    label: "开始录制"
+  - id: "回放工作流"
+    label: "回放工作流"
+  - id: "改进录制质量"
+    label: "改进录制质量"
+  - id: "什么时候改为构建另一个插件"
+    label: "什么时候改为构建另一个插件"
+  - id: "故障排查"
+    label: "故障排查"
+---
+
+<Callout kind="note">
+
+Record & Replay 可在 macOS 上使用。初始可用地区不包括欧洲经济区、英国和瑞士。Computer Use 也必须可用且已启用。
+
+</Callout>
+
+Record & Replay 让你可以在 Mac 上演示一个工作流，并把它变成可复用技能。当某个工作流会反复发生、依赖你的偏好，或者“演示”比“写提示词描述”更容易时，适合使用它。
+
+例如，你可以录制如何提交报销、预订停车位、创建配置正确的 issue、发布视频，或下载周期性报告。Codex 可以把这个模式打包成技能，之后你可以再次配合 Computer Use、浏览器操作、已连接插件，或它们的组合来使用。
+
+## 开始之前
+
+选择一个你已经知道如何完成的工作流。Record & Replay 最适合步骤稳定、成功标准清晰的任务。
+
+## 开始录制
+
+1.  在 ChatGPT 桌面 App 中选择 ChatGPT 并在切换器中开启 Work，或选择 Codex，然后打开 **Plugins**。
+2.  打开 **+** 菜单。
+3.  选择 **Record a skill**。
+4.  审查建议提示词，给 Codex 补充任何有用上下文，然后提交。
+5.  当 Codex 请求录制你的操作时，等你准备好演示后批准该请求。
+6.  在 Mac 上执行这个工作流。
+7.  完成后，从菜单栏、overlay 停止录制，或告诉 Codex 你已经完成。
+
+录制期间，Codex 会观察学习该工作流所需的操作和窗口内容。录制会一直持续，直到你停止它。请让录制聚焦在你希望 Codex 学会的任务上。
+
+停止录制后，Codex 会检查捕获到的工作流，并起草一个技能。这个技能会说明什么时候使用该工作流、需要哪些输入、应按什么步骤执行，以及如何验证结果。你也可以继续让 Codex 进一步润色这个技能。
+
+## 回放工作流
+
+开始一个新聊天，并请 Codex 使用生成的技能。告诉它这次发生变化的取值，例如要上传的文件、要创建的 issue，或报告的日期范围。
+
+Codex 会把该技能作为任务的可复用上下文。然后，它可以使用当前环境可用的工具完成工作流，包括 Computer Use、浏览器操作和已安装插件。
+
+## 改进录制质量
+
+-   保持演示简短且完整。
+-   开始录制前，告诉 Codex 你的目标，以及每次使用技能时可能变化的具体输入。
+-   使用真实输入，但避免 secrets 和敏感数据。
+-   录制后继续润色技能，把重要但隐藏的偏好写出来，例如命名规范、字段默认值或决策点。
+-   工作流完成时就停止录制，不要继续录入无关清理步骤。
+
+## 什么时候改为构建另一个插件
+
+Record & Replay 是从演示工作流快速创建技能的方式。如果你想把一个独立、稳定的包分发给团队、打包多个技能、包含连接器、添加 MCP servers，或管理安装 metadata，请把这个工作流打包成自己的 plugin。参见[构建 plugins](/docs/build-plugins)。
+
+## 故障排查
+
+<span id="我看不到-record-replay"></span>
+
+### 我看不到 Record & Replay
+
+如果你的组织用 `requirements.toml` 管理 Codex，`[features].computer_use` requirement 也会控制 Record & Replay。设置 `computer_use = false` 会让这两个功能都不可用。

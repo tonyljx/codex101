@@ -1,0 +1,111 @@
+---
+title: "运行 Codex Security 扫描"
+navTitle: "运行安全扫描"
+description: "扫描一个已授权仓库或一个限定文件夹，并评审发现结果、覆盖范围和产物。"
+locale: "zh"
+translationKey: "security/plugin/scans"
+section: "explore"
+order: 1068
+draft: false
+translationStatus: complete
+lastUpdated: 2026-08-06
+pageKind: article
+referenceHub: "security-administration"
+sourceUrl: "https://www.codex-docs.com/docs/security/plugin/scans"
+outline:
+  - id: "选择扫描范围"
+    label: "选择扫描范围"
+  - id: "配置扫描"
+    label: "配置扫描"
+  - id: "等待各阶段完成"
+    label: "等待各阶段完成"
+  - id: "评审已完成的扫描"
+    label: "评审已完成的扫描"
+  - id: "重新打开之前的扫描"
+    label: "重新打开之前的扫描"
+  - id: "使用结果"
+    label: "使用结果"
+  - id: "下一步"
+    label: "下一步"
+---
+
+第一次评审或日常仓库、组件评估，适合先运行标准 Codex Security 扫描。它会完整运行一次扫描工作流。
+
+需要更彻底的评估时，先评审标准扫描结果，再运行[深度扫描](/docs/security/plugin/deep-scans)。深度扫描耗时更长，搜索范围也更广。
+
+## 选择扫描范围
+
+在桌面 App 中打开 **Security（安全）**，选择 **Scans（扫描）**，再选择 **\+ Scan（新建扫描）**。选择已有仓库或其它文件夹，然后选择 **Codebase（代码库）**。
+
+当你需要广覆盖，并且整个仓库本身就是合理的评审单元时，扫描整个仓库。对于单仓多项目仓库（monorepo），如果某个服务、package 或组件有明确负责人和安全边界，可以选择一个文件夹。
+
+你也可以从 Codex 对话开始扫描：
+
+<CodeBlock code={"Use $codex-security:security-scan to scan this repository for security vulnerabilities."} language="text" />
+
+要让对话聚焦于特定文件夹，请明确指出组件：
+
+<CodeBlock code={"Use $codex-security:security-scan to scan this repository for security vulnerabilities, focusing on the services/billing component."} language="text" />
+
+<Callout kind="note">
+
+对于大型单仓多项目仓库，先从一个有意义的产品或服务边界开始。
+
+</Callout>
+
+## 配置扫描
+
+为获得最佳扫描质量，请使用 `gpt-5.6-sol` 和 `xhigh` 推理强度。
+
+1.  选择 **Codebase（代码库）**，并关闭 **Deep scan（深度扫描）**。
+2.  确认选定的仓库、当前分支和最新 revision。
+3.  将 **Scan area（扫描范围）** 设为整个仓库，或选择一个文件夹。
+4.  选择模型和推理强度。
+5.  只有在确实会改变评审时才打开 **Additional context（附加上下文）**。有用的上下文会说明攻击者可控输入、信任边界、敏感操作，或需要优先关注的具体区域。
+6.  选择 **Start scan（开始扫描）**。
+
+如需持久保存仓库级安全指导，请在仓库根目录添加 `SECURITY.md`。用它描述威胁模型、安全不变量、可报告发现标准、排除项和严重性上下文。目录级指导可以继续添加嵌套的 `SECURITY.md`。当策略冲突时，距离代码最近的文件优先。Codex Security 会把这些文件作为策略上下文，而不是可执行指令。
+
+`AGENTS.md` 则用于记录支持的构建和验证命令，以及其他仓库专用指令。
+
+## 等待各阶段完成
+
+扫描会按顺序运行这些阶段：
+
+1.  **威胁建模**：识别资产、入口点、信任边界和安全不变量。
+2.  **发现搜索**：在请求的代码范围内寻找可能失效的控制和 source-to-sink 路径。
+3.  **验证**：测试或以其他方式检查每个候选发现，并记录证据或证据缺口。
+4.  **影响与路径分析**：评估每个候选发现的现实路径、影响和严重性。
+5.  **报告**：记录已验证的安全发现、覆盖范围和扫描元数据。标准扫描可选择是否生成逐项详细报告。
+6.  **结构性加固**：如果可用，会分析发现集合并生成设计指导。
+7.  **最终化**：校验结构化扫描契约，并生成 `report.md`，其中会链接任何详细报告或加固指导。
+
+工作台会显示当前扫描阶段和插件报告的进度。选择 **View activity（查看活动）** 可以检查 Codex 任务。请等待完整结果，不要根据早期候选发现判断，也不要因为某个阶段耗时更久就停止扫描。
+
+## 评审已完成的扫描
+
+按这个顺序评审结果：
+
+1.  确认目标、revision 和扫描范围。
+2.  阅读已评审的代码区域，以及每个明确延后或需要跟进的区域。
+3.  对每个发现，检查根控制点或 sink、攻击者可控输入、验证方法、剩余不确定性、现实可达性、严重性理由和建议修复。
+4.  如果证据不支持声称的路径或影响，就驳回该发现。
+5.  开始修复前，先选择一个已接受的发现。
+
+<Screenshot src="/images/openai/learn.chatgpt.com/_astro/finding-attack-path.CqCzT9ru.webp" darkSrc="/images/openai/learn.chatgpt.com/_astro/finding-attack-path-dark.DtMysES8.webp" alt="Codex Security 安全发现，显示严重性、验证状态、根因和攻击路径" maxHeight={520} />
+
+## 重新打开之前的扫描
+
+打开 **Security（安全）**，然后从 **Scans（扫描）** 中选择已保存的扫描，查看其安全发现、覆盖范围和可用报告产物。要评估最新代码，请为同一仓库开始新扫描。新扫描不会替换之前的扫描或其产物。
+
+## 使用结果
+
+使用 Security 工作台评审安全发现、覆盖范围和后续区域，不需要检查原始 JSON。如果可用，请把 `report.md` 作为完整扫描目录的可读入口。共享或归档时保留完整目录，因为报告会链接 `findings/` 下的详细报告，并在可用时链接 `hardening/` 下的结构性加固指导。
+
+在工作区背后，每次扫描都会保留 `scan-manifest.json`、`findings.json` 和 `coverage.json`，用于自动化和集成。通常你不需要自己打开这些文件。
+
+发现工作区也可以创建可携带的 JSON、CSV 和 SARIF 文件。参见[导出或跟踪发现](/docs/security/plugin/export-findings)。
+
+## 下一步
+
+当人工接受某项发现后，使用[修复并验证发现](/docs/security/plugin/fix-findings)生成并评审一个范围明确的 patch。不要让 Codex 在同一个聊天中修复一次扫描里的所有发现。

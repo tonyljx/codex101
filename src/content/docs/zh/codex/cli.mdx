@@ -1,0 +1,294 @@
+---
+title: "直接从终端检查、编辑并运行代码"
+navTitle: "Codex CLI"
+description: "检查代码、完成修改、运行命令并自动化重复工作，全程无需离开终端。"
+locale: "zh"
+translationKey: "codex/cli"
+section: "available"
+order: 3
+draft: false
+translationStatus: complete
+lastUpdated: 2026-08-06
+pageKind: product
+---
+<ProductPage {...{
+  "product": "cli",
+  "hero": {
+    "eyebrow": "Codex CLI",
+    "titleLines": [
+      "直接从终端检查、编辑",
+      "并运行代码"
+    ],
+    "lead": "检查代码、完成修改、运行命令并自动化重复工作，全程无需离开终端。",
+    "primary": {
+      "href": "#getting-started",
+      "label": "安装 Codex"
+    },
+    "secondary": {
+      "href": "/docs/developer-commands?surface=cli",
+      "label": "CLI 命令参考"
+    },
+    "media": {
+      "type": "fragment",
+      "fragment": "codex-cli-hero.html"
+    }
+  },
+  "advantages": [
+    {
+      "number": "01",
+      "title": "直接处理本地仓库",
+      "description": "在项目目录中启动 Codex，让它检查真实文件、运行仓库命令，并直接修改当前工作树。"
+    },
+    {
+      "number": "02",
+      "title": "始终掌握控制权",
+      "description": "评审计划和 diff，选择审批策略与沙箱模式，并决定 Codex 执行动作前何时必须暂停。"
+    },
+    {
+      "number": "03",
+      "title": "接入脚本和 CI",
+      "description": "需要人工协作时使用交互式 TUI；需要脚本、CI 和机器可读自动化时使用 codex exec。"
+    }
+  ],
+  "quickstart": {
+    "label": "快速开始",
+    "title": "开始使用 Codex CLI",
+    "description": "安装 Codex，在本地仓库中登录，然后用明确目标启动第一个终端任务。",
+    "steps": [
+      {
+        "title": "安装 Codex",
+        "description": "运行 curl -fsSL https://chatgpt.com/codex/install.sh | sh。Codex CLI 支持 macOS、Windows 和 Linux。",
+        "action": {
+          "href": "/docs/codex/cli#getting-started",
+          "label": "查看安装说明"
+        }
+      },
+      {
+        "title": "运行 Codex 并登录",
+        "description": "在需要处理的仓库中运行 codex，然后使用 ChatGPT 账号或 API key 登录。",
+        "action": {
+          "href": "/docs/pricing",
+          "label": "查看定价与套餐"
+        }
+      },
+      {
+        "title": "开始第一个任务",
+        "description": "在终端 UI 中输入提示词，提供明确目标、相关路径、约束，以及应运行的验证命令。",
+        "action": {
+          "href": "/docs/prompting",
+          "label": "学习如何编写提示词"
+        }
+      }
+    ],
+    "nextSteps": {
+      "title": "后续步骤",
+      "links": [
+        {
+          "href": "/docs/developer-commands?surface=cli",
+          "label": "查看 CLI 命令目录"
+        },
+        {
+          "href": "/docs/permission-modes",
+          "label": "配置审批模式"
+        },
+        {
+          "href": "/docs/configuration",
+          "label": "配置 Codex CLI"
+        },
+        {
+          "href": "/docs/agent-configuration/subagents",
+          "label": "使用子智能体"
+        }
+      ]
+    }
+  },
+  "capabilities": {
+    "title": "看看 Codex CLI 能做什么",
+    "description": "这些 Codex CLI 功能覆盖交互式编码与可重复自动化，让检查、编辑、运行和评审始终贴近终端与本地仓库。",
+    "features": [
+      {
+        "number": "01",
+        "title": "在终端中完成编码闭环",
+        "description": "在同一会话中讨论任务、检查计划、编辑代码、运行命令并评审最终 diff。",
+        "action": {
+          "href": "/docs/developer-commands?surface=cli",
+          "label": "查看开发者命令"
+        },
+        "media": {
+          "type": "fragment",
+          "fragment": "codex-cli-feature-1.html"
+        }
+      },
+      {
+        "number": "02",
+        "title": "使用 skills 和 plugins",
+        "description": "通过 /skills 选择本地 skills，通过 /plugins 浏览 plugins，只启用当前任务需要的能力。",
+        "action": {
+          "href": "/docs/skills-and-plugins",
+          "label": "了解 skills 和 plugins"
+        },
+        "media": {
+          "type": "fragment",
+          "fragment": "codex-cli-feature-2.html"
+        }
+      },
+      {
+        "number": "03",
+        "title": "发布前评审改动",
+        "description": "运行 /review 启动独立评审智能体，并结合仓库已有的 lint、类型检查、测试和构建命令完成验证。",
+        "action": {
+          "href": "/docs/code-review",
+          "label": "了解代码评审"
+        },
+        "media": {
+          "type": "fragment",
+          "fragment": "codex-cli-feature-3.html"
+        }
+      }
+    ]
+  },
+  "workflow": {
+    "title": "围绕 Codex 构建终端工作流",
+    "description": "使用 CLI 功能恢复聊天、添加视觉和 Web 上下文、拆分复杂工作，并把 Codex 连接到开发工具。",
+    "items": [
+      {
+        "meta": [
+          "01",
+          "codex resume"
+        ],
+        "action": {
+          "href": "/docs/developer-commands?surface=cli#codex-resume",
+          "label": "返回已保存的聊天"
+        },
+        "description": "重新打开当前仓库最近的聊天；需要返回更早的工作时，也可以搜索本地聊天。"
+      },
+      {
+        "meta": [
+          "02",
+          "codex --image"
+        ],
+        "action": {
+          "href": "/docs/image-inputs?surface=cli",
+          "label": "把视觉上下文加入提示词"
+        },
+        "description": "随首个提示词传入错误截图、架构图或设计参考，也可以把图片粘贴到交互式输入框中。"
+      },
+      {
+        "meta": [
+          "03",
+          "subagents"
+        ],
+        "action": {
+          "href": "/docs/agent-configuration/subagents",
+          "label": "拆分较大的调查任务"
+        },
+        "description": "让 Codex 把聚焦工作委派给专门的子智能体，再把调查结果汇总回主终端会话。"
+      },
+      {
+        "meta": [
+          "04",
+          "codex --search"
+        ],
+        "action": {
+          "href": "/docs/web-search?surface=cli",
+          "label": "搜索最新上下文"
+        },
+        "description": "当任务依赖当前版本、文档或外部行为时，把本次运行切换到实时 Web 搜索。搜索活动会保留在记录中。"
+      },
+      {
+        "meta": [
+          "05",
+          "codex cloud"
+        ],
+        "action": {
+          "href": "/docs/cloud#use-codex-cloud-from-the-cli",
+          "label": "把工作移到 Codex 云端"
+        },
+        "description": "浏览进行中和已完成的聊天，把工作提交到已配置环境，再从终端把结果应用到本地仓库。"
+      },
+      {
+        "meta": [
+          "06",
+          "codex mcp"
+        ],
+        "action": {
+          "href": "/docs/extend/mcp?surface=cli",
+          "label": "使用 MCP 连接外部工具"
+        },
+        "description": "添加本地或远程 MCP server，按需认证，并在 Codex 使用前检查当前会话可用的工具。"
+      },
+      {
+        "meta": [
+          "07",
+          "/permissions"
+        ],
+        "action": {
+          "href": "/docs/agent-approvals-security",
+          "label": "设置每次运行的边界"
+        },
+        "description": "选择 Codex 何时可以直接编辑文件或运行命令，并在继续前检查当前沙箱和可写根目录。"
+      },
+      {
+        "meta": [
+          "08",
+          "codex completion"
+        ],
+        "action": {
+          "href": "/docs/cli-customization",
+          "label": "让 Codex 适配你的终端"
+        },
+        "description": "为 shell 生成补全、选择语法主题，并在 VISUAL 或 EDITOR 指定的编辑器中打开较长提示词。"
+      }
+    ]
+  },
+  "useWhen": {
+    "title": "这些情况适合使用 Codex CLI…",
+    "items": [
+      {
+        "term": "主要在终端中工作",
+        "description": "让检查、编辑、运行和评审闭环始终贴近 shell 与本地仓库。"
+      },
+      {
+        "term": "需要脚本或 CI",
+        "description": "使用 codex exec、--json 和明确配置覆盖构建可重复的非交互工作流。"
+      },
+      {
+        "term": "需要本地代码评审",
+        "description": "直接评审工作树 diff、分支比较或指定提交。"
+      },
+      {
+        "term": "想把工作交给云端",
+        "description": "从终端启动云端任务、检查返回结果，并把选中的改动带回本地工作树。"
+      }
+    ]
+  },
+  "surfaces": {
+    "title": "其他 ChatGPT 与 Codex 使用界面",
+    "items": [
+      {
+        "href": "/docs/app",
+        "icon": "monitor",
+        "title": "ChatGPT 桌面应用",
+        "description": "在桌面端协调项目与长时间运行的任务。"
+      },
+      {
+        "href": "/docs/web",
+        "icon": "globe",
+        "title": "ChatGPT Web",
+        "description": "直接在浏览器中研究、分析并创建内容。"
+      },
+      {
+        "href": "/docs/codex/ide",
+        "icon": "code",
+        "title": "Codex IDE 扩展",
+        "description": "使用编辑器中已经打开的代码与上下文。"
+      },
+      {
+        "href": "/docs/cloud",
+        "icon": "cloud",
+        "title": "Codex 云端",
+        "description": "在并行云环境中运行编码任务。"
+      }
+    ]
+  }
+}} />

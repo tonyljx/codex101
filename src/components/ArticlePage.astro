@@ -1,0 +1,155 @@
+---
+import { render, type CollectionEntry } from 'astro:content';
+import DocsLayout from '../layouts/DocsLayout.astro';
+import DocCallout from './docs/DocCallout.astro';
+import DocChecklist from './docs/DocChecklist.astro';
+import DocExample from './docs/DocExample.astro';
+import DocChatComposer from './docs/DocChatComposer.astro';
+import DocCodeBlock from './docs/DocCodeBlock.astro';
+import DocLinkCards from './docs/DocLinkCards.astro';
+import DocLinkCard from './docs/DocLinkCard.astro';
+import DocNote from './docs/DocNote.astro';
+import DocPermissionDemo from './docs/DocPermissionDemo.astro';
+import DocPermissionPicker from './docs/DocPermissionPicker.astro';
+import DocPermissionSettings from './docs/DocPermissionSettings.astro';
+import DocHubPage from './docs/DocHubPage.astro';
+import DocProductPage from './docs/DocProductPage.astro';
+import DocSpecialPage from './docs/DocSpecialPage.astro';
+import DocScreenshot from './docs/DocScreenshot.astro';
+import DocToggle from './docs/DocToggle.astro';
+import DocVideo from './docs/DocVideo.astro';
+import DocPromptCard from './docs/DocPromptCard.astro';
+import DocWorkflowSteps from './docs/DocWorkflowSteps.astro';
+import DocWorkUseCases from './docs/DocWorkUseCases.astro';
+import QuickstartBehavior from './docs/QuickstartBehavior.astro';
+import QuickstartPromptPicker from './docs/QuickstartPromptPicker.astro';
+import { docsUi, type DocsNavigation } from '../lib/docs';
+import { getReferenceNeighbors } from '../lib/reference-sidebars';
+import { copy, localizedPath, type Locale } from '../lib/site';
+
+type Props = {
+  currentPath: string;
+  entry: CollectionEntry<'docs'>;
+  navigation: DocsNavigation;
+};
+
+const { currentPath, entry, navigation } = Astro.props;
+const locale = entry.data.locale as Locale;
+const slug = entry.data.translationKey;
+const { Content, headings } = await render(entry);
+const outline = entry.data.outline ?? headings
+  .filter((heading) => heading.depth === 2)
+  .map((heading) => ({ id: heading.slug, label: heading.text }));
+const currentIndex = navigation.all.findIndex((item) => item.slug === slug);
+const referenceNeighbors = getReferenceNeighbors(locale, slug);
+const previous = referenceNeighbors
+  ? referenceNeighbors.previous && { href: referenceNeighbors.previous.href, title: referenceNeighbors.previous.title }
+  : currentIndex > 0
+    ? { href: navigation.all[currentIndex - 1].slug ? localizedPath(locale, `/docs/${navigation.all[currentIndex - 1].slug}`) : localizedPath(locale, '/docs'), title: navigation.all[currentIndex - 1].title }
+    : undefined;
+const next = referenceNeighbors
+  ? referenceNeighbors.next && { href: referenceNeighbors.next.href, title: referenceNeighbors.next.title }
+  : currentIndex >= 0 && navigation.all[currentIndex + 1]
+    ? { href: localizedPath(locale, `/docs/${navigation.all[currentIndex + 1].slug}`), title: navigation.all[currentIndex + 1].title }
+    : undefined;
+const ui = docsUi(locale);
+const isQuickstart = slug === 'quickstart' && locale === 'zh';
+const isCustomPage = entry.data.pageKind !== 'article';
+const isWide = entry.data.pageKind === 'hub' || entry.data.pageKind === 'product';
+const sharedContentComponents = {
+  Callout: DocCallout,
+  ChatComposer: DocChatComposer,
+  Checklist: DocChecklist,
+  CodeBlock: DocCodeBlock,
+  Example: DocExample,
+  LinkCards: DocLinkCards,
+  LinkCard: DocLinkCard,
+  HubPage: DocHubPage,
+  ProductPage: DocProductPage,
+  SpecialPage: DocSpecialPage,
+  Note: DocNote,
+  PermissionDemo: DocPermissionDemo,
+  PermissionPicker: DocPermissionPicker,
+  PermissionSettings: DocPermissionSettings,
+  PromptCard: DocPromptCard,
+  Screenshot: DocScreenshot,
+  Toggle: DocToggle,
+  Video: DocVideo,
+  WorkflowSteps: DocWorkflowSteps,
+  WorkUseCases: DocWorkUseCases,
+};
+const contentComponents = isQuickstart
+  ? {
+      ...sharedContentComponents,
+      PromptPicker: QuickstartPromptPicker,
+      QuickstartBehavior,
+    }
+  : sharedContentComponents;
+---
+
+<DocsLayout
+  locale={locale}
+  title={entry.data.title}
+  description={entry.data.description}
+  currentPath={currentPath}
+  currentSlug={slug}
+  wide={isWide}
+  reserveOutline={!isWide}
+  outline={outline}
+  navigation={navigation}
+>
+  {isCustomPage ? (
+    <Content components={contentComponents} />
+  ) : (
+    <div class="docs-page-content">
+      <header class="docs-page-header">
+        <h1>{entry.data.title}</h1>
+        <p>{entry.data.description}</p>
+      </header>
+
+      {isQuickstart ? (
+        <Content components={contentComponents} />
+      ) : (
+        <div class="doc-content"><Content components={contentComponents} /></div>
+      )}
+
+      {(previous || next) && (
+      <nav class="docs-page-prev-next" aria-label={copy[locale].docsNavigation}>
+        {previous ? (
+          <a href={previous.href} rel="prev">
+            <span>{ui.previousArticle}</span>
+            <strong>{previous.title}</strong>
+          </a>
+        ) : <span></span>}
+        {next && (
+          <a href={next.href} rel="next">
+            <span>{ui.nextArticle}</span>
+            <strong>{next.title}</strong>
+          </a>
+        )}
+      </nav>
+      )}
+    </div>
+  )}
+</DocsLayout>
+
+<script>
+  const prepareDocCopyButtons = () => {
+    document.querySelectorAll<HTMLButtonElement>('[data-copy-prompt]').forEach((button) => {
+      if (button.dataset.ready === 'true') return;
+      button.dataset.ready = 'true';
+      button.addEventListener('click', async () => {
+        try {
+          await navigator.clipboard.writeText(button.dataset.copyPrompt ?? '');
+          button.dataset.state = 'copied';
+          window.setTimeout(() => { button.dataset.state = 'idle'; }, 1600);
+        } catch {
+          button.dataset.state = 'error';
+        }
+      });
+    });
+  };
+
+  prepareDocCopyButtons();
+  document.addEventListener('astro:page-load', prepareDocCopyButtons);
+</script>

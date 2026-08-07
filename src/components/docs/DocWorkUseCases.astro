@@ -1,0 +1,23 @@
+---
+type Item = {
+  href: string;
+  title: string;
+  description: string;
+};
+
+type Props = {
+  items: Item[];
+  label?: string;
+};
+
+const { items, label = 'ChatGPT Work 使用场景' } = Astro.props;
+---
+
+<section class="doc-work-use-cases" aria-label={label}>
+  {items.map((item) => (
+    <a href={item.href}>
+      <strong>{item.title}</strong>
+      <span>{item.description}</span>
+    </a>
+  ))}
+</section>

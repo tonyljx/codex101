@@ -1,0 +1,46 @@
+---
+title: "ChatGPT personalisieren"
+description: "Lerne die Grundlagen von ChatGPT personalisieren kennen und schließe einen überprüfbaren ersten Ablauf ab."
+locale: "de"
+translationKey: "personalize"
+section: "foundations"
+order: 2
+draft: false
+translationStatus: needs-review
+lastUpdated: 2026-08-06
+---
+<Callout title="Mit einem echten Ergebnis beginnen">
+
+Nenne die Datei, Seite oder das geprüfte Ergebnis, das die Aufgabe liefern soll.
+
+</Callout>
+
+## Mit ChatGPT personalisieren beginnen
+
+Beschreibe zuerst das gewünschte Ergebnis und liefere dann die nötigen Dateien, den Kontext und die Einschränkungen. Lass Codex das echte Projekt prüfen und jeden wichtigen Schritt verifizieren.
+
+<Example>
+
+„Prüfe diese Astro-Website, ergänze Mehrsprachigkeit ohne das Design zu ändern und teste sie mobil.“
+
+</Example>
+
+## Ein verlässlicher Ablauf
+
+1. Ergebnis und Abnahmekriterien beschreiben
+2. Relevante Dateien und bestehende Konventionen prüfen
+3. Änderung umsetzen und risikogerechte Prüfungen ausführen
+4. Ergebnis, Diff und nächsten Schritt prüfen
+
+## Wenn etwas schiefgeht
+
+Bewahre die vollständige Fehlermeldung auf, prüfe Arbeitsverzeichnis und Rechte und reduziere das Problem auf den kleinsten reproduzierbaren Fall. Nutze echte Ausgaben statt Vermutungen.
+
+```bash
+npm run check
+npm run build
+```
+
+## Abschlussprüfung
+
+<Checklist items={["Seite oder Befehl liefert das erwartete Ergebnis","Keine neuen Konsolenfehler oder horizontaler Überlauf","Sprache, Theme und mobile Navigation funktionieren"]} />

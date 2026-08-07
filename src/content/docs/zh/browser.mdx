@@ -1,0 +1,147 @@
+---
+title: "Browser"
+navTitle: "浏览器"
+description: "让 ChatGPT 研究并与网站交互"
+locale: "zh"
+translationKey: "browser"
+section: "explore"
+order: 1009
+draft: false
+translationStatus: complete
+lastUpdated: 2026-08-06
+pageKind: article
+referenceHub: "features"
+sourceUrl: "https://www.codex-docs.com/docs/browser"
+outline:
+  - id: "从地址栏搜索"
+    label: "从地址栏搜索"
+  - id: "管理浏览历史"
+    label: "管理浏览历史"
+  - id: "browser-use"
+    label: "在浏览器中使用 Computer Use"
+  - id: "预览页面"
+    label: "预览页面"
+  - id: "在页面上批注"
+    label: "在页面上批注"
+  - id: "控制浏览器任务范围"
+    label: "控制浏览器任务范围"
+  - id: "developer-mode"
+    label: "Developer mode"
+---
+
+Browser 允许 ChatGPT 打开网站、收集最新信息并执行操作，同时由你保持控制。它适合比较选项、完成网站上的多步骤任务，或评审正在构建的页面。
+
+Browser 可用于 ChatGPT Web 版和 ChatGPT 桌面 App。
+
+<Callout kind="note">
+
+Codex CLI 和 Codex IDE 扩展目前不支持 Browser。要使用内置浏览器，请打开 ChatGPT 桌面 App。
+
+</Callout>
+
+请把页面内容视为不可信上下文。分享敏感信息或允许 ChatGPT 执行操作前，应先检查网站和拟执行的操作。
+
+ChatGPT 桌面 App 的内置浏览器会在聊天中向你和 ChatGPT 提供网站及本地 Web App 的共享视图。你可以用它预览页面、留下可视化反馈，或让 ChatGPT 代你与网站交互。
+
+内置浏览器使用独立于常用浏览器的浏览器配置档案，不会自动共享现有标签页或浏览器会话。任务需要账号时，可以直接在内置浏览器中登录。打开 **Settings > Browser（设置 > 浏览器）**，即可管理浏览器数据和设备上可用的配置档案导入功能。
+
+Browser 默认把下载内容保存到系统的 Downloads 文件夹。在 **Settings > Browser** 中，可以选择其他下载位置、恢复为系统默认值，或开启 **Ask where to save downloads（每次询问保存位置）**。
+
+当 ChatGPT 需要操作现有 Chrome 标签页或使用日常 Chrome 配置档案时，请改用 [Chrome extension](/docs/chrome-extension)。
+
+可以从工具栏、点击 URL、手动导航，或按 <kbd>Cmd</kbd>+<kbd>Shift</kbd>+<kbd>B</kbd>（Windows 上为 <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>B</kbd>）打开内置浏览器。
+
+<Screenshot src="/images/codex/app/in-app-browser-light.webp" darkSrc="/images/codex/app/in-app-browser-dark.webp" alt="ChatGPT 界面截图：ChatGPT 桌面 App 在本地 Web App 预览中显示浏览器批注" maxHeight={420} />
+
+## 从地址栏搜索
+
+在内置浏览器的地址栏中开始输入，即可从浏览历史中查找页面。选择匹配页面可以重新打开；没有匹配的历史记录时，输入搜索词即可使用 Google 搜索。
+
+内置浏览器维护独立的配置档案和浏览历史。搜索结果不会自动包含常用 Chrome 配置档案或其他浏览器中的页面。
+
+## 管理浏览历史
+
+打开 **Settings > Browser（设置 > 浏览器）**，可以搜索内置浏览器的历史记录、重新打开访问过的页面；组织允许时，也可以移除历史记录。使用 **Clear browsing data（清除浏览数据）** 选择时间范围和要移除的数据类型。
+
+当这项能力可用时，ChatGPT 可能会请求搜索浏览历史，以查找与当前任务相关的页面。允许访问前应先检查请求。浏览历史可能包含内部 URL、搜索词和其他敏感信息，因此只应在任务确实需要这些上下文时授权。
+
+<span id="browser-use"></span>
+
+## 在浏览器中使用 Computer Use
+
+Computer Use 允许 ChatGPT 直接操作内置浏览器。ChatGPT 可以打开页面、点击、输入、检查渲染状态、截图，并在页面中验证结果。
+
+在桌面 App 中选择 ChatGPT 并在切换器中开启 Work，或选择 Codex。打开 Plugins Directory 并安装 **Browser**，然后让 ChatGPT 或 Codex 使用浏览器，或通过 `@Browser` 直接引用。
+
+例如：
+
+<CodeBlock code={"Use the browser to open http://localhost:3000/settings, reproduce the layout\nbug, and fix only the overflowing controls."} language="text" />
+
+除非你已经允许过该网站，否则 ChatGPT 会在使用前请求确认。可在 **Settings > Browser** 中管理允许和阻止的网站。提交信息、购买、修改权限或删除数据等敏感操作也会要求确认。ChatGPT 无法在内置浏览器中自动执行文件上传。
+
+<Callout kind="note">
+
+页面上的指令可能具有误导性或恶意。授予网站权限只表示 ChatGPT 可以与该网站交互，并不代表网站内容可信，也不代表你已经批准所有操作。
+
+</Callout>
+
+## 预览页面
+
+1.  在[集成终端](/docs/integrated-terminal)中启动 App 的开发服务器，或运行[本地环境 action](/docs/environments/local-environment#actions)。
+2.  点击 URL 或在浏览器中手动导航，打开本地路由、基于文件的页面或公开页面。
+3.  对照代码 diff 检查渲染结果。
+4.  在需要修改的元素或区域留下浏览器批注。
+5.  要求 ChatGPT 处理这些批注，并保持范围明确。
+
+例如：
+
+<CodeBlock code={"I left comments on the pricing page in the built-in browser. Address the mobile\nlayout issues and keep the card structure unchanged."} language="text" />
+
+## 在页面上批注
+
+如果 bug 只在渲染页面中可见，可以使用浏览器批注向 ChatGPT 提供精确反馈。
+
+1.  开启 **Annotation mode（批注模式）**。
+2.  点击元素，或拖动以选择一个区域。
+3.  编写并保存批注。
+4.  在聊天中发送消息，要求 ChatGPT 处理这些批注。
+
+明确写出问题和期望结果时，批注效果最好：
+
+<CodeBlock code={"This button overflows on mobile. Keep the label on one line if it fits,\notherwise wrap it without changing the card height."} language="text" />
+
+<CodeBlock code={"This tooltip covers the data point under the cursor. Reposition the tooltip so\nit stays inside the chart bounds."} language="text" />
+
+### 样式反馈
+
+对页面某个区域添加批注后，可以选择文本输入框旁的 **Adjust（调整）**，向 ChatGPT 提供更细粒度的样式反馈。你可以修改字体、文本、间距和颜色等值，在页面上预览结果，再发送目标更明确的批注。
+
+<Screenshot src="/images/codex/app/iab-annotations-light.webp" darkSrc="/images/codex/app/iab-annotations-dark.webp" alt="ChatGPT 界面截图：ChatGPT 桌面 App 显示内置浏览器批注的样式控件" maxHeight={420} />
+
+## 控制浏览器任务范围
+
+每项浏览器任务都应足够小，以便一次完成评审。
+
+-   明确页面、路由或 URL。
+-   明确关心的状态，例如加载、空状态、错误或成功。
+-   在需要修改的具体元素或区域留下批注。
+-   ChatGPT 完成后再次检查页面。
+-   打开本地页面前，要求 ChatGPT 启动或检查开发服务器。
+
+对于仓库修改，请使用[评审面板](/docs/code-review?surface=app)检查修改并留下评论。
+
+## Developer mode
+
+Developer mode 可与 Chrome 中的 Computer Use 或内置浏览器配合使用，为 ChatGPT 提供受控的 Chrome DevTools Protocol（CDP）访问。它可以分析 JavaScript 性能、检查控制台输出和网络流量、查看 DOM 与实际应用的样式，或诊断实时浏览器中的问题。
+
+要启用它，请打开 [**Settings > Browser**](codex://settings/browser-use)，然后在 **Developer mode** 下开启 **Enable full CDP access（启用完整 CDP 访问）**。如果组织已禁用这项设置，用户无法在本地开启。管理员可以在 [`requirements.toml`](/docs/enterprise/managed-configuration#pin-feature-flags) 的 `[features]` 下设置 `browser_use_full_cdp_access = false`，禁用完整 CDP 访问，并阻止用户在 ChatGPT 桌面 App 中开启对应选项。
+
+完整 CDP 访问可能暴露敏感的浏览器内部信息。ChatGPT 使用完整 CDP 检查网站前会请求明确批准；批准前应检查网站、任务和请求的访问范围。
+
+内置浏览器使用 `@Browser`。如果要在 Chrome 中使用 Developer mode，请[设置 Chrome extension](/docs/chrome-extension)，然后调用 `@Chrome`。
+
+例如：
+
+<CodeBlock code={"This app is slow. Use @Browser to capture a performance trace and inspect\nnetwork traffic, then identify the bottleneck."} language="text" />
+
+<Screenshot src="/images/codex/app/browser-developer-mode-light.webp" darkSrc="/images/codex/app/browser-developer-mode-dark.webp" alt="ChatGPT 界面截图：ChatGPT 桌面 App 的 Browser 设置显示已启用完整 CDP 访问的 Developer mode" maxHeight={420} />

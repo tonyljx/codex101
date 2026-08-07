@@ -1,0 +1,240 @@
+---
+title: "Sites"
+navTitle: "站点"
+description: "在 ChatGPT 中构建并分享托管站点"
+locale: "zh"
+translationKey: "sites"
+section: "explore"
+order: 1002
+draft: false
+translationStatus: complete
+lastUpdated: 2026-08-06
+pageKind: article
+referenceHub: "features"
+sourceUrl: "https://www.codex-docs.com/docs/sites"
+outline:
+  - id: "开始使用-sites"
+    label: "开始使用 Sites"
+  - id: "为常见任务编写-sites-提示词"
+    label: "为常见任务编写 Sites 提示词"
+  - id: "查看-site-分析数据"
+    label: "查看 Site 分析数据"
+  - id: "添加-sign-in-with-chatgpt"
+    label: "添加 Sign in with ChatGPT"
+  - id: "理解项目版本与部署"
+    label: "理解项目、版本与部署"
+  - id: "选择受支持的-site-形态"
+    label: "选择受支持的 Site 形态"
+  - id: "控制访问与-secrets"
+    label: "控制访问与 secrets"
+  - id: "连接自定义域名"
+    label: "连接自定义域名"
+  - id: "分享前评审"
+    label: "分享前评审"
+  - id: "下线或删除-site"
+    label: "下线或删除 Site"
+  - id: "了解限制与不支持的用途"
+    label: "了解限制与不支持的用途"
+  - id: "相关文档"
+    label: "相关文档"
+---
+
+<Callout kind="note">
+
+Sites 目前处于公开测试阶段，是否可用可能取决于套餐、地区和工作区设置。测试期间，所有 Sites 都受套餐用量限制。ChatGPT 会显示当前限制，并在接近限制时提醒你。达到限制后，你可能无法创建 Site、增加存储空间，或让高用量 Site 保持公开，但仍可编辑和管理现有 Sites。
+
+</Callout>
+
+Sites 允许 ChatGPT 创建、托管、迭代和分享网站、Web App 与游戏。当你想把提示词或兼容的现有项目变成托管体验，又不希望单独搭建部署工作流时，可以使用 Sites。
+
+在 ChatGPT 桌面 App 中打开 **Sites**。你可以根据提示词或兼容的本地项目创建 Site，之后再回到 Sites 视图进行管理。
+
+<Callout kind="note">
+
+每个 Sites 部署 URL 都是生产部署。如果希望在正式上线前评审构建，请让 ChatGPT 只保存一个版本，不要部署。
+
+</Callout>
+
+## 开始使用 Sites
+
+在 ChatGPT 中，在提示词里写出“website”，或明确提及 `@Sites`，即可启动 Sites 工作流。
+
+1.  **描述 Site。** 说明受众、目的、必要行为，以及 Site 应使用的信息。
+2.  **评审 Site。** 检查生成的内容与行为，确认 Site 使用了预期信息，并按预期处理数据。
+3.  **迭代 Site。** 描述所需修改；如果相关文件或视觉上下文有助于 ChatGPT 完成修改，请一并提供。
+4.  **管理并分享 Site。** 返回 **Sites** 重新打开或继续迭代。准备就绪后，选择谁可以访问，并分享生成的链接。
+
+## 为常见任务编写 Sites 提示词
+
+对于新网站、仪表盘或内部工具，应在提示词中写明受众、核心体验和必要信息：
+
+<CodeBlock code={"Build a project request dashboard for my operations team. Let team members\nsubmit requests, see who owns each one, update the status, and filter the list.\nRequire people to sign in with their workspace account, and keep the request\ndata saved between visits."} language="text" />
+
+对于现有项目，可以要求 Sites 准备并发布当前 App：
+
+<CodeBlock code={"Deploy this project with Sites. Check whether it is compatible, make any\nrequired changes, and give me the deployment URL."} language="text" />
+
+当 Site 需要持久应用数据或文件上传时，应在请求中明确说明：
+
+<CodeBlock code={"Add player scores and avatar uploads to this game. Keep the scores and uploaded\navatars between visits."} language="text" />
+
+<Callout kind="note">
+
+可以浏览 [Sites showcase](https://developers.openai.com/showcase)，查看已经部署的内部 App 及其完整创建提示词。
+
+</Callout>
+
+## 查看 Site 分析数据
+
+Sites 会自动记录流量，因此无需添加分析 SDK，也能了解已部署 Site 的使用情况。分析视图会显示独立访客总数、页面浏览量，以及这两个指标随时间的变化。你可以调整日期范围或粒度，查看不同时间段。
+
+打开 **Sites**，找到目标 Site，再选择 **More actions（更多操作）** > **Analytics（分析）**。
+
+**Site analytics**
+
+所选时间段的独立访客和页面浏览量会同时显示总数与时间序列图。
+
+<Callout kind="note">
+
+分析功能目前仅适用于不归 Enterprise 工作区所有的 Sites。
+
+</Callout>
+
+## 添加 Sign in with ChatGPT
+
+公开 Site 可以继续向所有人开放，同时提供可选的 Sign in with ChatGPT，用于保存进度、展示个性化视图，或关联属于特定用户的记录。受工作区限制的 Site 已经使用 ChatGPT 身份来执行分享设置。
+
+可以这样要求 Sites 添加登录体验：
+
+<CodeBlock code={"Add Sign in with ChatGPT to this public Site. Keep the Site available to signed-out visitors. Show a Sign in with ChatGPT action when someone is signed out. After they sign in, greet them with their full name when available, or their email address otherwise. Add a Sign out action, and keep authorization decisions in server-side code."} language="text" />
+
+工作原理
+
+Sites 会通过平台提供的路径处理登录和退出流程，然后把访客带回你的 Site：
+
+<CodeBlock code={"<a href=\"/signin-with-chatgpt\">Sign in with ChatGPT</a>\n<a href=\"/signout-with-chatgpt\">Sign out</a>"} language="html" />
+
+访客登录后，Sites 会通过以下请求头把其身份转发给服务端：
+
+-   `oai-authenticated-user-email` 包含已认证的电子邮件地址。
+-   `oai-authenticated-user-full-name` 可能包含非空的个人资料姓名。请把它视为可选字段，并在缺失时回退到电子邮件地址。
+
+授权决定应保留在服务端代码中，不要依赖拆分姓名的请求头。
+
+## 理解项目、版本与部署
+
+Site 是一种持久的托管产出，可以在 ChatGPT 的 **Sites** 中重新打开、继续迭代、配置和分享。
+
+Sites 项目会把本地源项目与通过 Sites 管理的托管环境关联起来。Sites 将这项关联以及可选的存储绑定名称保存到 `.openai/hosting.json`。新建的本地 starter 最初可以没有 `project_id`；Sites 在预配托管项目后会添加该字段。
+
+例如，使用关系数据库绑定但不使用文件存储的已预配 Site 可以包含：
+
+<CodeBlock code={"{\n  \"project_id\": \"<project-id>\",\n  \"d1\": \"DB\",\n  \"r2\": null\n}"} language="json" />
+
+Sites 发布分为两个独立阶段：
+
+1.  **保存版本。** ChatGPT 构建可部署版本。对于本地源项目，ChatGPT 会把该版本与构建时使用的 Git commit 关联。当你需要一个可评审的候选部署时，使用这一阶段。
+2.  **部署版本。** ChatGPT 发布已保存的版本，并在部署成功后报告生产 URL。只有确实希望目标受众访问 Site 时，才执行这一步。
+
+需要识别过去的候选部署时，可以让 ChatGPT 列出或检查已保存版本。
+
+## 选择受支持的 Site 形态
+
+新项目可以从 Sites 工作流推荐的 Site starter 开始。对于现有项目，应先让 ChatGPT 确认项目能够生成兼容的部署产物，再请求部署。
+
+在提示词中说明所需产品行为，以便 ChatGPT 选择合适的 Site 形态：
+
+<div className="doc-table-wrap">
+
+| Site 需求 | 应向 Sites 提出的要求 |
+| --- | --- |
+| 内容型网站或落地页 | 除非体验确有需要，否则不使用持久应用状态 |
+| 已保存记录、用户进度或游戏分数 | 使用 D1 关系数据库保存持久结构化数据 |
+| 图片、文档、音频、视频或其他上传内容 | 使用 R2 对象存储保存文件 |
+| 带可搜索元数据的上传文件 | 使用 D1 保存元数据，并用 R2 保存文件内容 |
+| 需要当前工作区用户身份的内部 Site | 使用经过工作区认证的用户身份 |
+| 面向公众的登录或外部身份提供方 | 使用启用认证的 Site |
+
+</div>
+
+不要为主题选择、已关闭横幅等临时展示状态请求持久存储；如果托管 Site 需要记住的是用户预期长期保留的产品数据，则应使用持久存储。
+
+## 控制访问与 secrets
+
+新 Site 默认只允许其所有者和工作区管理员访问，直到你修改访问设置。在评审内容、数据处理方式和预期受众期间，应保持受限访问。
+
+根据账号和工作区设置，分享选项可能包括：
+
+-   **所有者和工作区管理员**
+-   **选定的活跃用户或组**（受支持时）
+-   **工作区中的任何人**（受支持时）
+-   **互联网上的任何人**（仅在启用公开发布时）
+
+分享允许其他人访问 Site，但不会授予编辑权限。在 Enterprise 工作区中，公开发布默认关闭，必须由管理员启用。
+
+对于受限分享，受邀访客必须使用获得访问权限的账号登录。公开 Site 无需 ChatGPT 工作区访问权限即可使用。Site 的受众设置与 Site 内置的登录功能是两套独立控制。
+
+例如：
+
+<CodeBlock code={"Change this Site's access to everyone in my workspace after showing me the\ncurrent Site and confirming its URL."} language="text" />
+
+### 配置运行时环境值
+
+打开 **Sites**，再打开 Site 设置，以添加、更新或移除托管环境变量与 secrets。不要把 secret 值放入提示词、附件文件或 Site 内容。
+
+不要把这些值存入 `.openai/hosting.json`。让本地 `.env` 和 `.env.example` 与本地开发所需的键保持一致，并且不要提交 secret 值。
+
+添加、更新或移除托管环境值后，应让 ChatGPT 重新部署已批准的保存版本，使下一次部署使用更新后的配置。
+
+## 连接自定义域名
+
+如果自定义域名功能可用，你可以连接自己拥有的顶级域名或子域名。Sites 不代为注册域名，因此你必须能够修改域名的 DNS 记录。自定义域名初始阶段不对 Enterprise 工作区开放。
+
+连接域名：
+
+1.  打开 Site 设置并选择 **Add domain（添加域名）**。
+2.  输入要使用的顶级域名或子域名。
+3.  复制 Sites 提供的 DNS 记录和值，再通过域名提供商添加这些记录。
+4.  等待几分钟，然后返回 Site 设置并刷新域名状态。
+
+你也可以让 ChatGPT 帮助把域名指向 Site。如果已启用浏览或 Computer Use，登录域名提供商后，ChatGPT 可以协助你完成操作。
+
+## 分享前评审
+
+分享 Site 前：
+
+-   评审内容、生成的文本与图片、链接、上传文件、表单和交互行为。
+-   确认 Site 没有暴露机密或敏感信息、secret 值，以及你无权分享的第三方内容。
+-   从预期访客的视角测试 Site，包括访问控制和登录行为。
+-   评审收集个人信息或其他访客内容的功能，并决定 Site 是否应该收集、分享或发布这些信息。
+-   如果 Site 使用 Sign in with ChatGPT，应说明它会接收哪些访客信息，以及如何使用这些信息。
+-   如果 Site 收集或处理个人数据，请遵守[适用的隐私与数据保护法律](https://help.openai.com/en/articles/20001340)。
+-   选择满足目标受众需求的最小分享范围。
+-   打开已分享 Site，并确认目标受众可以访问。
+
+对于由本地项目构建的 Site，还应在 Codex [评审面板](/docs/code-review?surface=app)中检查源代码修改和所有数据库迁移。
+
+## 下线或删除 Site
+
+如果只想移除访问权限而不删除 Site，请打开分享设置，把访问范围收紧到自己或选定用户，并确认之前的受众已无法打开。
+
+永久删除 Site：
+
+1.  打开 **Sites** 并找到目标 Site。
+2.  选择 **Delete site（删除 Site）**，然后按提示操作。
+3.  输入 Site slug，再选择 **Permanently delete（永久删除）**。
+
+删除是永久操作，已删除的 Site 无法恢复。
+
+## 了解限制与不支持的用途
+
+Sites 托管运行在受支持 Sites runtime 中的 Web 体验。部分框架、私有网络、数据库、后台服务和托管模式不受支持。
+
+Sites 初始阶段不支持数据驻留或推理驻留，其中包括已部署 Sites、Site 代码、D1 与 R2 数据及文件存储、生成的产物和日志。
+
+不要使用 Sites 处理受保护健康信息或支付卡数据；不要把 13 岁以下儿童或适用数字同意年龄以下人群作为目标受众；不要启用金融交易、传播恶意软件、实施网络钓鱼、冒充个人或组织，或以其他方式违反 OpenAI 政策。当前限制与政策链接请参见[创建和管理 ChatGPT Sites](https://help.openai.com/en/articles/20001339)。
+
+## 相关文档
+
+-   [ChatGPT 桌面 App](/docs/app)介绍 App 导航、项目与聊天。
+-   [评审并交付修改](/docs/code-review?surface=app)介绍发布前如何检查源代码修改。

@@ -1,0 +1,65 @@
+---
+title: "本地环境"
+description: "为工作树配置常见操作和设置脚本"
+locale: "zh"
+translationKey: "environments/local-environment"
+section: "explore"
+order: 1046
+draft: false
+translationStatus: complete
+lastUpdated: 2026-08-06
+pageKind: article
+referenceHub: "developers"
+sourceUrl: "https://www.codex-docs.com/docs/environments/local-environment"
+outline:
+  - id: "初始化脚本"
+    label: "初始化脚本"
+  - id: "actions操作"
+    label: "Actions（操作）"
+  - id: "使用内置-git-工具"
+    label: "使用内置 Git 工具"
+---
+
+本地环境让你为工作树配置初始化步骤，也可以为项目定义一组常用操作（actions）。
+
+<Callout kind="note">
+
+本地环境只能在 ChatGPT 桌面 App 的 Codex 中使用。配置或使用本地环境前，请先选择 **Codex**。
+
+</Callout>
+
+你可以通过 [ChatGPT 桌面 App 设置](/docs)配置本地环境。生成的文件可以提交到项目的 Git 仓库中，与团队成员共享。
+
+Codex 会把这份配置保存在项目根目录的 `.codex` 文件夹中。如果仓库包含多个项目，请打开那个包含共享 `.codex` 文件夹的项目目录。
+
+## 初始化脚本
+
+工作树运行在与本地聊天不同的目录中，因此项目可能尚未完成初始化，也可能缺少依赖或未提交到仓库的文件。Codex 在新聊天开始时创建工作树，并自动运行初始化脚本。
+
+初始化脚本可以包含准备环境所需的命令，例如安装依赖或执行构建。
+
+例如，TypeScript 项目可以用下面的脚本安装依赖并完成首次构建：
+
+<CodeBlock code={"npm install\nnpm run build"} language="bash" />
+
+如果初始化过程依赖平台，可以分别定义 macOS、Windows 和 Linux 脚本，覆盖默认设置。
+
+## Actions（操作）
+
+Actions 用于定义启动开发服务器、运行测试等常用项目任务。它们会出现在 ChatGPT 桌面 App 顶部栏中，便于快速使用，并在 App 的[集成终端](/docs/integrated-terminal)中运行。
+
+这些操作可以避免反复输入构建项目或启动开发服务器等常用命令。临时、一次性的快速调试则可以直接使用集成终端。
+
+<Screenshot src="/images/codex/app/actions-light.webp" darkSrc="/images/codex/app/actions-dark.webp" alt="ChatGPT 桌面 App 设置中的项目操作列表（浅色模式）" />
+
+例如，可以为 Node.js 项目创建一个名为 **Run** 的操作：
+
+<CodeBlock code={"npm start"} language="bash" />
+
+如果操作命令依赖平台，可以分别定义 macOS、Windows 和 Linux 脚本。为每个操作选择一个对应图标，便于识别。
+
+## 使用内置 Git 工具
+
+在 Codex 中，ChatGPT 桌面 App 会为每个本地项目和工作树提供常用 Git 控件。差异面板显示当前检出目录中的改动，并允许添加行内评论供 Codex 处理。你可以暂存或还原单个变更块、暂存或还原整个文件、提交改动、推送分支，以及在不离开 App 的情况下创建 pull request。
+
+应用未提供的 Git 操作可以通过[集成终端](/docs/integrated-terminal)完成。需要把并行改动与本地检出隔离时，请在[工作树](/docs/environments/git-worktrees)中开始任务。

@@ -1,0 +1,37 @@
+{
+  "name": "codex101",
+  "type": "module",
+  "version": "0.0.1",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build && npm run check:reference-routes",
+    "preview": "astro preview",
+    "astro": "astro",
+    "check": "astro check",
+    "check:reference-routes": "node scripts/check-reference-routes.mjs",
+    "migrate:reference-docs": "node scripts/migrate-reference-docs.mjs",
+    "deploy": "npm run build && wrangler deploy"
+  },
+  "dependencies": {
+    "@astrojs/mdx": "^7.0.5",
+    "@astrojs/react": "^6.0.2",
+    "astro": "^7.1.6",
+    "lucide-react": "^1.28.0",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.10",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
+    "parse5": "^7.3.0",
+    "postcss": "^8.5.25",
+    "turndown": "^7.2.4",
+    "turndown-plugin-gfm": "^1.0.2",
+    "typescript": "^6.0.3",
+    "wrangler": "^4.119.0"
+  }
+}

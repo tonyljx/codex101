@@ -1,0 +1,127 @@
+---
+title: "执行记录（Chronicle）"
+navTitle: "执行记录"
+description: "从最近的屏幕上下文建立 Codex 记忆。"
+locale: "zh"
+translationKey: "customization/chronicle"
+section: "explore"
+order: 1025
+draft: false
+translationStatus: complete
+lastUpdated: 2026-08-06
+pageKind: article
+referenceHub: "configuration"
+sourceUrl: "https://www.codex-docs.com/docs/customization/chronicle"
+outline:
+  - id: "chronicle-如何提供帮助"
+    label: "Chronicle 如何提供帮助"
+  - id: "启用-chronicle"
+    label: "启用 Chronicle"
+  - id: "随时暂停或停用-chronicle"
+    label: "随时暂停或停用 Chronicle"
+  - id: "速率限制"
+    label: "速率限制"
+  - id: "隐私与安全"
+    label: "隐私与安全"
+  - id: "提示词注入风险"
+    label: "提示词注入风险"
+  - id: "故障排查"
+    label: "故障排查"
+---
+
+<Callout kind="note">
+
+Chronicle 是一项用于执行记录的**可选择启用的研究预览**功能。它仅面向 macOS 上的 ChatGPT Pro 订阅用户开放。启用前，请先阅读[隐私与安全](#隐私与安全)，了解当前细节和风险。
+
+</Callout>
+
+Chronicle 会用屏幕上下文增强 Codex 记忆。你向 Codex 发出提示时，这些记忆可以帮助它理解你最近在处理什么，减少你反复补充背景信息的需要。
+
+Chronicle 作为可选择启用的研究预览功能，在 macOS 版 ChatGPT 桌面应用中提供。它需要 macOS 的 Screen Recording（屏幕录制）和 Accessibility（辅助功能）权限。启用前请注意：这项功能会很快消耗速率限制额度，增加提示词注入风险，并以未加密形式在你的设备上存储记忆。
+
+## Chronicle 如何提供帮助
+
+Chronicle 的设计目标，是减少你与 Codex 协作时需要反复说明的上下文。它会利用最近的屏幕上下文改进记忆生成，让 Codex 更容易理解你的指代，找到合适的信息来源，并识别你常用的工具和工作流。
+
+### 使用屏幕上的内容
+
+借助 Chronicle，Codex 可以理解你当前正在查看的内容，减少你在补充上下文和切换应用上花费的时间。
+
+### 补足缺失的上下文
+
+你不需要每次都从零开始精心整理背景信息。Chronicle 可以让 Codex 补齐上下文里的空白。
+
+### 记住工具和工作流
+
+你不需要反复告诉 Codex 应该用哪些工具完成工作。Codex 会随着你的工作逐步学习，从长期看节省时间。
+
+在这些情况下，Codex 会使用 Chronicle 提供额外上下文。遇到更适合直接使用的来源，比如具体文件、Slack 线程、Google 文档、仪表板或 pull request 时，Codex 会先借助 Chronicle 识别该来源，再直接使用该来源。
+
+## 启用 Chronicle
+
+1.  打开 ChatGPT 桌面应用的 Settings（设置）。
+2.  进入 **Personalization（个性化）**，并确认 **Memories（记忆）** 已启用。
+3.  在记忆设置下方打开 **Chronicle**。
+4.  查看同意对话框，并选择 **Continue（继续）**。
+5.  按提示授予 macOS Screen Recording（屏幕录制）和 Accessibility（辅助功能）权限。
+6.  设置完成后，选择 **Try it out（试用）**，或开始一个新聊天。
+
+如果 macOS 提示 Screen Recording（屏幕录制）或 Accessibility（辅助功能）权限被拒绝，请打开 **System Settings（系统设置） > Privacy & Security（隐私与安全） > Screen Recording（屏幕录制）** 或 **Accessibility（辅助功能）**，并为 ChatGPT 启用权限。如果某项权限受到 macOS 或组织策略限制，Chronicle 会在限制解除且 ChatGPT 获得所需权限后启动。
+
+## 随时暂停或停用 Chronicle
+
+你可以决定 Chronicle 什么时候使用屏幕上下文生成记忆。使用 ChatGPT 菜单栏图标选择 **Pause Chronicle** 或 **Resume Chronicle**，即可暂停或恢复这项功能。在开会前，或查看不希望 Codex 用作上下文的敏感内容时，请先暂停 Chronicle。若要停用它，请回到 **Settings（设置） > Personalization（个性化） > Memories（记忆）**，并关闭 **Chronicle**。
+
+你也可以控制某个聊天是否使用记忆。参见[按聊天控制 Memories](/docs/customization/memories#control-memories-per-chat)。
+
+## 速率限制
+
+Chronicle 会在后台运行沙箱化智能体，根据捕获到的屏幕图像生成记忆。这些智能体目前会很快消耗速率限制额度。
+
+## 隐私与安全
+
+Chronicle 会使用屏幕捕获，其中可能包含屏幕上可见的敏感信息。它不会访问你的麦克风或系统音频。未经他人同意，不要使用 Chronicle 记录会议或与他人的通信。查看不希望写入记忆的内容时，请暂停 Chronicle。
+
+### Chronicle 会把我的数据存在哪里？
+
+屏幕捕获是临时数据，只会短暂保存在你的电脑上。Chronicle 运行期间，临时屏幕捕获文件可能出现在 `$TMPDIR/chronicle/screen_recording/` 下。Chronicle 运行时，超过 6 小时的屏幕捕获会被删除。
+
+Chronicle 生成的记忆和其它 Codex 记忆一样，都是未加密的 Markdown 文件；你可以按需读取和修改，也可以要求 Codex 搜索这些文件。如果你希望 Codex 忘记某些内容，可以删除文件夹中的对应文件，或有选择地编辑 Markdown 文件，移除要删除的信息。不要手动添加新信息。Chronicle 生成的记忆会本地存储在 `$CODEX_HOME/memories_extensions/chronicle/` 下，通常是 `~/.codex/memories_extensions/chronicle`。
+
+<Callout kind="danger">
+
+屏幕捕获目录和记忆目录都可能包含敏感信息。不要与他人共享其中内容，并注意你电脑上的其它程序也可能访问这些文件。
+
+</Callout>
+
+### 哪些数据会与 OpenAI 共享？
+
+Chronicle 会先在本地捕获屏幕上下文，然后定期使用 Codex 将最近活动总结成记忆。为了生成这些记忆，它会启动一个可访问这段屏幕上下文的临时 Codex 会话。这个会话可能处理选定的屏幕截图帧、从截图中提取的 OCR 文本、时间信息，以及相关时间窗口内的本地文件路径。
+
+用于生成记忆的屏幕捕获会临时存储在你的设备上。它们会在我们的服务器上处理，以生成记忆；生成的记忆随后存储在本地设备上。除非法律要求，我们不会在处理完成后把截图存储在服务器上，也不会用这些截图训练模型。
+
+生成的记忆是存储在 `$CODEX_HOME/memories_extensions/chronicle/` 下的本地 Markdown 文件。Codex 在未来会话中使用记忆时，相关记忆内容可能会作为该会话的上下文；如果你的 ChatGPT 设置允许，这些内容也可能用于改进我们的模型。参见[数据控制 FAQ](https://help.openai.com/en/articles/7730893-data-controls-faq)。
+
+## 提示词注入风险
+
+使用 Chronicle 会增加来自屏幕内容的提示词注入攻击风险。例如，如果你浏览的网站包含恶意智能体指令，Codex 可能会遵循这些指令。
+
+## 故障排查
+
+### 如何启用 Chronicle？
+
+如果你看不到 Chronicle 设置，请确认你使用的 ChatGPT 桌面应用版本包含 Chronicle，并且已经在 **Settings（设置） > Personalization（个性化）** 中启用 **Memories（记忆）**。
+
+Chronicle 目前仅面向 macOS 上的 ChatGPT Pro 订阅用户开放。
+
+如果设置无法完成：
+
+1.  确认 ChatGPT 已获得 Screen Recording（屏幕录制）和 Accessibility（辅助功能）权限。
+2.  退出并重新打开 ChatGPT 桌面应用。
+3.  打开 **Settings（设置） > Personalization（个性化）**，检查 Chronicle 状态。
+
+### Chronicle 记忆使用哪个模型生成？
+
+Chronicle 使用与你的其它 [Memories](/docs/customization/memories)相同的模型。如果你没有配置特定模型，它会使用默认 Codex 模型。若要选择特定模型，请在[配置](/docs/config-file/config-basic)中更新 `consolidation_model`。
+
+<CodeBlock code={"[memories]\nconsolidation_model = \"gpt-5.6-luna\""} language="toml" />

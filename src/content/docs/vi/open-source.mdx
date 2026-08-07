@@ -1,0 +1,46 @@
+---
+title: "Mã nguồn mở"
+description: "Nắm vững khái niệm cốt lõi của Mã nguồn mở và hoàn thành quy trình đầu tiên có thể kiểm chứng."
+locale: "vi"
+translationKey: "open-source"
+section: "releases"
+order: 3
+draft: false
+translationStatus: needs-review
+lastUpdated: 2026-08-06
+---
+<Callout title="Bắt đầu từ một kết quả thật">
+
+Nêu rõ tệp, trang hoặc kết quả đã xác minh mà tác vụ cần tạo ra.
+
+</Callout>
+
+## Bắt đầu với Mã nguồn mở
+
+Hãy bắt đầu bằng kết quả bạn muốn, sau đó cung cấp tệp, bối cảnh và ràng buộc cần thiết. Để Codex kiểm tra dự án thực và xác minh sau mỗi bước quan trọng.
+
+<Example>
+
+“Kiểm tra trang Astro này, thêm đa ngôn ngữ mà không đổi thiết kế và xác minh trên di động.”
+
+</Example>
+
+## Một quy trình đáng tin cậy
+
+1. Mô tả kết quả và tiêu chí nghiệm thu
+2. Kiểm tra tệp liên quan và quy ước hiện có
+3. Thực hiện thay đổi và chạy kiểm tra phù hợp với rủi ro
+4. Xem lại kết quả, khác biệt và bước tiếp theo
+
+## Khi có sự cố
+
+Giữ nguyên thông báo lỗi đầy đủ, kiểm tra thư mục làm việc và quyền, rồi thu nhỏ thành trường hợp tái hiện tối thiểu. Ưu tiên đầu ra thực tế thay vì phỏng đoán.
+
+```bash
+npm run check
+npm run build
+```
+
+## Kiểm tra hoàn tất
+
+<Checklist items={["Trang hoặc lệnh tạo ra kết quả mong đợi","Không có lỗi console mới hoặc tràn ngang","Ngôn ngữ, giao diện và điều hướng di động vẫn hoạt động"]} />

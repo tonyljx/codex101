@@ -1,0 +1,191 @@
+---
+title: "Codex Local HIPAA 配置指南"
+navTitle: "HIPAA 配置"
+description: "为可能处理受保护健康信息的工作流配置 Codex Local"
+locale: "zh"
+translationKey: "hipaa-configuration"
+section: "explore"
+order: 1094
+draft: false
+translationStatus: complete
+lastUpdated: 2026-08-06
+pageKind: article
+referenceHub: "administration"
+sourceUrl: "https://www.codex-docs.com/docs/hipaa-configuration"
+outline:
+  - id: "适用对象"
+    label: "适用对象"
+  - id: "共同责任"
+    label: "共同责任"
+  - id: "openai-安全计划"
+    label: "OpenAI 安全计划"
+  - id: "codex-local-登录"
+    label: "Codex Local 登录"
+  - id: "你的责任"
+    label: "你的责任"
+  - id: "启用-codex"
+    label: "启用 Codex"
+  - id: "配置基于角色的访问控制"
+    label: "配置基于角色的访问控制"
+  - id: "review-apps-and-plugins"
+    label: "评审 plugins 与连接器"
+  - id: "配置托管要求与默认值"
+    label: "配置托管要求与默认值"
+  - id: "实际发布步骤"
+    label: "实际发布步骤"
+  - id: "参考资料"
+    label: "参考资料"
+---
+
+## 适用对象
+
+如果你的工作流可能处理受保护健康信息（PHI），请使用本指南妥善配置 Codex Local。Codex Local 包括在用户电脑上运行的 ChatGPT 桌面 App、Codex IDE 扩展和 Codex CLI。
+
+如果你使用 ChatGPT for Healthcare、ChatGPT for Clinicians 或 Regulated 工作区，并且已签署适用的 OpenAI Business Associate Agreement（BAA），OpenAI 会按照 BAA 处理从 Codex Local 收到的 PHI。OpenAI 会安全处理你通过 Codex 提交的提示词、文件和其他输入，并安全返回输出。
+
+OpenAI 与你的组织共同承担保护 OpenAI 服务的责任。你需要安全配置本地工作站、源代码仓库、本地保留、本地 MCP servers、Browser Use 与 Computer Use 活动、桌面应用，以及 Codex 可以访问的 Google Drive 或 GitHub 等第三方服务。本指南说明如何配置这些工具。
+
+<Callout kind="note">
+
+本指南不构成法律建议。如果你属于涵盖实体（covered entity）或业务伙伴（business associate），请结合自身 HIPAA 政策、风险分析、BAA 清单、端点控制和数据流文档评审最终配置。
+
+</Callout>
+
+## 共同责任
+
+与大多数云解决方案一样，云服务提供商与客户共同承担合规责任。ChatGPT Enterprise 在 OpenAI 云端存储输入与输出；用户工作站则保留 Codex Local 的输入与输出。Codex 会把提示词、文件等输入发送给 OpenAI 进行推理，OpenAI 再返回输出。对于通过 ChatGPT 认证的使用，OpenAI 最多保留 30 天审计记录，以便你通过 [Compliance API](/docs/enterprise/governance#compliance-api) 获取。OpenAI 不会使用 ChatGPT Enterprise 数据或 Codex Local 数据训练模型。
+
+本地工作站配置，尤其是其中的 TOML 策略文件，决定 Codex 可以在用户电脑上执行什么。它会影响 Codex 能否读写文件、运行命令、访问网络、调用 plugins 或连接器、调用 MCP 工具、打开浏览器界面以及保留本地对话记录。这些设置不会改变 OpenAI 在 BAA 下的义务，但却是 HIPAA 防护措施的核心。本指南介绍如何通过相关设置，让 Codex Local 符合组织内部关于 PHI 使用与保护的政策。
+
+## OpenAI 安全计划
+
+OpenAI 维护一套企业安全计划，旨在保护 OpenAI 服务处理的数据，并支持受监管组织履行合规义务。
+
+OpenAI 实施 \*\*Enterprise Risk Management（企业风险管理）\*\*计划，并建立包含董事会委员会报告机制的正式风险治理结构。产品保障活动帮助确保产品发布继续保留加密、最小权限访问和细粒度日志等防护措施，以支持 HIPAA 合规。产品风险评估、控制监控与合规评审有助于识别数据面临的合理可预见风险、评估防护措施的有效性，并持续改进 ChatGPT Enterprise、API Platform 和 Codex 相关服务使用的控制。
+
+**安全开发与 CI/CD 防护措施**有助于降低 Codex 相关服务的改动引入未授权访问、数据泄漏或完整性问题的风险。这些措施包括受控源码访问、同行评审、自动化测试、构建与部署工作流中的安全检查、secret 处理控制以及受监控的部署流程。受控软件交付流程为 OpenAI 服务层提供支持；你仍需负责本地仓库卫生、工作站安全，以及本地策略文件允许的行为。
+
+**OpenAI 漏洞管理计划**包括持续扫描、依赖项与基础设施评审、基于严重程度的分诊、修复跟踪和修复验证。OpenAI 还通过内部与外部红队、独立安全测试和负责任披露渠道，在安全弱点影响数据之前识别并处理它们。
+
+**数据保护控制**包括传输中和静态数据加密、身份与访问控制、基于角色的管理、日志记录，以及遵循相应 ChatGPT Enterprise 或 API 组织设置的保留控制。
+
+## Codex Local 登录
+
+使用 OpenAI 模型时，Codex 支持两种 OpenAI 登录方式：通过 ChatGPT 登录使用订阅访问，或通过 API key 登录使用按量计费访问。在适用的 OpenAI BAA 下，两种方式都支持 HIPAA 合规。
+
+使用 ChatGPT 登录时，Codex 的使用会遵循用户的 ChatGPT 工作区权限、基于角色的访问控制（RBAC）以及 ChatGPT Enterprise 的保留和数据驻留设置。使用 API key 登录时，Codex 的使用会遵循 OpenAI API 组织的保留、数据共享和管理设置，而不是 ChatGPT 工作区设置。API key 登录常用于程序化 Codex CLI 工作流，例如可信 CI/CD 作业；但不应在公开或不可信的执行环境中暴露 API key。
+
+## 你的责任
+
+你仍需负责运行 Codex Local 的工作站。请针对本地 Codex 使用完成自己的风险分析，包括工作站配置、操作系统安全、磁盘加密、恶意软件防护、设备管理、补丁、用户访问、安全凭据存储和本地保留等控制。
+
+由你决定哪些用户可以使用 Codex Local、允许哪些登录方式、他们能访问哪些工作区、能否使用 API key 登录、哪些仓库与文件夹可以包含 PHI，以及 Codex 能否使用外部服务。
+
+你还需要对已启用的第三方服务及其可访问用户负责。如果组织在包含 PHI 的环境中为 Microsoft SharePoint、Google Drive、GitHub 或其他服务启用浏览器目标、plugin、连接器或 MCP server，请确认组织已批准该服务处理 PHI，并已签署适当的 BAA 或同等 healthcare addendum。OpenAI 的 BAA 不会使另一家供应商自动成为符合 HIPAA 要求的目标。
+
+以下章节介绍如何使用 `requirements.toml` 策略配置文件和相关设置管理 HIPAA 合规。请同时评审其他 OpenAI 文档中的设置，并随着 Codex 能力变化重新评审。
+
+## 启用 Codex
+
+按照[管理员设置说明](/docs/enterprise/admin-setup)为工作区启用 Codex Local。请联系 OpenAI Account Director，为工作区启用 Codex HIPAA 支持。
+
+**BAA 不涵盖 Codex 云端。请勿使用 Codex 云端处理 PHI。**
+
+## 配置基于角色的访问控制
+
+你可以使用 RBAC 自定义 Codex Local 及其配置的访问权限。例如，不接触 PHI 的用户可以获得更宽松的配置，而会接触 PHI 的用户可以使用本指南中的配置。请从 [ChatGPT 管理员权限与角色页面](https://chatgpt.com/admin/permissions)控制整个组织对 Codex Local 的访问。要控制特定用户的访问，请创建组并编辑这些组的权限。
+
+<span id="review-apps-and-plugins"></span>
+
+## 评审 plugins 与连接器
+
+Codex Local 支持可包含连接器和 skills 的 plugins。连接器可以与第三方数据源交换数据。启用带连接器的 plugin 前，请判断是否需要与通过该连接器接收数据的第三方签署 BAA。Skills 是在策略配置范围内运行的指令；应像评审其他脚本一样，确认 skills 适合预期用途。
+
+工作区管理员必须先通过 plugin 控制开放某个 plugin，再单独启用其中的连接器，用户才能使用。请在[连接器设置](https://chatgpt.com/admin/ca)中配置连接器访问权限。
+
+## 配置托管要求与默认值
+
+TOML 配置文件中的 requirements 和 managed defaults 用于管理 Codex 行为。本地工作站把用户级配置保存在 `~/.codex/config.toml`。CLI 与 IDE 扩展共享相同配置层。要设置用户无法覆盖的管理员强制约束，请在 `requirements.toml` 中使用 managed requirements。OpenAI 建议通过托管配置强制执行 PHI 数据处理要求。
+
+管理员可以在 Codex [Policies 页面](https://chatgpt.com/codex/settings/policies)使用兼容 `requirements.toml` 的语法配置 cloud-managed requirements，也可以通过 macOS MDM 等设备管理方式分发 requirements。Codex 按以下顺序应用 requirements 层：cloud-managed requirements、macOS MDM requirements、系统 `requirements.toml`。更早的 requirements 对其设置的字段拥有更高优先级。
+
+Managed defaults 与 requirements 相互独立。它们设置 Codex 启动时的初始配置，但用户可以在会话期间更改这些设置；Codex 下次启动时会重新应用 defaults。Managed defaults 适合标准化，不适合严格合规强制。例如，可以设置默认模型、权限配置档案或其他偏好的本地行为。如果某项设置在 PHI 工作流中必须不可绕过，请把它放入 requirements。对于 managed defaults，macOS MDM managed preferences 优先级最高，其次是系统 `managed_config.toml`，最后是用户本地 `config.toml`。
+
+下表汇总了配置 Codex Local 时可用的部分设置。请结合这些设置和[参考资料](#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99)，以符合自身合规要求的方式配置 Codex Local。
+
+<div className="doc-table-wrap">
+
+| 控制 | 设置 | 说明 |
+| --- | --- | --- |
+| [登录方式](/docs/auth) | 由工作区治理的 PHI 工作流使用 ChatGPT 登录；只有经过批准的 API BAA 工作流才使用 API key 登录。 | 决定应用 ChatGPT 工作区控制还是 API 组织控制。 |
+| [工作区固定](/docs/auth#enforce-a-login-method-or-workspace) | `forced_login_method = "chatgpt"`  
+`forced_chatgpt_workspace_id = "<workspace-id>"` | 管理员要求使用 ChatGPT 登录时，把 PHI 工作流限制在经过批准的工作区内。 |
+| [审批策略](/docs/enterprise/managed-configuration#admin-enforced-requirements-requirementstoml) | `allowed_approval_policies = ["on-request", "untrusted"]` | 防止 Codex 未经评审就执行风险较高的操作。 |
+| [审批人](/docs/enterprise/managed-configuration#configure-automatic-review-policy) | `allowed_approvals_reviewers = ["user"]` | 要求由用户而非自动评审者批准越过沙箱边界的操作。 |
+| [权限配置档案](/docs/enterprise/managed-configuration#control-available-permission-profiles) | `default_permissions = ":workspace"`  
+只允许 `:read-only` 和 `:workspace`。 | 在允许只读或仅限工作区操作的同时，阻止访问整个设备。 |
+| [Web 搜索](/docs/config-file/config-basic#web-search-mode) | `allowed_web_search_modes = ["cached"]` | 把搜索限制为缓存结果，或将其禁用。实时 Web 访问需要经过批准的配置。 |
+| [Browser Use 与 Computer Use 功能](/docs/enterprise/managed-configuration#pin-feature-flags) | 将 `computer_use`、`browser_use`、`browser_use_full_cdp_access` 和 `in_app_browser` 设置为 `false`。 | 降低用户把 PHI 复制到网站或桌面应用的可能性。 |
+| [MCP servers](/docs/extend/mcp?surface=cli) | 默认保持 `[mcp_servers]` 为空；只将精确匹配且经过批准的 MCP server 加入允许列表。 | 默认禁用本地 MCP server，只添加经过批准的 MCP server 或连接器。 |
+| [本地历史记录与 plugins](/docs/config-file/config-basic#feature-flags) | 必要时设置 `[history] persistence = "none"`。只为经过批准的组启用 plugins 或连接器。 | 处理本地对话记录保留和第三方 BAA 评审。 |
+
+</div>
+
+### Starter requirements.toml
+
+OpenAI 为 ChatGPT Enterprise 和 Regulated 工作区提供 starter 配置，使用上表中的部分设置。如果采用 cloud-managed requirements 作为配置分发机制，请在 Codex [Policies 页面](https://chatgpt.com/codex/settings/policies)找到该 starter 配置，并针对特定 RBAC 组覆盖它。
+
+该配置在允许正常、受监督的 Codex Local 工作的同时，减少未经授权的数据外流。发布前请先评审并按需调整。下面两个示例展示如何调整配置以支持常见工作流。
+
+权限配置档案的允许列表功能要求 Codex 0.138.0 或更高版本。所有受管客户端都运行受支持版本后，才能部署此示例。
+
+<CodeBlock code={"# Starter requirements.toml for Codex Local use with PHI.\n# Review and adapt this policy before rollout.\n\nallowed_approval_policies = [\"on-request\", \"untrusted\"]\nallowed_approvals_reviewers = [\"user\"]\nallowed_web_search_modes = [\"cached\"]\n\ndefault_permissions = \":workspace\"\n\n[allowed_permission_profiles]\n\":read-only\" = true\n\":workspace\" = true\n\n[features]\ncomputer_use = false\nbrowser_use = false\nbrowser_use_full_cdp_access = false\nin_app_browser = false\n\n[mcp_servers]\n# None allowed by default."} language="toml" />
+
+<span id="example-1-enable-the-google-drive-app"></span>
+
+### 示例 1：启用 Google Drive plugin
+
+只有在确认数据流、OAuth 作用域（scopes）、访问控制和第三方 BAA 状态后，才为经过批准的组启用 Google Drive。OpenAI 的 BAA 管理 OpenAI 对 PHI 的处理，不会自动涵盖作为 PHI 接收方或持有方的 Google。
+
+<CodeBlock code={"# Example config.toml change for a group approved to use\n# the Google Drive app with PHI, after legal and security review.\n\n[features]\napps = true\n\n[apps.google_drive]\nenabled = true\ndestructive_enabled = false\ndefault_tools_enabled = true\ndefault_tools_approval_mode = \"prompt\"\n\n[apps.google_drive.tools.\"files/delete\"]\nenabled = false"} language="toml" />
+
+默认关闭破坏性操作，在使用连接器工具前要求提示确认，通过 RBAC 组限制访问，并在可用时评审 Google Workspace 审计日志中的连接器活动。
+
+### 示例 2：在本地使用 GitHub
+
+本地开发时，许多团队会从开发者工作站使用 Git 或 GitHub CLI。这与 Codex 云端不同。如果仓库、issues、pull requests 或评论可能包含 PHI，请在启用这条路径前确认组织允许 GitHub 环境处理这些数据。
+
+<CodeBlock code={"# Example requirements.toml addition for local GitHub use.\n# This doesn't enable Codex cloud. It keeps repository actions reviewable.\n\n[rules]\nprefix_rules = [\n  { pattern = [{ token = \"git\" }, { any_of = [\"push\", \"commit\"] }], decision = \"prompt\", justification = \"Require review before changing repository history.\" },\n  { pattern = [{ token = \"gh\" }], decision = \"prompt\", justification = \"Require review before using GitHub CLI.\" },\n]"} language="toml" />
+
+该策略不会阻止使用 GitHub，而是在 Codex 更改仓库历史或运行 GitHub CLI 命令前创建评审点。
+
+### 可选：使用经过评审的 GitHub MCP server
+
+如果团队使用 GitHub MCP server，而不是只使用本地 Git 命令，请只将精确匹配且经过批准的 server 身份加入允许列表，并把工具限制为最小的已批准集合。
+
+<CodeBlock code={"# Optional: allow a vetted GitHub MCP server.\n# Use the exact approved server identity for your environment.\n\n# requirements.toml\n[mcp_servers.github]\nidentity = { url = \"https://github-mcp.example.com/mcp\" }\n\n# config.toml\n[mcp_servers.github]\nurl = \"https://github-mcp.example.com/mcp\"\nenabled = true\ndefault_tools_approval_mode = \"prompt\"\nenabled_tools = [\"<approved-read-tools>\", \"<approved-pr-tools>\"]"} language="toml" />
+
+## 实际发布步骤
+
+1.  **选择获批的登录路径。** 决定用户是通过 [ChatGPT 认证 Codex Local](/docs/auth)、使用 API key，还是为不同工作流同时使用两者。
+2.  **确认与 OpenAI 的 BAA。** 确认已针对获批登录路径与 OpenAI 签署 BAA。请联系 OpenAI Account Director，为 ChatGPT 工作区启用 Codex HIPAA 支持。
+3.  **启用 Codex Local 并定义 RBAC 组。** 使用 [Codex Enterprise 管理员设置](/docs/enterprise/admin-setup)启用 Codex Local，创建小规模 Codex Admin 组，并通过 Codex Users、Codex PHI Users 等 RBAC 组分配 Codex 访问权限。
+4.  **部署管理员强制的 `requirements.toml` 与托管默认值（managed defaults）。** 使用云端托管要求（cloud-managed requirements）、MDM 或系统配置，为 PHI 用户强制执行起始策略。配置权限配置档案、审批策略、Web 搜索模式、功能固定、网络要求、命令规则和 MCP 允许列表。
+5.  **培训用户理解审批与沙箱边界。** 使用[智能体审批与安全](/docs/agent-approvals-security)说明 Codex 何时可以在沙箱内行动、何时请求审批，以及用户为何需要评审网络、文件传输、仓库写入和第三方连接器操作。
+6.  **在处理 PHI 前评审第三方 plugins。** 启用包含 Google Drive、GitHub 等连接器的 plugins、浏览器目标或 MCP servers 前，请确认组织批准接收 PHI 的第三方，并已与其签署适当 BAA。
+7.  **跟踪、评审并刷新部署。** 使用 Compliance API 导出、工作区分析、端点日志、plugin 与连接服务审计日志和仓库审计日志，确认已部署状态持续符合内部政策。
+
+## 参考资料
+
+-   [Codex 身份认证](/docs/auth)
+-   [Codex 配置基础](/docs/config-file/config-basic)
+-   [Codex Enterprise 管理员设置](/docs/enterprise/admin-setup)
+-   [Codex 托管配置](/docs/enterprise/managed-configuration)
+-   [智能体审批与安全](/docs/agent-approvals-security)
+-   [Codex Model Context Protocol](/docs/extend/mcp?surface=cli)
+-   [Codex 治理](/docs/enterprise/governance)
+-   [Codex 权限](/docs/permissions)
+-   [ChatGPT Healthcare 与 Regulated Workspace 功能](https://help.openai.com/en/articles/20001069-chatgpt-healthcare-and-regulated-workspace-functionality)
+-   [ChatGPT for Clinicians](https://help.openai.com/en/articles/20001202-chatgpt-for-clinicians)
+-   [OpenAI API 服务的 Business Associate Agreement](https://help.openai.com/en/articles/8660679-how-can-i-get-a-business-associate-agreement-baa-with-openai)
+-   [Codex 白皮书](https://app.safebase.io/portal?itemUid=382f924d-54f3-43a8-a9df-c39e6c959958&source=search)

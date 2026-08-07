@@ -1,0 +1,51 @@
+---
+title: "CLI 自定义"
+description: "自定义 Codex 终端界面、编辑器、补全和快捷键"
+locale: "zh"
+translationKey: "cli-customization"
+section: "explore"
+order: 1057
+draft: false
+translationStatus: complete
+lastUpdated: 2026-08-06
+pageKind: article
+referenceHub: "developers"
+sourceUrl: "https://www.codex-docs.com/docs/cli-customization"
+outline:
+  - id: "语法高亮与主题"
+    label: "语法高亮与主题"
+  - id: "shell-补全"
+    label: "Shell 补全"
+  - id: "提示词编辑器"
+    label: "提示词编辑器"
+---
+
+Codex CLI 提供终端专用选项，用来调整交互式会话的显示方式，以及命令和提示词的输入方式。
+
+## 语法高亮与主题
+
+终端 UI（TUI）会为 Markdown 围栏代码块和文件差异添加语法高亮。运行 `/theme` 打开主题选择器，预览主题，并把选择保存到 `$CODEX_HOME/config.toml` 的 `tui.theme`。
+
+若要添加自定义主题，把 `.tmTheme` 文件放入 `$CODEX_HOME/themes`，再从主题选择器中选中它。
+
+## Shell 补全
+
+为 Bash、Z shell、Fish 或 PowerShell 生成补全脚本：
+
+<CodeBlock code={"codex completion zsh"} language="bash" />
+
+在 shell 配置中加载脚本。对于 Z shell，添加：
+
+<CodeBlock code={"eval \"$(codex completion zsh)\""} language="bash" />
+
+如果 Z shell 报告 `command not found: compdef`，请先初始化补全系统，再加载 Codex 补全：
+
+<CodeBlock code={"autoload -Uz compinit && compinit\neval \"$(codex completion zsh)\""} language="bash" />
+
+重启 shell，输入 `codex` 并按 <kbd>Tab</kbd>，确认补全可用。
+
+## 提示词编辑器
+
+对于较长的提示词，在输入框中按 <kbd>Ctrl</kbd>+<kbd>G</kbd>，即可打开 `VISUAL` 指定的编辑器；如果未设置 `VISUAL`，则使用 `EDITOR`。保存并关闭编辑器后，文本会返回输入框，随后再发送。
+
+交互式键盘控制以及完整命令和选项列表，请参阅[开发者命令](/docs/developer-commands?surface=cli#cli-interactive-shortcuts)。

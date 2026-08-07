@@ -1,0 +1,46 @@
+---
+title: "Importar de outro agente"
+description: "Aprenda os conceitos essenciais de Importar de outro agente e conclua um primeiro fluxo prático e verificável."
+locale: "pt"
+translationKey: "import"
+section: "start"
+order: 4
+draft: false
+translationStatus: needs-review
+lastUpdated: 2026-08-06
+---
+<Callout title="Comece com um resultado real">
+
+Informe o arquivo, a página ou o resultado verificado que a tarefa deve produzir.
+
+</Callout>
+
+## Comece com Importar de outro agente
+
+Comece pelo resultado desejado e forneça os arquivos, o contexto e as restrições necessárias. Deixe o Codex analisar o projeto real e verificar cada etapa importante.
+
+<Example>
+
+“Analise este site Astro, adicione vários idiomas sem mudar o visual e valide no celular.”
+
+</Example>
+
+## Um fluxo confiável
+
+1. Descreva o resultado e os critérios de aceitação
+2. Analise os arquivos e convenções relevantes
+3. Faça a mudança e execute verificações proporcionais ao risco
+4. Revise o resultado, as diferenças e o próximo passo
+
+## Quando algo der errado
+
+Guarde a mensagem de erro completa, confirme a pasta e as permissões e reduza o problema ao menor caso reproduzível. Prefira a saída real a suposições.
+
+```bash
+npm run check
+npm run build
+```
+
+## Verificação final
+
+<Checklist items={["A página ou o comando produz o resultado esperado","Não há novos erros no console nem rolagem horizontal","Idioma, tema e navegação móvel continuam funcionando"]} />

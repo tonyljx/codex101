@@ -1,0 +1,289 @@
+---
+title: "命令"
+description: "ChatGPT 桌面 App 的命令与键盘快捷键参考"
+locale: "zh"
+translationKey: "reference/commands"
+section: "explore"
+order: 1019
+draft: false
+translationStatus: complete
+lastUpdated: 2026-08-06
+pageKind: article
+referenceHub: "features"
+sourceUrl: "https://www.codex-docs.com/docs/reference/commands"
+outline:
+  - id: "键盘快捷键"
+    label: "键盘快捷键"
+  - id: "search-past-tasks-and-find-in-a-task"
+    label: "搜索过去的聊天并在聊天中查找"
+  - id: "deep-links"
+    label: "Deep links"
+  - id: "另请参阅"
+    label: "另请参阅"
+---
+
+使用以下命令和键盘快捷键在 App 中导航。
+
+## 键盘快捷键
+
+<div className="doc-table-wrap">
+
+| 分类 | 操作 | 快捷键 |
+| --- | --- | --- |
+| **通用** | 命令菜单 | <kbd>Cmd</kbd>/<kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>P</kbd> 或 <kbd>Cmd</kbd>/<kbd>Ctrl</kbd> + <kbd>K</kbd> |
+|  | 设置 | <kbd>Cmd</kbd>/<kbd>Ctrl</kbd> + <kbd>,</kbd> |
+|  | 键盘快捷键 | <kbd>Cmd</kbd>/<kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>/</kbd> |
+|  | 打开文件夹 | <kbd>Cmd</kbd>/<kbd>Ctrl</kbd> + <kbd>O</kbd> |
+|  | 后退 | <kbd>Cmd</kbd>/<kbd>Ctrl</kbd> + <kbd>\[</kbd> |
+|  | 前进 | <kbd>Cmd</kbd>/<kbd>Ctrl</kbd> + <kbd>\]</kbd> |
+|  | 增大字号 | <kbd>Cmd</kbd>/<kbd>Ctrl</kbd> + <kbd>+</kbd> |
+|  | 减小字号 | <kbd>Cmd</kbd>/<kbd>Ctrl</kbd> + <kbd>\-</kbd> |
+|  | 切换侧边栏 | <kbd>Cmd</kbd>/<kbd>Ctrl</kbd> + <kbd>B</kbd> |
+|  | 打开评审 tab | <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>G</kbd> |
+|  | 切换评审面板 | <kbd>Cmd</kbd>/<kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>B</kbd> |
+|  | 切换底部面板 | <kbd>Cmd</kbd>/<kbd>Ctrl</kbd> + <kbd>J</kbd> |
+|  | 切换终端 | <kbd>Ctrl</kbd> + <kbd>\`</kbd> |
+|  | 清空终端 | <kbd>Ctrl</kbd> + <kbd>L</kbd> |
+| **Chat** | Quick chat | <kbd>Cmd</kbd> + <kbd>Option</kbd> + <kbd>N</kbd>（macOS）或 <kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>N</kbd>（Windows） |
+|  | 新建聊天 | <kbd>Cmd</kbd>/<kbd>Ctrl</kbd> + <kbd>N</kbd> 或 <kbd>Cmd</kbd>/<kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>O</kbd> |
+|  | 搜索聊天 | <kbd>Cmd</kbd>/<kbd>Ctrl</kbd> + <kbd>G</kbd> |
+|  | 在聊天中查找 | <kbd>Cmd</kbd>/<kbd>Ctrl</kbd> + <kbd>F</kbd> |
+|  | 上一个聊天 | <kbd>Cmd</kbd>/<kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>\[</kbd> |
+|  | 下一个聊天 | <kbd>Cmd</kbd>/<kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>\]</kbd> |
+| **输入** | 听写 | <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>D</kbd> |
+
+</div>
+
+要查找、自定义或重置快捷键，请打开 **Settings > Keyboard Shortcuts（设置 > 键盘快捷键）**。可以按命令名称搜索，也可以把搜索框切换到按键模式，再按下想要查找的组合键。
+
+<span id="search-past-tasks-and-find-in-a-task"></span>
+
+## 搜索过去的聊天并在聊天中查找
+
+使用聊天搜索（<kbd>Cmd</kbd>/<kbd>Ctrl</kbd> + <kbd>G</kbd>）重新打开过去的聊天。扩展匹配可用时，它还可以匹配聊天内容和 Git 分支名，因此可以搜索聊天中的某个短语，或 `fix/login-redirect` 这样的分支。
+
+打开聊天后，使用 **Find in chat（在聊天中查找）**（<kbd>Cmd</kbd>/<kbd>Ctrl</kbd> + <kbd>F</kbd>）搜索其中的文本。该功能不会跨其他聊天搜索。
+
+以 `/` 开头的操作参见 [Slash commands](/docs/reference/slash-commands)。
+
+## Deep links
+
+为保持兼容性，ChatGPT 桌面 App 继续使用 `codex://` URL scheme，因此链接可以直接打开 App 的特定区域。把 query string 值加入 URL 前，应先进行编码。
+
+### 支持的链接
+
+创建链接时请使用以下权威形式。后续章节会按链接类型列出完整参考。
+
+<div className="doc-table-wrap">
+
+| Deep link | 打开的内容 |
+| --- | --- |
+| `codex://threads/new` | 新本地聊天。 |
+| `codex://new?<query>` | 至少包含一个 query 参数的新本地聊天。 |
+| `codex://threads/<thread-id>` | 本地聊天；`<thread-id>` 是技术层面的 thread ID。 |
+| `codex://settings` | Settings。 |
+| `codex://settings/connections/<connection-type>` | Computer、设备或 SSH 连接设置。 |
+| `codex://settings/connections/ssh/add?name=<ssh-config-host>` | 从 SSH config 向 Codex 添加主机。 |
+| `codex://skills` | Skills。 |
+| `codex://automations` | Scheduled，并打开创建流程。 |
+| `codex://plugins/install/<plugin-name>?marketplace=<marketplace-name>` | 从已知 marketplace 安装 plugin 的流程。 |
+| `codex://plugins/<plugin-id>` | plugin 详情页。 |
+| `codex://plugins/<plugin-name>?marketplacePath=<absolute-marketplace-path>` | 本地 marketplace 中的 plugin 详情页。 |
+| `codex://pets/install?name=<pet-name>&imageUrl=<https-image-url>` | pet 安装流程。 |
+
+</div>
+
+<span id="tasks"></span>
+
+### 聊天
+
+需要打开现有本地聊天或开始新聊天时，使用以下链接。
+
+<div className="doc-table-wrap">
+
+| Deep link | 打开的内容 |
+| --- | --- |
+| `codex://threads/<thread-id>` | 本地聊天；`<thread-id>` 是技术层面的 thread ID。 |
+| `codex://threads/new` | 新本地聊天。 |
+| `codex://threads/new?<query>` | 带可选 query 参数的新本地聊天。 |
+| `codex://new?<query>` | 新本地聊天。必须至少包含 `prompt`、`path` 或 `originUrl` 之一，否则链接不会执行任何操作。 |
+
+</div>
+
+对于 `codex://threads/new` 或 `codex://new`，可以按需添加并组合以下 query 参数。
+
+<div className="doc-table-wrap">
+
+| Query 参数 | 必填 | 作用 |
+| --- | --- | --- |
+| `prompt=<text>` | 否 | 设置输入框中的初始文本。 |
+| `path=<absolute-path>` | 否 | 在本地工作区中打开新聊天。`path` 必须是本地目录的绝对路径；有效时 Codex 会把该目录用作当前工作区。 |
+| `originUrl=<git-remote-url>` | 否 | 按 Git remote URL 匹配当前某个工作区根目录。如果同时提供 `path`，Codex 会优先解析 `path`。 |
+
+</div>
+
+示例：[查看一些关于我如何使用 Codex 的有趣统计信息](codex://threads/new?prompt=Show%20me%20some%20fun%20stats%20about%20how%20I%27ve%20been%20using%20Codex)
+
+<span id="start-a-task-with-a-plugin"></span>
+
+#### 使用 plugin 开始聊天
+
+如果希望帮助用户发起由 plugin 支持的聊天，请先把 plugin mention 放进提示词，再对完整提示词进行编码：
+
+<CodeBlock code={"[@Example](plugin://example@openai-curated) Summarize this document: https://example.com/document/123"} language="text" />
+
+把完整提示词编码为 URI component，例如在 JavaScript 中使用 `encodeURIComponent`，然后将它传给 `prompt` 参数：
+
+<CodeBlock code={"codex://new?prompt=%5B%40Example%5D(plugin%3A%2F%2Fexample%40openai-curated)%20Summarize%20this%20document%3A%20https%3A%2F%2Fexample.com%2Fdocument%2F123"} language="text" />
+
+该链接会打开一个新聊天，并把解码后的提示词放入输入框，但不会自动发送。用户发送后，Codex 即可在该聊天中使用已安装的 plugin。如果尚未安装、但用户可以使用该 plugin，Codex 会提示用户安装它，并连接所需的连接器。设置完成后，用户可以选择 **Continue（继续）**，在同一聊天中继续。工作区设置可能会限制用户可以安装哪些 plugins。有关 plugin 安装与权限的详细信息，请参阅 [Plugins](/docs/plugins)。
+
+### 设置
+
+需要打开 Settings 或特定设置页时，使用以下链接。
+
+<div className="doc-table-wrap">
+
+| Deep link | 打开的内容 |
+| --- | --- |
+| `codex://settings` | Settings。 |
+| `codex://settings/browser-use` | Browser 设置。 |
+| `codex://settings/computer-use/google-chrome` | 用于 Computer Use 的 Google Chrome 设置。 |
+| `codex://settings/connections` | 远程连接设置。 |
+| `codex://settings/connections/computer` | 从其他设备控制当前 Mac 或 PC 的设置。 |
+| `codex://settings/connections/devices` | 控制其他设备的设置。 |
+| `codex://settings/connections/ssh` | SSH 连接设置。 |
+| `codex://settings/connections/ssh/add?name=<ssh-config-host>` | 把指定主机别名添加为 Codex 管理的连接，再打开 SSH 连接设置。 |
+
+</div>
+
+`name` 值必须与 `~/.ssh/config` 中的主机别名匹配。该链接会为新增主机禁用自动连接。如果 Codex 找不到指定主机，会打开 SSH 连接设置并显示错误。
+
+不受支持的 `codex://settings/...` 路径会打开 Settings 主页。
+
+### Skills
+
+需要打开 Skills 时使用：
+
+<div className="doc-table-wrap">
+
+| Deep link | 打开的内容 |
+| --- | --- |
+| `codex://skills` | Skills。 |
+
+</div>
+
+### Scheduled
+
+需要打开 **Scheduled** 时使用：
+
+<div className="doc-table-wrap">
+
+| Deep link | 打开的内容 |
+| --- | --- |
+| `codex://automations` | Scheduled，并打开创建流程。 |
+
+</div>
+
+### Plugins
+
+根据是从 marketplace 安装、打开 plugin，还是使用本地 `marketplace.json`，plugin 链接会采用不同形式。基础说明参见 [Plugins](/docs/plugins)；本地或仓库 marketplace 设置参见[构建 plugins](https://developers.openai.com/plugins/build/plugins#build-your-own-curated-plugin-list)。
+
+#### 安装 plugin
+
+使用以下形式打开 Codex 已知 marketplace 中某个 plugin 的安装流程。
+
+<div className="doc-table-wrap">
+
+| Deep link | 打开的内容 |
+| --- | --- |
+| `codex://plugins/install/<plugin-name>?marketplace=<marketplace-name>` | plugin 详情页或安装流程。 |
+
+</div>
+
+<div className="doc-table-wrap">
+
+| Query 参数 | 必填 | 作用 |
+| --- | --- | --- |
+| `marketplace=<marketplace-name>` | 是 | 标识 marketplace。OpenAI 精选 plugin 使用 `openai-curated`。 |
+
+</div>
+
+安装链接只接受 `marketplace` query 参数。如果 Codex 找不到请求的 marketplace 或 plugin，会改为打开 Plugins 页面。
+
+#### Plugin 详情
+
+<div className="doc-table-wrap">
+
+| Deep link | 打开的内容 |
+| --- | --- |
+| `codex://plugins/<plugin-id>` | plugin 详情页。 |
+
+</div>
+
+`<plugin-id>` 必须能够标识 plugin。OpenAI 精选 plugin 使用 `<plugin-name>@openai-curated` 形式。
+
+Codex 生成的 plugin 链接还可能包含以下 query 参数。手动编写链接时，请省略这两个参数。
+
+<div className="doc-table-wrap">
+
+| Query 参数 | 必填 | 作用 |
+| --- | --- | --- |
+| `hostId=<host-id>` | 否 | 标识拥有 plugin 上下文的 Codex host，例如 `local` 或某个已配置的远程连接。这些 ID 由 Codex 提供。 |
+| `source=manage` | 否 | 保留 App 的 plugin 管理入口；它并非仅供管理员使用。 |
+
+</div>
+
+示例：[打开 OpenAI Developers plugin](codex://plugins/openai-developers@openai-curated)
+
+#### 本地 plugin
+
+本地或仓库 marketplace 设置参见[构建 plugins](https://developers.openai.com/plugins/build/plugins#build-your-own-curated-plugin-list)。
+
+<div className="doc-table-wrap">
+
+| Deep link | 打开的内容 |
+| --- | --- |
+| `codex://plugins/<plugin-name>?marketplacePath=<absolute-marketplace-path>` | 本地 marketplace 中的 plugin 详情页。 |
+
+</div>
+
+<div className="doc-table-wrap">
+
+| Query 参数 | 必填 | 作用 |
+| --- | --- | --- |
+| `marketplacePath=<absolute-marketplace-path>` | 是 | 本地 `marketplace.json` 的绝对路径，例如 `/Users/alex/.agents/plugins/marketplace.json`。 |
+| `mode=share` | 否 | 打开该本地 plugin 的分享流程。 |
+
+</div>
+
+### Pets
+
+该功能启用时，可以通过以下链接打开 pet 安装流程。
+
+<div className="doc-table-wrap">
+
+| Deep link | 打开的内容 |
+| --- | --- |
+| `codex://pets/install?name=<pet-name>&imageUrl=<https-image-url>` | pet 安装流程。 |
+
+</div>
+
+<div className="doc-table-wrap">
+
+| Query 参数 | 必填 | 作用 |
+| --- | --- | --- |
+| `name=<pet-name>` | 是 | 设置 pet 名称。值必须至少包含一个非空白字符。 |
+| `imageUrl=<https-image-url>` | 是 | 提供 pet 图片或 sprite sheet 的 HTTPS 绝对 URL。 |
+| `description=<text>` | 否 | 为安装流程添加描述。 |
+| `spriteVersionNumber=<1-or-2>` | 否 | 选择 sprite sheet 格式。默认值为 `1`，唯一受支持的其他值是 `2`。 |
+
+</div>
+
+安装链接只接受这些 query 参数。名称无效、图片 URL 不是 HTTPS、不支持的 sprite version，或存在额外路径片段时，链接不会执行任何操作。
+
+## 另请参阅
+
+-   [功能](/docs/features)
+-   [设置](/docs/reference/settings)
+-   [Slash commands](/docs/reference/slash-commands)

@@ -1,0 +1,162 @@
+---
+title: "构建技能"
+description: "给 Codex 增加新的能力与专长"
+locale: "zh"
+translationKey: "build-skills"
+section: "explore"
+order: 1042
+draft: false
+translationStatus: complete
+lastUpdated: 2026-08-06
+pageKind: article
+referenceHub: "developers"
+sourceUrl: "https://www.codex-docs.com/docs/build-skills"
+outline:
+  - id: "how-codex-uses-skills"
+    label: "Codex 如何使用技能"
+  - id: "create-a-skill"
+    label: "创建技能"
+  - id: "where-to-save-skills"
+    label: "技能的保存位置"
+  - id: "distribute-skills-with-plugins"
+    label: "用插件分发技能"
+  - id: "install-curated-skills-for-local-use"
+    label: "在本地安装精选技能"
+  - id: "enable-or-disable-skills"
+    label: "启用或停用技能"
+  - id: "optional-metadata"
+    label: "可选元数据"
+  - id: "best-practices"
+    label: "最佳实践"
+---
+
+使用智能体技能可以给 Codex 注入任务级能力。一个技能会把指令、参考资料和可选脚本打包在一起，让 Codex 可以更稳定地遵循某个工作流。Codex 的技能建立在[开放智能体技能标准](/docs)之上。
+
+技能是可复用工作流的创作格式。插件则用于把可复用技能与连接器分发到网页版 ChatGPT Work，以及桌面 App 中的 ChatGPT Work 与 Codex；Codex CLI 也可以安装插件。如果你想设计工作流本身，请从技能开始；当你希望让工作区中的其他人安装时，再把它打包成[插件](/docs/build-plugins)。
+
+ChatGPT 桌面 App、Codex CLI 和 IDE 扩展都支持技能。
+
+在 ChatGPT 桌面 App 中，打开侧边栏里的 **Skills（技能）**，即可查看和探索各个项目中创建的技能。
+
+<Screenshot src="/images/codex/app/skill-selector-light.webp" darkSrc="/images/codex/app/skill-selector-dark.webp" alt="ChatGPT 桌面 App 中的技能选择器（浅色模式）" />
+
+Codex 使用“按需展开”来管理上下文：启动时只读取每个技能的 `name`、`description` 和文件路径；只有在 Codex 决定实际使用这个技能时，才会把完整 `SKILL.md` 指令加载进上下文。
+
+Codex 会在上下文里放入一份初始技能列表，以便为任务选择合适的技能。为了避免挤占提示词的其它部分，这份列表最多使用模型上下文窗口的 2%；如果上下文窗口未知，则上限为 8,000 个字符。如果安装了很多技能，Codex 会先缩短技能描述。对于较大的技能集合，Codex 可能会从初始列表中省略部分技能并显示警告。
+
+这个预算只适用于初始技能列表。Codex 选中某个技能后，仍会读取该技能完整的 `SKILL.md` 指令。
+
+一个技能就是一个目录，里面至少要有 `SKILL.md`，还可以按需添加脚本和参考资料。`SKILL.md` 必须声明 `name` 和 `description`。
+
+<CodeBlock code={"my-skill/\n├── SKILL.md          # 必需：指令与元数据\n├── scripts/          # 可选：可执行脚本\n├── references/       # 可选：文档参考\n├── assets/           # 可选：模板与资源\n└── agents/\n    └── openai.yaml   # 可选：展示信息与依赖声明"} language="text" />
+
+<span id="how-codex-uses-skills"></span>
+
+## Codex 如何使用技能
+
+Codex 有两种触发技能的方式：
+
+1.  **显式调用**：例如在 CLI / 应用中使用 `/skills` 选择，或者在提示词中写 `$skill-name`
+2.  **隐式调用**：Codex 根据 `description` 判断是否适合使用某个技能
+
+因为隐式匹配依赖 `description`，所以技能描述要简洁，并写清楚触发范围和边界。把关键用例和触发词放在前面，这样即使描述被缩短，Codex 仍能匹配到合适的技能。
+
+<span id="create-a-skill"></span>
+
+## 创建技能
+
+如果你已经清楚工作流，而且“演示”比“描述”更容易，可以使用 [Record & Replay](/docs/extend/record-and-replay)。Codex 会录制工作流、检查步骤，并根据演示起草可复用技能。
+
+如果你想用文字描述技能，请使用内置创建器：
+
+<CodeBlock code={"$skill-creator"} language="text" />
+
+创建器会询问这个技能做什么、在什么场景下触发，以及它是“纯指令”还是“带脚本”型。默认推荐先做纯指令技能。
+
+你也可以手动创建，只要建立一个目录并放入 `SKILL.md`：
+
+<CodeBlock code={"---\nname: skill-name\ndescription: Explain exactly when this skill should and should not trigger.\n---\n\nSkill instructions for Codex to follow."} language="markdown" />
+
+Codex 会自动检测技能变更；如果更新后没有生效，重启 Codex 即可。
+
+<span id="where-to-save-skills"></span>
+
+## 技能的保存位置
+
+Codex 会从仓库、用户、管理员和系统四类位置读取技能。对于仓库级技能，Codex 会从当前工作目录开始，一路向上扫描到仓库根目录中的 `.agents/skills`。如果两个技能使用了同一个 `name`，Codex 不会合并它们，它们会分别出现在可选技能列表中。
+
+<div className="doc-table-wrap">
+
+| 技能范围 | 位置 | 推荐用途 |
+| --- | --- | --- |
+| REPO | `$CWD/.agents/skills` | 当前工作目录对应的小范围技能，例如某个微服务或模块专属技能。 |
+| REPO | `$CWD/../.agents/skills` | 当你在 Git 仓库的子目录中启动 Codex 时，可让父目录中的共享技能自动生效。 |
+| REPO | `$REPO_ROOT/.agents/skills` | 仓库级共享技能，适合面向整个仓库的团队规范或工作流。 |
+| USER | `$HOME/.agents/skills` | 用户自己的全局技能，适用于任意仓库。 |
+| ADMIN | `/etc/codex/skills` | 机器或容器级共享技能，常用于默认运维脚本、SDK 自动化或管理员统一下发的技能。 |
+| SYSTEM | OpenAI 随 Codex 内置 | 面向广泛用户的通用技能，例如 `skill-creator` 和规划相关技能。 |
+
+</div>
+
+Codex 支持通过符号链接组织技能目录；扫描时会跟随链接目标继续读取。
+
+这些路径主要用于本地创作和本地发现。如果你要把技能作为可复用产物分发到仓库之外，或者希望和连接器一起打包，应该使用[插件](/docs/build-plugins)。
+
+<span id="distribute-skills-with-plugins"></span>
+
+## 用插件分发技能
+
+直接在 `skills/` 目录下维护技能，最适合本地开发和仓库范围工作流。
+
+如果你希望：
+
+-   分发一个可复用技能
+-   把多个技能组合在一起发布
+-   把技能和连接器一起交付
+
+那么更适合把它们打包成[插件](/docs/build-plugins)。
+
+插件可以包含一个或多个技能，也可以同时携带应用映射、MCP server 配置和展示资源。
+
+<span id="install-curated-skills-for-local-use"></span>
+
+## 在本地安装精选技能
+
+如果你想在本地 Codex 环境中安装内置之外的精选技能，可以使用 `$skill-installer`。例如安装 `$linear` 技能：
+
+<CodeBlock code={"$skill-installer linear"} language="bash" />
+
+你也可以让安装器从其他仓库下载技能。Codex 会自动发现新安装的技能；如果没有立即出现，可以重启 Codex。
+
+这个流程更适合本地试验和个人使用。对于你自己希望复用和分发的技能，优先考虑插件。
+
+<span id="enable-or-disable-skills"></span>
+
+## 启用或停用技能
+
+你可以通过 `~/.codex/config.toml` 中的 `[[skills.config]]` 条目，在不删除技能的前提下将其停用：
+
+<CodeBlock code={"[[skills.config]]\npath = \"/path/to/skill/SKILL.md\"\nenabled = false"} language="toml" />
+
+修改 `~/.codex/config.toml` 后，需要重启 Codex。
+
+<span id="optional-metadata"></span>
+
+## 可选元数据
+
+如果你希望在 [ChatGPT 桌面 App](/docs/app) 中配置界面元数据、设置调用策略，并声明工具依赖，以获得更顺畅的技能使用体验，可以在技能目录中加入 `agents/openai.yaml`：
+
+<CodeBlock code={"interface:\n  display_name: \"Optional user-facing name\"\n  short_description: \"Optional user-facing description\"\n  icon_small: \"./assets/small-logo.svg\"\n  icon_large: \"./assets/large-logo.png\"\n  brand_color: \"#3B82F6\"\n  default_prompt: \"Optional surrounding prompt to use the skill with\"\n\npolicy:\n  allow_implicit_invocation: false\n\ndependencies:\n  tools:\n    - type: \"mcp\"\n      value: \"openaiDeveloperDocs\"\n      description: \"OpenAI Docs MCP server\"\n      transport: \"streamable_http\"\n      url: \"https://developers.openai.com/mcp\""} language="yaml" />
+
+其中 `allow_implicit_invocation` 默认为 true。如果把它设为 false，Codex 就不会根据用户提示词自动隐式触发这个技能，但显式使用 `$skill-name` 仍然有效。
+
+<span id="best-practices"></span>
+
+## 最佳实践
+
+-   让每个技能聚焦在一项明确工作上。
+-   除非你确实需要确定性行为或外部工具，否则优先使用指令而不是脚本。
+-   步骤尽量写成祈使句，并明确输入与输出。
+-   用真实提示词去测试 `description`，确认它会在正确场景触发，也会在不该触发时保持沉默。
+
+更多示例可参考 [GitHub CI 修复](https://github.com/openai/skills/tree/main/skills/.curated/gh-fix-ci)、[PDF](https://github.com/openai/skills/tree/main/skills/.curated/pdf)、[Linear](https://github.com/openai/skills/tree/main/skills/.curated/linear)、[openai/skills](https://github.com/openai/skills) 和[智能体技能规范](https://agentskills.io/specification)。需要以可安装形式分发时，优先使用 [plugins](/docs/build-plugins)。

@@ -1,0 +1,92 @@
+---
+title: "修复并验证安全发现"
+navTitle: "修复安全发现"
+description: "把已接受的发现转化为聚焦、可验证、可评审的代码改动。"
+locale: "zh"
+translationKey: "security/plugin/fix-findings"
+section: "explore"
+order: 1072
+draft: false
+translationStatus: complete
+lastUpdated: 2026-08-06
+pageKind: article
+referenceHub: "security-administration"
+sourceUrl: "https://www.codex-docs.com/docs/security/plugin/fix-findings"
+outline:
+  - id: "在-ui-中修复发现"
+    label: "在 UI 中修复发现"
+  - id: "从-cli-修复发现"
+    label: "从 CLI 修复发现"
+  - id: "在-cicd-中扫描并修复发现"
+    label: "在 CI/CD 中扫描并修复发现"
+---
+
+使用 Codex Security 可以把一项已接受的安全发现转化为聚焦且经过验证的 patch。你可以在 Security 工作台中处理，也可以从提示词、命令行或 CI/CD 运行修复工作流。Codex 会验证问题；当测试安全且可行时，它会添加一个修复前失败、修复后通过的聚焦回归测试，并检查合法行为仍然正常。如果回归测试不安全或不可行，Codex 会记录证据缺口，并提供可重复执行的最强验证产物。
+
+建议先修复一个已接受的发现，用来评估 patch 和验证质量。等工作流达到你的标准后，再通过把每个发现放进独立任务或 CI/CD job，扩展到更多已接受的发现。让每个修复保持聚焦，会让代码改动和证据更容易评审。
+
+## 在 UI 中修复发现
+
+从 **Findings（安全发现）** 或 **Scans（扫描）** 中的已完成扫描打开一项已接受的安全发现。评审证据后，使用 **Patch** 生成、评审、应用并验证一个聚焦修复。
+
+1.  生成聚焦 patch
+    
+    打开发现，选择 **Patch** 标签页，然后选择 **Generate patch**。Codex 会在可行时验证或复现问题，并写入 patch 产物，而不会修改选中的 checkout。
+    
+2.  评审建议 diff
+    
+    阅读每个变更的源码、回归测试和验证产物。拒绝过宽的重构、无关清理，或会削弱其它安全控制的改动。
+    
+3.  本地应用 patch
+    
+    只有当 diff 可以接受时，才选择 **Apply patch（应用 patch）**。Codex 会把精确生成的 patch 应用到工作树，并记录该状态。继续之前，请评审工作树 diff。
+    
+4.  验证修复
+    
+    选择 **Verify fix（验证修复）**。Codex 会重新运行原始 reproducer 或最强可用 exploit check。当回归测试安全且可行时，Codex 会检查它是否在修复前失败、修复后通过；如果测试不安全或不可行，则记录证据缺口并提供可重复执行的最强验证产物。它还会检查合法行为、附近 bypass 和相关仓库测试。
+    
+5.  有意地关闭发现
+    
+    验证不会自动关闭发现。请评审命令、结果和剩余证据缺口（proof gap），然后用准确原因关闭发现，或继续保持打开以便后续处理。
+    
+
+<Screenshot src="/images/openai/learn.chatgpt.com/_astro/fix-finding-patch.D2aYhnhH.webp" darkSrc="/images/openai/learn.chatgpt.com/_astro/fix-finding-patch-dark.BpIR1TpT.webp" alt="已生成、等待评审的 Codex Security patch" maxHeight={520} />
+
+## 从 CLI 修复发现
+
+当你已经有来自扫描、ticket、advisory、disclosure、安全评估或内部评审的发现时，可以使用 Codex CLI：
+
+下面的命令假设 Codex Security 已经安装在 `codex exec` 使用的 `CODEX_HOME` 中。全新的 CI runner 默认没有安装 marketplace 插件。
+
+<CodeBlock code={"Use $codex-security:fix-finding to fix finding <finding-id> from <report-path>. Validate the issue, make the smallest safe change, and add a focused regression test that fails before the fix and passes after it. If that test is unsafe or infeasible, record the proof gap and provide the strongest repeatable validation artifact instead. Verify that the issue no longer reproduces."} language="text" />
+
+请包含已知的 source、sink、攻击者输入、影响、预期不变量、reproducer、受影响文件和验证命令。Codex 可以检查仓库来补齐缺失的技术细节，但在猜测产品策略或预期安全不变量前应先询问。
+
+对于自动化运行，在 checkout 代码、准备好发现报告，并在该 `CODEX_HOME` 中预先安装并配置插件后，把提示词传给 `codex exec`：
+
+<CodeBlock code={"codex exec --sandbox workspace-write 'Use $codex-security:fix-finding to fix finding <finding-id> from <report-path>. Validate the issue, make the smallest safe change, and add a focused regression test that fails before the fix and passes after it. If that test is unsafe or infeasible, record the proof gap and provide the strongest repeatable validation artifact instead. Verify that the issue no longer reproduces.'"} language="bash" />
+
+## 在 CI/CD 中扫描并修复发现
+
+在调用这些技能前，请先在 runner 的 `CODEX_HOME` 中预先安装并配置 Codex Security。下面的命令会使用已安装的插件；它本身不会安装插件。
+
+在 CI/CD 中，应把变更扫描与修复分开，并要求扫描不要修改 checkout。把完整扫描目录保存为 job 产物，评审安全发现，然后为每项已接受的安全发现启动独立的 Codex 任务或 job。
+
+变更扫描和修复都使用 `--sandbox workspace-write`。扫描需要该权限保存临时产物，但提示词仍必须明确要求 `Do not modify the checkout`。修复则需要相同权限写入聚焦 patch 和验证证据。
+
+1.  解析该变更的 base 和 head revisions。
+2.  对该 diff 运行 `$codex-security:security-diff-scan`，且不修改 checkout。
+3.  保存完整扫描目录，并选择要修复的安全发现。
+4.  对每项已接受的安全发现单独调用一次 `$codex-security:fix-finding`。
+5.  生成一个聚焦 patch，以及一个修复前失败、修复后通过的回归测试；如果测试不安全或不可行，则记录原因。
+6.  独立验证原始问题和合法行为。
+
+先扫描变更而不修改 checkout：
+
+<CodeBlock code={"codex exec --sandbox workspace-write 'Use $codex-security:security-diff-scan to review changes from <base-revision> to <head-revision> for security regressions. Do not modify the checkout.'"} language="bash" />
+
+然后从已完成扫描中修复一项已接受的安全发现：
+
+<CodeBlock code={"codex exec --sandbox workspace-write 'Use $codex-security:fix-finding to fix finding <finding-id> from <completed-scan-directory>. Validate the finding, generate one minimal patch, and add a focused regression test that fails before the fix and passes after it. If that test is unsafe or infeasible, record the proof gap and provide the strongest repeatable validation artifact instead. Verify that the issue no longer reproduces.'"} language="bash" />
+
+对其余每项已接受的安全发现，在独立任务或 job 中重复第二条命令。验证后，再通过常规代码评审和发布流程合并各个 patch。

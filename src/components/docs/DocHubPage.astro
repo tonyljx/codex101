@@ -1,0 +1,165 @@
+---
+import {
+  ArrowRight,
+  Bot,
+  Boxes,
+  ChartNoAxesCombined,
+  CloudCog,
+  CodeXml,
+  FileCog,
+  Folder,
+  GitPullRequest,
+  Globe,
+  KeyRound,
+  LockKeyhole,
+  Monitor,
+  Network,
+  Plug,
+  PlugZap,
+  Rocket,
+  ScanSearch,
+  ShieldCheck,
+  SlidersHorizontal,
+  SquareTerminal,
+  UsersRound,
+  Workflow,
+} from 'lucide-react';
+
+type HubIcon =
+  | 'bot'
+  | 'boxes'
+  | 'chart-no-axes-combined'
+  | 'cloud-cog'
+  | 'code-xml'
+  | 'file-cog'
+  | 'folder'
+  | 'git-pull-request'
+  | 'globe'
+  | 'key-round'
+  | 'lock-keyhole'
+  | 'monitor'
+  | 'network'
+  | 'plug'
+  | 'plug-zap'
+  | 'rocket'
+  | 'scan-search'
+  | 'shield-check'
+  | 'sliders-horizontal'
+  | 'square-terminal'
+  | 'users-round'
+  | 'workflow';
+
+type HubGroup = {
+  title: string;
+  description: string;
+  icon: HubIcon;
+  links: Array<{ href: string; label: string }>;
+};
+
+type Props = {
+  variant?: 'features' | 'context';
+  eyebrow?: string;
+  title: string;
+  description: string;
+  cta: { href: string; label: string };
+  image: { src: string; srcset?: string; alt: string; width: number; height: number };
+  introduction?: string;
+  groups: HubGroup[];
+};
+
+const {
+  variant = 'context',
+  eyebrow = 'ChatGPT Learn Docs',
+  title,
+  description,
+  cta,
+  image,
+  introduction,
+  groups,
+} = Astro.props;
+
+const iconMap = {
+  bot: Bot,
+  boxes: Boxes,
+  'chart-no-axes-combined': ChartNoAxesCombined,
+  'cloud-cog': CloudCog,
+  'code-xml': CodeXml,
+  'file-cog': FileCog,
+  folder: Folder,
+  'git-pull-request': GitPullRequest,
+  globe: Globe,
+  'key-round': KeyRound,
+  'lock-keyhole': LockKeyhole,
+  monitor: Monitor,
+  network: Network,
+  plug: Plug,
+  'plug-zap': PlugZap,
+  rocket: Rocket,
+  'scan-search': ScanSearch,
+  'shield-check': ShieldCheck,
+  'sliders-horizontal': SlidersHorizontal,
+  'square-terminal': SquareTerminal,
+  'users-round': UsersRound,
+  workflow: Workflow,
+};
+
+const articleClass = variant === 'features' ? 'docs-features-hub' : 'docs-context-hub';
+const heroClass = variant === 'features' ? 'docs-features-hub__hero' : 'docs-context-hub__hero';
+const mediaClass = variant === 'features' ? 'docs-features-hub__hero-media' : 'docs-context-hub__hero-media';
+---
+
+<article class={articleClass} data-pagefind-body>
+  <header class={heroClass}>
+    <div class:list={{ 'docs-features-hub__hero-copy': variant === 'features' }}>
+      {variant === 'context' && <p class="docs-context-hub__eyebrow">{eyebrow}</p>}
+      <h1>{title}</h1>
+      <p class:list={{ 'docs-context-hub__description': variant === 'context' }}>{description}</p>
+      <a class="docs-page-button" href={cta.href}>
+        <span>{cta.label}</span>
+        {variant === 'features' && <ArrowRight aria-hidden="true" />}
+      </a>
+    </div>
+    <figure class={mediaClass} role="img" aria-label={image.alt}>
+      <img
+        src={image.src}
+        srcset={image.srcset}
+        sizes="(max-width: 767px) calc(100vw - 2rem), 50vw"
+        alt={image.alt}
+        width={image.width}
+        height={image.height}
+        fetchpriority="high"
+        decoding="async"
+      />
+    </figure>
+  </header>
+
+  {variant === 'features' && introduction && (
+    <p class="docs-features-hub__introduction">{introduction}</p>
+  )}
+
+  <div class="docs-hub-groups">
+    {groups.map((group) => {
+      const Icon = iconMap[group.icon];
+      return (
+        <details class="docs-hub-group">
+          <summary>
+            <span class="docs-hub-group__icon" aria-hidden="true"><Icon /></span>
+            <h2>{group.title}</h2>
+            <span class="docs-hub-group__description">{group.description}</span>
+            <ArrowRight className="docs-hub-group__arrow" aria-hidden="true" />
+          </summary>
+          <ul>
+            {group.links.map((link) => (
+              <li>
+                <a href={link.href}>
+                  <span>{link.label}</span>
+                  <ArrowRight aria-hidden="true" />
+                </a>
+              </li>
+            ))}
+          </ul>
+        </details>
+      );
+    })}
+  </div>
+</article>

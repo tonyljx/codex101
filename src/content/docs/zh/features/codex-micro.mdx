@@ -1,0 +1,188 @@
+---
+title: "Codex Micro"
+description: "你的 Codex 聊天控制中心。"
+locale: "zh"
+translationKey: "features/codex-micro"
+section: "explore"
+order: 1008
+draft: false
+translationStatus: complete
+lastUpdated: 2026-08-06
+pageKind: article
+referenceHub: "features"
+sourceUrl: "https://www.codex-docs.com/docs/features/codex-micro"
+outline:
+  - id: "设置-codex-micro"
+    label: "设置 Codex Micro"
+  - id: "通过蓝牙配对"
+    label: "通过蓝牙配对"
+  - id: "使用-agent-keys-查看和切换聊天"
+    label: "使用 Agent Keys 查看和切换聊天"
+  - id: "使用和自定义-command-keys"
+    label: "使用和自定义 Command Keys"
+  - id: "使用模拟摇杆和旋钮"
+    label: "使用模拟摇杆和旋钮"
+  - id: "调整灯光"
+    label: "调整灯光"
+  - id: "添加更多-layer"
+    label: "添加更多 layer"
+  - id: "codex-micro-故障排查"
+    label: "Codex Micro 故障排查"
+  - id: "获取兼容的-micro"
+    label: "获取兼容的 Micro"
+---
+
+Codex Micro 是 Codex 与 Work Louder 限量推出的联名产品。它可配合 ChatGPT 桌面 App 使用，让你无需离开键盘，就能快速查看和切换聊天、使用语音输入，以及触发常用操作或 skill。
+
+## 设置 Codex Micro
+
+1.  打开 ChatGPT 桌面 App。
+2.  按一次背部按钮，打开 Codex Micro。
+3.  使用 USB-C 线缆连接，或[通过蓝牙配对](#%E9%80%9A%E8%BF%87%E8%93%9D%E7%89%99%E9%85%8D%E5%AF%B9)，然后按照 ChatGPT 检测到设备时显示的设置流程操作。
+4.  在 macOS 上，根据提示允许 **Input Monitoring（输入监控）**，以便 ChatGPT 响应按键操作。
+5.  打开 **Settings（设置）> Codex Micro**，选择 Agent Keys 要跟踪或触发的内容，自定义 Command Keys、模拟摇杆和旋钮，并调整灯光与语音控制。
+
+默认情况下，短暂按住旋钮即可打开这些设置。你也可以选择 ChatGPT 底部帐户名称旁的 Micro 图标。如果为旋钮长按分配了自定义操作，该操作会替代打开设置的快捷方式。
+
+ChatGPT 首次检测到受支持的 Micro 后，设备设置会继续保留。ChatGPT 集成不要求安装 Work Louder Input；它用于自定义其它 App 的控制项或配置更多 layer。
+
+## 通过蓝牙配对
+
+Codex Micro 提供三个蓝牙通道。
+
+1.  按一次背部按钮，打开 Micro。
+2.  按住左下边缘的触控区三秒。进入蓝牙模式后，Micro 下方灯光会变为蓝色。
+3.  轻触触控区，选择蓝牙通道 1、2 或 3。通道灯快速闪烁表示 Micro 已准备配对。
+4.  打开电脑的蓝牙设置，并在 Micro 出现后连接。
+5.  等待通道灯变为常亮，表示配对完成。
+
+五秒内没有输入时，连接选择器会关闭。要切换到另一个已配对通道，请重新打开选择器、选中通道并等待它关闭。要重新配对该通道，请按住触控区三秒，直到通道灯开始闪烁。
+
+要改用 USB-C，请打开连接选择器并轻触触控区，直到 Micro 下方灯光变为白色。如果 Micro 仍处于蓝牙模式，接入 USB-C 线缆只会充电，不会切换到有线连接。
+
+硬件示意图请参阅 [Work Louder Codex Micro 设置指南](https://worklouder.cc/openai-micro-setup)。
+
+## 使用 Agent Keys 查看和切换聊天
+
+六枚磨砂 Agent Keys 均可跟踪一条聊天，并通过灯光显示当前状态。按一次 Agent Key 可切换到对应聊天，但不会把 ChatGPT 窗口带到前台；在 350 毫秒内连按两次，则会切换聊天并把 ChatGPT 窗口带到前台。若希望第一次按下就聚焦 ChatGPT，请在设备设置中开启 **Focus ChatGPT with a single tap（单击聚焦 ChatGPT）**。
+
+<div className="doc-table-wrap">
+
+| 灯光 | 状态 | 含义 |
+| --- | --- | --- |
+| 白色 | Idle | 聊天空闲。 |
+| 蓝色 | Thinking | ChatGPT 正在工作。 |
+| 绿色 | Complete | 聊天已完成，并有未读更新。 |
+| 琥珀色 | Requires input | ChatGPT 需要你的审批或回复。 |
+| 红色 | Error | 出现错误。 |
+| 熄灭 | No assigned chat | 该按键未跟踪聊天。 |
+
+</div>
+
+所选聊天对应的按键会按照其状态灯光脉动。
+
+默认情况下，这些按键会跟踪最近更新的六条聊天，无论它们是否已置顶。你可以在 **Settings > Codex Micro** 中更改 **Agent source**，采用不同的排列方式：
+
+-   **Most recent chats**：跟踪最近更新的六条聊天，无论是否已置顶。
+-   **Pinned chats**：跟踪 **Pinned** 中的前六条聊天。
+-   **Priority chats**：优先排列等待输入、未读和活动中的聊天。
+-   **Custom assignments（自定义分配）**：为每枚 Agent Key 分配聊天、快捷方式、实体按键操作或已启用的 skill。按下未分配的 Agent Key 会打开新聊天；开始聊天后，ChatGPT 会把它分配给该按键。
+
+跟踪聊天的按键仍使用相同状态颜色；使用 **Custom assignments（自定义分配）** 时，Agent Key 也可以触发操作。
+
+## 使用和自定义 Command Keys
+
+Codex Micro 的默认布局包含六项操作：
+
+<div className="doc-table-wrap">
+
+| 按键 | 默认操作 |
+| --- | --- |
+| Fast keycap | 开启或关闭 Fast mode。 |
+| Approve keycap | 批准当前 request。 |
+| Decline keycap | 拒绝当前 request。 |
+| Fork keycap | 在新聊天中继续当前聊天。 |
+| Mic keycap | 开始按住说话。 |
+| Codex keycap | 发送编辑器中的消息。 |
+
+</div>
+
+Mic 键使用电脑的麦克风；Codex Micro 本身没有麦克风。默认使用 **Push to talk（按住说话）**：按住按键说话，松开即可停止。若要免手持录音，请在 350 毫秒内连按两次以继续录音，再按一次停止。
+
+录音期间，海绿色灯光会沿键盘移动。ChatGPT 处理语音时，灯光会变为移动的白光；提示词准备好后则变为常亮白光。按 Codex 键即可发送。
+
+如果 **Microphone key（麦克风键）** 下提供 **Voice Chat（语音聊天）**，可以让 Mic 键启动 Voice Chat 或切换麦克风；按住则结束聊天。开启 **Use separate microphone keys（使用独立麦克风键）**，可以分别映射宽 Mic 键下的两个开关。
+
+在设备设置的 **Layout（布局）** 预览中选择一枚 Command Key，然后选择其 keycap 和操作。你可以打开浏览器或终端、管理聊天、评审变更、运行 Git 和 pull request 操作、附加文件或照片、打开插件或定时任务、更改推理强度、运行已启用的 skill，或分配其它快捷方式。如果选择了已在其它位置使用的 keycap，ChatGPT 会交换两者，而不会重复使用同一 keycap。
+
+重新映射按键后，请更换实体 keycap，使其与新操作保持一致。选择 **Reset layout（重置布局）** 可以恢复默认的 Command Key 与模拟摇杆分配，但不会更改 Agent Key 模式或自定义聊天分配。
+
+## 使用模拟摇杆和旋钮
+
+模拟摇杆可以向任意方向自由移动。推离中心足够远时，ChatGPT 会把移动转换为四个方向操作之一。Codex Micro 的默认映射如下。
+
+你可以在 **Settings > Codex Micro** 中，为每个方向选择任何可用的 ChatGPT 桌面命令或已启用的 skill。
+
+<div className="doc-table-wrap">
+
+| 方向 | 默认操作 |
+| --- | --- |
+| 上 | 开启或关闭计划模式。 |
+| 右 | 在 App 历史记录中前进。 |
+| 下 | 显示或隐藏侧边栏。 |
+| 左 | 在 App 历史记录中后退。 |
+
+</div>
+
+旋钮默认使用 **Composer navigation（输入区导航）**。转动旋钮可在输入区控件和选项之间移动，再按下旋钮打开或选择当前控件。输入区控件或菜单打开时，旋钮右侧紧邻的 Agent Key 会亮起红灯；按下该键可取消。
+
+在设备设置中选择四种旋钮模式之一：
+
+<div className="doc-table-wrap">
+
+| 模式 | 行为 |
+| --- | --- |
+| **Composer navigation（输入区导航）** | 在输入区控件之间移动，并选择当前控件。 |
+| **Reasoning only（仅推理）** | 调整推理强度，并打开其滑块或高级选项。 |
+| **Conversation scrolling（对话滚动）** | 滚动当前聊天；按下旋钮会跳到最新消息。 |
+| **Custom assignments（自定义分配）** | 分别为向左转、向右转、按下和长按分配操作或 skill。 |
+
+</div>
+
+除 **Custom assignments（自定义分配）** 外，所有模式下按住旋钮都会打开设备设置；在自定义分配模式中，长按会运行对应操作。
+
+## 调整灯光
+
+在设备设置中调整 **Brightness（亮度）**，并选择 30 秒到一小时的 **Auto-dim（自动变暗）** 时间，也可以关闭自动变暗。使用 Micro 或 Agent Key 状态变化时，灯光会重新亮起。默认情况下，灯光会在三分钟后关闭。
+
+当键盘上报电池状态时，你可以在 **Settings > Codex Micro** 以及 Codex Micro 图标的侧边栏提示中查看。
+
+## 添加更多 layer
+
+Codex 使用 layer 1。通过 [Work Louder Input](https://worklouder.cc/micro-setup)，还可配置最多五个 layer，为其它 App 设置快捷键和操作。
+
+## Codex Micro 故障排查
+
+### 修复 macOS 上的 Input Monitoring
+
+如果 **Settings > Codex Micro** 显示 Input Monitoring 尚未设置，请选择 **Open System Settings**，然后执行以下步骤：
+
+1.  打开 **System Settings > Privacy & Security > Input Monitoring**。
+2.  如果列表中已有 ChatGPT，请为其开启访问权限。如果没有，请把 Applications 中的 **ChatGPT** 拖入列表，或选择 **Add (+)** 并选择 **ChatGPT**。
+3.  退出并重新打开 ChatGPT，然后确认 ChatGPT 能在 layer 1 检测到 Codex Micro。
+
+有关此 macOS 权限的更多信息，请参阅 [Apple 的 Input Monitoring 指南](https://support.apple.com/guide/mac-help/mchl4cedafb6/mac)。
+
+### 修复连接干扰
+
+ChatGPT 检测到 Micro 但无法连接或通信中断时，会自动重试。如果问题持续存在，请重新连接 Micro，并检查键盘工具或安全工具是否阻止了设备访问。
+
+在 macOS 上，Karabiner 和 Logitech Options+ 获得 Input Monitoring 权限后，可能会干扰 Micro 通信。要测试是否存在干扰，请退出键盘工具，或暂时关闭其 Input Monitoring 权限，然后重新连接 Micro。如果电脑由组织管理，请让 IT 管理员检查设备规则。
+
+### 获取更多 Work Louder 帮助
+
+如果需要蓝牙、线缆、电源或重置键盘方面的帮助，请参阅 [Work Louder Codex Micro 设置指南](https://worklouder.cc/openai-micro-setup)。如需直接支持，请发送邮件至 [hello@worklouder.cc](mailto:hello@worklouder.cc)。
+
+## 获取兼容的 Micro
+
+你可以通过 [OpenAI Supply Co](https://openai.com/supply/co-lab/work-louder/) 查看 Codex Micro 的供应情况。ChatGPT 桌面 App 也支持 [Creator Micro 2](https://worklouder.cc/creator-micro-2)，可直接从 Work Louder 购买。

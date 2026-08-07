@@ -1,0 +1,141 @@
+---
+title: "使用 AGENTS.md 编写自定义说明"
+navTitle: "AGENTS.md"
+description: "通过全局指导与项目级覆盖，为 Codex 提供持久、可复用的工作约定"
+locale: "zh"
+translationKey: "agent-configuration/agents-md"
+section: "explore"
+order: 1031
+draft: false
+translationStatus: complete
+lastUpdated: 2026-08-06
+pageKind: article
+referenceHub: "configuration"
+sourceUrl: "https://www.codex-docs.com/docs/agent-configuration/agents-md"
+outline:
+  - id: "codex-如何发现这些指导"
+    label: "Codex 如何发现这些指导"
+  - id: "创建全局指导"
+    label: "创建全局指导"
+  - id: "分层组织项目说明"
+    label: "分层组织项目说明"
+  - id: "添加代码评审规则"
+    label: "添加代码评审规则"
+  - id: "自定义备用文件名"
+    label: "自定义备用文件名"
+  - id: "验证你的设置"
+    label: "验证你的设置"
+  - id: "排查发现问题"
+    label: "排查发现问题"
+  - id: "下一步"
+    label: "下一步"
+---
+
+Codex 会在开始任何工作前读取 `AGENTS.md` 文件。通过把全局指导和项目级覆盖层叠起来，你就能在每次打开任意仓库时，都从一致的工作预期开始。
+
+## Codex 如何发现这些指导
+
+Codex 启动时会整理出一条本次运行要使用的指令链。这个过程每次运行都会重新执行；在终端界面（TUI）中，通常就是每次新建会话时重新构建。查找顺序如下：
+
+1.  **全局层：** 先检查 Codex 主目录（默认是 `~/.codex`，也可以通过 `CODEX_HOME` 指定）。如果存在 `AGENTS.override.md`，就使用它；否则再读取 `AGENTS.md`。这一层只会采用找到的第一个非空文件。
+2.  **项目层：** 然后从项目根目录（通常是 Git 根目录）一路检查到当前工作目录。如果没有找到项目根，就只检查当前目录。沿途每一级目录都会按 `AGENTS.override.md`、`AGENTS.md`、`project_doc_fallback_filenames` 中定义的备用文件名这一顺序查找；每个目录最多只会纳入一个文件。
+3.  **合并顺序：** 最后，Codex 会按“从根到当前目录”的顺序把这些文件拼接起来。越靠近当前目录的文件越靠后，因此会覆盖前面更通用的说明。
+
+空文件会被跳过。合并后的总大小一旦达到 `project_doc_max_bytes` 设定的上限（默认 32 KiB），Codex 就不会再继续加入更多文件。关于这些参数，参见 [项目指令发现](/docs/config-file/config-advanced#project-instructions-discovery)。如果触到上限，可以调大限制，或把指令拆到更深一层的目录中。
+
+## 创建全局指导
+
+在 Codex 主目录中创建持久默认值，这样每个仓库都会继承你的工作约定。
+
+1.  确保目录存在：
+    
+    <CodeBlock code={"mkdir -p ~/.codex"} language="bash" />
+    
+2.  创建 `~/.codex/AGENTS.md`，写入可复用偏好：
+    
+    <CodeBlock code={"# ~/.codex/AGENTS.md\n\n## 工作约定\n\n- 修改 JavaScript 文件后，始终运行 `npm test`。\n- 安装依赖时优先使用 `pnpm`。\n- 添加新的生产依赖前先征求确认。"} language="markdown" />
+    
+3.  在任意目录运行 Codex，确认它已加载该文件：
+    
+    <CodeBlock code={"codex --ask-for-approval never \"Summarize the current instructions.\""} language="bash" />
+    
+    预期结果：Codex 会在给出工作建议前，先引用 `~/.codex/AGENTS.md` 中的条目。
+    
+
+当你需要临时性的全局覆盖，而又不想删除基础文件时，可以使用 `~/.codex/AGENTS.override.md`。删除这个覆盖文件后，就会恢复共享指导。
+
+## 分层组织项目说明
+
+仓库级文件可以让 Codex 感知项目规范，同时继续继承你的全局默认值。
+
+1.  在仓库根目录添加一个 `AGENTS.md`，写入基础约定：
+    
+    <CodeBlock code={"# AGENTS.md\n\n## 仓库通用约定\n\n- 在创建 pull request 前运行 `npm run lint`。\n- 修改行为时，在 `docs/` 中记录对外公共工具的变化。"} language="markdown" />
+    
+2.  当某些团队需要不同规则时，在嵌套目录中添加覆盖文件。例如在 `services/payments/` 下创建 `AGENTS.override.md`：
+    
+    <CodeBlock code={"# services/payments/AGENTS.override.md\n\n## 支付服务规则\n\n- 使用 `make test-payments`，不要使用 `npm test`。\n- 轮换 API key 前，必须先通知安全频道。"} language="markdown" />
+    
+3.  从 `payments` 目录启动 Codex：
+    
+    <CodeBlock code={"codex --cd services/payments --ask-for-approval never \"List the instruction sources you loaded.\""} language="bash" />
+    
+    预期结果：Codex 会先报告全局文件，再报告仓库根目录 `AGENTS.md`，最后报告 `payments` 目录下的覆盖文件。
+    
+
+Codex 的搜索会在到达当前目录时停止，因此应把覆盖文件尽量放在靠近专门化工作的地方。
+
+添加全局文件和 `payments` 专属覆盖文件后，仓库结构示例如下：
+
+<CodeBlock code={"AGENTS.md 仓库通用约定services/payments/AGENTS.md 因为存在覆盖文件，所以会被忽略AGENTS.override.md 支付服务规则README.mdsearch/"} language="text" />
+
+## 添加代码评审规则
+
+要使用 [GitHub 中的 Codex 代码评审](/docs/third-party/github#customize-what-codex-reviews)，请在最靠近规则所辖代码的 `AGENTS.md` 中添加 `## Code Review Rules` 章节。仓库级检查放在根目录文件中，服务专属检查则放在嵌套文件中。
+
+<CodeBlock code={"## Code Review Rules\n\n### Experiment cohorts\n\n- Do not filter treatment comparisons on post-exposure behavior, including conversion or retention.\n  Safe path: build cohorts from assignment or exposure; report conversion as an outcome."} language="markdown" />
+
+规则应简洁说明需要标记的行为，以及安全做法或例外；格式和 lint 检查交给 CI。设置方法和规则编写建议参见[自定义 Codex 的评审重点](/docs/third-party/github#customize-what-codex-reviews)。
+
+## 自定义备用文件名
+
+如果你的仓库已经在使用其他文件名（例如 `TEAM_GUIDE.md`），你可以把它加入备用列表，让 Codex 也把它当作说明文件。
+
+1.  编辑你的 Codex 配置：
+    
+    <CodeBlock code={"# ~/.codex/config.toml\nproject_doc_fallback_filenames = [\"TEAM_GUIDE.md\", \".agents.md\"]\nproject_doc_max_bytes = 65536"} language="toml" />
+    
+2.  重启 Codex，或者运行一条新的命令，让更新后的配置被加载。
+    
+
+这样一来，Codex 就会按以下顺序检查每个目录：`AGENTS.override.md`、`AGENTS.md`、`TEAM_GUIDE.md`、`.agents.md`。不在这个列表中的文件名不会参与说明文件发现。更大的字节上限则允许合并更多指导内容后再截断。
+
+设置好备用列表后，Codex 会把这些替代文件也视作说明文件：
+
+<CodeBlock code={"TEAM_GUIDE.md 通过备用列表发现.agents.md 根目录中的备用文件support/AGENTS.override.md 覆盖备用文件中的指导playbooks/"} language="text" />
+
+如果你希望使用不同配置档，例如某个项目专用的自动化账号，可以设置 `CODEX_HOME` 环境变量：
+
+<CodeBlock code={"CODEX_HOME=$(pwd)/.codex codex exec \"List active instruction sources\""} language="bash" />
+
+预期结果：输出会列出相对于自定义 `.codex` 目录的文件路径。
+
+## 验证你的设置
+
+-   在仓库根目录运行 `codex --ask-for-approval never "Summarize the current instructions."`。正常情况下，Codex 会按优先级复述全局和项目级指导。
+-   使用 `codex --cd subdir --ask-for-approval never "Show which instruction files are active."`，确认嵌套目录中的覆盖文件是否成功覆盖了更上层规则。
+-   如果你需要审计 Codex 实际加载了哪些说明文件，可以用 `codex -c log_dir=./.codex-log` 启用明文 TUI 日志并查看 `./.codex-log/codex-tui.log`，或者在开启会话日志时检查最近的 `session-*.jsonl`。
+-   如果说明看起来像是旧的，请在目标目录里重启 Codex。Codex 会在每次运行时重新构建指令链，在 TUI 中则是在每次会话开始时重建，所以没有需要手工清理的缓存。
+
+## 排查发现问题
+
+-   **什么都没有加载：** 检查你是否位于目标仓库内，并确认 `codex status` 显示的工作区根目录符合预期；同时确认说明文件不是空文件。
+-   **出现了错误指导：** 优先检查目录树更高层，或 Codex 主目录下，是否存在 `AGENTS.override.md`。
+-   **Codex 忽略了备用文件名：** 检查 `project_doc_fallback_filenames` 是否拼写正确，并在修改配置后重新启动 Codex。
+-   **指令被截断：** 提高 `project_doc_max_bytes`，或把大文件拆到更深层的目录中。
+-   **配置档混淆：** 先执行 `echo $CODEX_HOME`，确认 Codex 实际读取的是哪个主目录。
+
+## 下一步
+
+-   [AGENTS.md](/docs)
+-   [提示 Codex](/docs/prompting)

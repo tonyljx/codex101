@@ -1,0 +1,186 @@
+---
+title: "Access tokens"
+navTitle: "访问令牌"
+description: "为 Codex 程序化工作流创建和管理访问令牌"
+locale: "zh"
+translationKey: "enterprise/access-tokens"
+section: "explore"
+order: 1090
+draft: false
+translationStatus: complete
+lastUpdated: 2026-08-06
+pageKind: article
+referenceHub: "administration"
+sourceUrl: "https://www.codex-docs.com/docs/enterprise/access-tokens"
+outline:
+  - id: "access-tokens-的工作方式"
+    label: "Access tokens 的工作方式"
+  - id: "启用-access-token-创建"
+    label: "启用 access token 创建"
+  - id: "设置-access-token-过期上限"
+    label: "设置 access token 过期上限"
+  - id: "创建-access-token"
+    label: "创建 access token"
+  - id: "在-codex-cli-中使用-access-token"
+    label: "在 Codex CLI 中使用 access token"
+  - id: "轮换或撤销-token"
+    label: "轮换或撤销 token"
+  - id: "权限模型"
+    label: "权限模型"
+  - id: "故障排查"
+    label: "故障排查"
+  - id: "相关文档"
+    label: "相关文档"
+---
+
+Codex access tokens 是限定在 Codex 权限范围内的 ChatGPT 工作区凭据。它们通过 ChatGPT 工作区身份，对受信任的非交互式本地工作流进行认证，包括 Codex CLI 和基于 app-server 的自动化。当脚本、定时任务或 CI runner 需要可重复的本地访问时，可以使用它们。
+
+<Callout kind="note">
+
+Codex access tokens 目前支持 ChatGPT Business 和 Enterprise 工作区。
+
+</Callout>
+
+access token 在 ChatGPT 管理控制台的 [Access tokens](https://chatgpt.com/admin/access-tokens) 页面创建，与创建它的 ChatGPT 用户及其工作区绑定，并作为程序化本地工作流的智能体身份。
+
+<Callout kind="note">
+
+如果 Platform API key 已能满足自动化需求，请继续使用 API key 认证。只有受信任本地工作流确实需要 ChatGPT 工作区访问、由工作区管理的授权或企业控制时，才使用 Codex access token。
+
+</Callout>
+
+<Callout kind="note">
+
+如果需要从自有系统触发已经发布的 ChatGPT 工作区智能体，请改用 Workspace Agents API 的 Workspace Agent access token。Codex access token 通过 Codex CLI 或 app-server 客户端认证受信任本地工作流，不会认证工作区智能体触发调用。详情参见[通过 Workspace Agent access tokens 认证](https://developers.openai.com/workspace-agents/authentication)。
+
+</Callout>
+
+## Access tokens 的工作方式
+
+当 Codex CLI 或 app-server 客户端需要在用户不完成浏览器登录的情况下运行时，可以使用 access token。token 代表创建它的 ChatGPT 工作区用户，因此运行会使用该用户的访问权限，并出现在工作区治理数据中。
+
+客户端会在运行开始时检查 token，并将这次运行绑定到对应工作区身份。应像管理其他自动化 secret 一样管理 token：保存到 secret manager，不写入日志，并定期轮换。
+
+Access tokens 适用于：
+
+-   由受信任自动化执行的 `codex exec` 任务。
+-   需要可重复、非交互式运行 Codex CLI 的本地脚本。
+-   受信任的 app-server 自动化。
+-   用量应归属到 ChatGPT 工作区用户、而非 API organization key 的企业工作流。
+
+需要避免的主要风险：
+
+-   **Secret 泄露：** 任何获得 token 的人都可以通过 Codex CLI 或 app-server 客户端，以 token 创建者身份开始本地运行。请保存到 secret manager，不写入日志，并定期轮换。
+-   **Runner 信任：** 公开 CI、来自 fork 的 PR 或共享机器可能把 token 暴露给工作区外的人。只在受信任 runner 上使用。
+-   **共享身份：** 多个无关团队复用同一个人的 token，会让所有权和审计轨迹难以解释。应为具体工作流负责人创建 token。
+-   **过期凭据：** 工作流已经改变后，长效 token 仍可能保持活跃。优先使用有时限的 token，并撤销不再使用的 token。
+-   **凭据类型错误：** Codex access tokens 用于通过 Codex CLI 或 app-server 客户端运行受信任本地自动化。触发已发布的 ChatGPT 工作区智能体应使用 Workspace Agent access tokens；普通 OpenAI API 调用则使用 Platform API key。
+
+## 启用 access token 创建
+
+使用工作区设置中的 access token 权限，为允许的成员开启 token 创建能力。
+
+该权限只控制 token 创建，不会授予 ChatGPT 桌面 App、Codex CLI 或 IDE 扩展访问，也不会改变成员的席位类型、内置工作区角色或本地运行时权限配置档案。请按需分别配置这些控制。
+
+这些控制之间的关系参见[角色和工作区权限](/docs/enterprise/roles-and-workspace-permissions)。
+
+<Screenshot src="/images/codex/enterprise/rbac_access_token_access_permission.png" darkSrc="/images/codex/enterprise/rbac_access_token_access_permission_dark.png" alt="ChatGPT 工作区 RBAC 设置中的 Access token access 权限" />
+
+1.  前往 [Workspace Settings > Permissions & roles](https://chatgpt.com/admin/settings)。
+2.  如果所有获准成员都应能创建 access token，请在 **Access tokens** 区域开启 **Allow users to create access tokens（允许用户创建 access tokens）**。
+3.  如果工作流还需要受支持的本地产品形态，请确认 **Codex Local** 区域中的 **Allow members to use Codex Local（允许成员使用 Codex Local）** 已开启。该控件覆盖 ChatGPT 桌面 App、Codex CLI 和 IDE 扩展中的本地使用。
+
+只应向理解 token 存储位置、使用它的自动化及轮换方式的人员或服务负责人开放 token 创建。
+
+## 设置 access token 过期上限
+
+工作区 owner 和 admin 可以设置成员创建 Codex access token 时可选择的最长有效期。前往 [Workspace Settings > Permissions & roles](https://chatgpt.com/admin/settings)，再在 **Codex Local** 区域设置 **Access token expiration limit（Access token 过期上限）**。
+
+<Screenshot src="/images/codex/enterprise/access_token_expiration_limit.png" darkSrc="/images/codex/enterprise/access_token_expiration_limit_dark.png" alt="ChatGPT 工作区权限设置中的 Access token expiration limit" />
+
+该上限只应用于新 token；现有 token 保留当前过期时间。
+
+## 创建 access token
+
+在 Access tokens 页面为 token 命名并选择过期时间。
+
+1.  前往 [Access tokens](https://chatgpt.com/admin/access-tokens)。
+2.  选择 **Create（创建）**。
+
+<Screenshot src="/images/codex/enterprise/access_token_create_header.png" darkSrc="/images/codex/enterprise/access_token_create_header_dark.png" alt="Access tokens 页面上的 Create 按钮" />
+
+3.  输入能够描述用途的名称，例如 `release-ci` 或 `nightly-docs-check`。
+
+<Screenshot src="/images/codex/enterprise/access_token_creation_modal.png" darkSrc="/images/codex/enterprise/access_token_creation_modal_dark.png" alt="创建 access token 的弹窗，包含名称和过期时间字段" />
+
+4.  选择过期时间。优先选择 7、30、60 或 90 天等有限期限。如果选择 **No expiration（永不过期）**，请按固定计划轮换。
+5.  选择 **Create**。
+6.  立即复制生成的 access token；关闭弹窗后无法再次查看。
+7.  把 token 保存到 secret manager 或 CI secret store。
+
+自定义过期时间最短为一天。已撤销或已过期的 token 无法开始新的认证运行。
+
+## 在 Codex CLI 中使用 access token
+
+对于临时自动化，把 token 保存到 `CODEX_ACCESS_TOKEN`，再正常运行 Codex CLI：
+
+<CodeBlock code={"export CODEX_ACCESS_TOKEN=\"<access-token>\"\ncodex exec --json \"review this repository and summarize the top risks\""} language="bash" />
+
+要进行持久本地登录，把 token 通过 pipe 传给 `codex login --with-access-token`：
+
+<CodeBlock code={"printf '%s' \"$CODEX_ACCESS_TOKEN\" | codex login --with-access-token\ncodex exec \"summarize the last release diff\""} language="bash" />
+
+`codex login --with-access-token` 会把智能体身份凭据保存到 Codex CLI 认证存储。如果不希望在机器上持久保存凭据，请改用 `CODEX_ACCESS_TOKEN` 环境变量。
+
+`codex app-server` 可以使用 `CODEX_ACCESS_TOKEN` 中的同一凭据，或使用通过 `codex login --with-access-token` 创建的登录来认证 OpenAI 请求。该凭据与客户端到 app-server 的传输认证相互独立。远程 WebSocket 连接应按 [App server](/docs/app-server)说明另行配置 bearer token 或 capability token；不要把 Codex access token 复用为传输 token。另请参阅[认证与网络环境变量](/docs/config-file/environment-variables#authentication-and-network)。
+
+## 轮换或撤销 token
+
+像轮换其他自动化 secrets 一样轮换 access tokens：
+
+1.  创建替代 token。
+2.  更新 runner、scheduler 或 secret manager 中的 secret。
+3.  使用新 token 运行 smoke test。
+4.  从 [Access tokens](https://chatgpt.com/admin/access-tokens) 撤销旧 token。
+
+工作区 owner 和 admin 可以在 Access tokens 页面撤销工作区中的任何 token；拥有 access token 权限的成员只能撤销自己创建的 token。
+
+## 权限模型
+
+工作区 access token 权限控制 token 创建；**Allow members to use Codex Local** 工作区权限则单独控制 ChatGPT 桌面 App、Codex CLI 和 IDE 扩展中的本地访问。成员可以拥有本地访问，但没有创建 access token 的权限。
+
+<div className="doc-table-wrap">
+
+| 能力 | 工作区 owner 和 admin | 拥有 access token 权限的成员 | 没有 access token 权限的成员 |
+| --- | --- | --- | --- |
+| 打开 [Access tokens](https://chatgpt.com/admin/access-tokens) | 是 | 是 | 否 |
+| 创建 access tokens | 是，仅用于自己的 ChatGPT 工作区身份 | 是，仅用于自己的 ChatGPT 工作区身份 | 否 |
+| 列出 access tokens | 工作区列表，包括每个 token 的创建者 | 仅自己创建的 token | 否 |
+| 从 Access tokens 页面撤销 token | 工作区中的任何 token | 仅自己创建的 token | 无页面访问权限 |
+| 授予或移除 access token 权限 | 是 | 否 | 否 |
+| 管理其他本地客户端或 Codex 云端设置 | 是，取决于工作区 admin 权限 | 否，除非另行授予 | 否 |
+
+</div>
+
+简而言之：工作区 owner 和 admin 在工作区层面管理访问。成员需要 access token 权限才能创建和管理自己的 token，但该权限既不会授予管理员能力，也不会授予访问其他成员 token 的能力。
+
+## 故障排查
+
+### Access tokens 页面返回 404 或 forbidden
+
+请让工作区 owner 或 admin 确认你的角色包含 **Allow users to create access tokens**。如果工作流还需要受支持的本地产品形态，请确认已开启 **Allow members to use Codex Local**，以便在 ChatGPT 桌面 App、Codex CLI 和 IDE 扩展中本地使用。
+
+<span id="codex-login-with-access-token-失败"></span>
+
+### `codex login --with-access-token` 失败
+
+确认复制的是生成的 access token，而不是浏览器 session token 或 Platform API key；同时确认 token 尚未过期或撤销。
+
+## 相关文档
+
+-   [认证](/docs/auth)
+-   [非交互模式](/docs/non-interactive-mode)
+-   [管理员上线指南](/docs/enterprise/admin-setup)
+-   [群组与预配](/docs/enterprise/groups-and-provisioning)
+-   [角色和工作区权限](/docs/enterprise/roles-and-workspace-permissions)
+-   [治理](/docs/enterprise/governance)

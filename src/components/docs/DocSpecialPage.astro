@@ -1,0 +1,65 @@
+---
+type Props = { source: string };
+
+const { source } = Astro.props;
+const fragments = import.meta.glob('../../content/special/zh/*.html', {
+  query: '?raw',
+  import: 'default',
+  eager: true,
+}) as Record<string, string>;
+const html = fragments[`../../content/special/zh/${source}.html`];
+
+if (!html) throw new Error(`Missing generated special-page fragment: ${source}`);
+---
+
+<div class="docs-special-page">
+  <Fragment set:html={html} />
+</div>
+
+<script>
+  const initializeSpecialDocsPage = () => {
+    document.querySelectorAll<HTMLButtonElement>('[data-pricing-tab]').forEach((button) => {
+      if (button.dataset.initialized === 'true') return;
+      button.dataset.initialized = 'true';
+      button.addEventListener('click', () => {
+        const page = button.closest<HTMLElement>('[data-pricing-page]');
+        if (!page) return;
+        const selected = button.dataset.pricingTab;
+        page.querySelectorAll<HTMLButtonElement>('[data-pricing-tab]').forEach((item) => {
+          const active = item.dataset.pricingTab === selected;
+          item.setAttribute('aria-checked', String(active));
+          item.tabIndex = active ? 0 : -1;
+        });
+        page.querySelectorAll<HTMLElement>('[data-pricing-panel]').forEach((panel) => {
+          panel.hidden = panel.dataset.pricingPanel !== selected;
+        });
+      });
+    });
+
+    const filter = document.querySelector<HTMLInputElement>('[data-glossary-filter]');
+    if (filter && filter.dataset.initialized !== 'true') {
+      filter.dataset.initialized = 'true';
+      const rows = [...document.querySelectorAll<HTMLElement>('[data-glossary-row]')];
+      const count = document.querySelector<HTMLElement>('[data-glossary-count]');
+      const applyFilter = () => {
+        const query = filter.value.trim().toLocaleLowerCase();
+        let visible = 0;
+        rows.forEach((row) => {
+          const match = !query || (row.textContent ?? '').toLocaleLowerCase().includes(query);
+          row.hidden = !match;
+          if (match) visible += 1;
+        });
+        if (count) {
+          count.textContent = query
+            ? (count.dataset.countFiltered ?? '{visible}').replace('{visible}', String(visible))
+            : (count.dataset.countAll ?? String(visible));
+        }
+      };
+      filter.addEventListener('input', applyFilter);
+      applyFilter();
+    }
+  };
+
+  initializeSpecialDocsPage();
+  document.addEventListener('astro:page-load', initializeSpecialDocsPage);
+</script>

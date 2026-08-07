@@ -1,0 +1,20 @@
+---
+import { getCollection, type CollectionEntry } from 'astro:content';
+import ArticlePage from '../../../components/ArticlePage.astro';
+import { getDocsNavigation } from '../../../lib/docs';
+import type { Locale } from '../../../lib/site';
+
+export async function getStaticPaths() {
+  const entries = await getCollection('docs', ({ data }) => data.locale !== 'zh' && !data.draft);
+  return entries.map((entry) => ({
+    params: { lang: entry.data.locale, slug: entry.data.translationKey },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props as { entry: CollectionEntry<'docs'> };
+const locale = entry.data.locale as Locale;
+const navigation = await getDocsNavigation(locale);
+---
+
+<ArticlePage currentPath={Astro.url.pathname} entry={entry} navigation={navigation} />

@@ -1,0 +1,114 @@
+---
+title: "图像生成"
+description: "在 ChatGPT 中生成和编辑图片"
+locale: "zh"
+translationKey: "image-generation"
+section: "explore"
+order: 1014
+draft: false
+translationStatus: complete
+lastUpdated: 2026-08-06
+pageKind: article
+referenceHub: "features"
+sourceUrl: "https://www.codex-docs.com/docs/image-generation"
+outline:
+  - id: "生成或编辑图片"
+    label: "生成或编辑图片"
+  - id: "编写有效的图像提示词"
+    label: "编写有效的图像提示词"
+  - id: "迭代结果"
+    label: "迭代结果"
+  - id: "使用多张参考图片"
+    label: "使用多张参考图片"
+  - id: "在图片中添加文字"
+    label: "在图片中添加文字"
+  - id: "创建信息图和密集布局"
+    label: "创建信息图和密集布局"
+  - id: "其它注意事项"
+    label: "其它注意事项"
+  - id: "相关文档"
+    label: "相关文档"
+---
+
+让 ChatGPT 生成或编辑图片。你可以在编写代码或进行 ChatGPT 聊天时，用图像生成创建 UI 素材、横幅、背景、插画、sprite sheet 和占位图。
+
+直接在 App 输入框中描述想要的图片。如果需要转换现有素材或让它作为视觉参考，请同时添加参考图片。
+
+### 查看并编辑生成的图片
+
+选择生成的图片可以打开扩展查看器。在 **Focused view（聚焦视图）** 中检查单张图片，或切换到 **Canvas view（画布视图）**，查看同一聊天中生成的图片。
+
+在 **Canvas view** 中，使用 **Comment（评论）** 为一张或多张图片添加精确反馈。选择 **Multi-select（多选）**，勾选要包含的图片，然后在同一聊天中发送评论和其他编辑指令。请明确说明哪些内容需要修改、哪些内容应保持不变。
+
+## 生成或编辑图片
+
+用自然语言描述图片。当你希望 ChatGPT 转换、扩展现有素材时，请添加参考图片。
+
+在提示词中加入 `$imagegen`，可以显式调用图像生成 skill。
+
+内置图像生成使用 `gpt-image-2`，并计入通用 Codex 用量限制。根据图片质量和尺寸，图像生成平均会以无图像生成的相似会话轮次 3–5 倍的速度消耗所含额度。如果需要更大的批量，请在环境中设置 `OPENAI_API_KEY`，并要求 ChatGPT 通过 API 生成图片，此时按 API 定价计费。
+
+## 编写有效的图像提示词
+
+实用的图像提示词通常只需一到三句清晰描述。重点写出决定结果是否符合要求的细节：
+
+-   说明图片用途或目标受众。
+-   指明主体以及正在发生的事情。
+-   描述环境、构图和视觉风格。
+-   在重要时补充取景、尺寸、光线、颜色或材质。
+-   写明约束，包括图片中不得出现的内容。
+
+优先使用具体的视觉语言，不要只写宽泛感受。例如，与其要求“漂亮的光线”，不如说明光线来自哪里。任何必须保持不变的要求，都应明确重复。
+
+示例提示词
+
+<CodeBlock code={"Create a clean editorial illustration for an employee onboarding guide. Show a person organizing a project at a desk with a laptop, notebook, and simple progress checklist. Use soft daylight from a window on the left, restrained colors, and a modern, approachable style. Keep the background minimal. Do not include logos, text, or futuristic imagery."} language="text" />
+
+## 迭代结果
+
+先生成核心构思，再进行小范围、有针对性的修改。每次只调整一个元素，避免构图和其它重要细节随之漂移。你也可以选中图片中的具体区域，只描述该区域要做的修改。
+
+编辑现有图片时，请准确说明哪些内容要改变、哪些内容必须保持不变。
+
+示例提示词
+
+<CodeBlock code={"Edit the attached image. Replace only the mug with a small potted plant. Preserve the person, desk layout, lighting, colors, crop, and every other detail exactly. Do not add text or logos."} language="text" />
+
+如果修改范围较大，反馈也应直接且可执行，例如：提高亮度、降低色彩饱和度、简化背景，或在改变风格的同时保持原有构图。
+
+## 使用多张参考图片
+
+当一张图片用于定义内容、另一张用于定义风格、布局或其它视觉方向时，可以使用少量参考图片。按顺序标识每张图片，并说明它们之间的关系。组合元素时，可使用前景、背景、左侧和右侧等空间描述。
+
+示例提示词
+
+<CodeBlock code={"Image 1 is the product photo to edit. Image 2 is the style reference. Keep the product, camera angle, layout, and objects from image 1, but apply the clean line work, muted palette, and soft shadows from image 2. Keep the product centered and leave the upper-right corner clear for later copy."} language="text" />
+
+## 在图片中添加文字
+
+图片中的文字应尽量简短，并精确指定。把原文放在引号中，保留所需的大小写，同时描述字体风格、字号、颜色和位置。如果是少见名称且准确性很重要，可以逐个拼出字母。还要说明是否允许出现其它文字。
+
+示例提示词
+
+<CodeBlock code={"Add only the title “SPRING WORKSHOP” in large, bold, white sans-serif letters, centered in the top third of the image. Keep the title on one line. Do not add any other text or change the underlying image."} language="text" />
+
+## 创建信息图和密集布局
+
+图像生成可以帮助起草说明图、海报、带标签的图表、时间线和其它信息密集型视觉内容。请说明信息层级和版式、保持标签简短，并要求清晰渲染文字。对于密集文案或对字体排版要求严格的生产素材，应逐字检查，并在需要时使用设计工具完成最终制作。
+
+## 其它注意事项
+
+-   **谨慎使用人物肖像。** 描绘真人时，应在合适的情况下提供参考照片，并确认你有权使用其肖像。
+-   **要求原创呈现。** 应请求通用或原创设计，不要模仿特定品牌、产品、艺术家或作品。
+-   **可选择是否署名。** 生成图片不要求注明 OpenAI；如果制作方式有助于理解素材，你也可以主动说明。
+-   **遵守适用政策。** 图片使用应符合你所在组织的规范和 [OpenAI 使用政策](https://openai.com/policies/usage-policies/)。
+
+## 相关文档
+
+-   [Codex 定价](/docs/pricing#image-generation-usage-limits)
+-   [图片输入](/docs/image-inputs)
+-   [图像生成 API 指南](https://developers.openai.com/api/docs/guides/image-generation)
+-   [处理文件](/docs/artifacts-viewer)
+-   [使用 ChatGPT 创建图片](https://openai.com/academy/image-generation/)
+
+[**图像生成图库**查看更多图像生成提示词与结果。 →](https://developers.openai.com/api/docs/guides/image-generation?gallery=open)

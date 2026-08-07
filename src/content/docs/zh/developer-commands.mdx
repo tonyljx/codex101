@@ -1,0 +1,1283 @@
+---
+title: "开发者命令"
+description: "Codex 开发者产品中的命令与斜杠命令参考"
+locale: "zh"
+translationKey: "developer-commands"
+section: "explore"
+order: 1058
+draft: false
+translationStatus: complete
+lastUpdated: 2026-08-06
+pageKind: article
+referenceHub: "developers"
+sourceUrl: "https://www.codex-docs.com/docs/developer-commands"
+outline:
+  - id: "chatgpt-网页版命令"
+    label: "ChatGPT 网页版命令"
+  - id: "chatgpt-桌面-app-命令"
+    label: "ChatGPT 桌面 App 命令"
+  - id: "codex-cli-命令参考"
+    label: "Codex CLI 命令参考"
+  - id: "codex-cli-斜杠命令"
+    label: "Codex CLI 斜杠命令"
+  - id: "ide-扩展命令"
+    label: "IDE 扩展命令"
+  - id: "ide-扩展斜杠命令"
+    label: "IDE 扩展斜杠命令"
+---
+
+## ChatGPT 网页版命令
+
+ChatGPT 网页版有自己的输入框命令菜单。输入 `/` 可查看当前聊天中可用的操作。它不会提供 ChatGPT 桌面 App 或 CLI 的命令集；本参考中的 Codex 斜杠命令、CLI 子命令和 flags 不适用于 ChatGPT 网页版。
+
+## ChatGPT 桌面 App 命令
+
+通用的[命令](/docs/reference/commands)页面涵盖 App 导航、聊天快捷键、键盘自定义，以及聊天、设置、skills、定时任务、plugins 和 pets 的 deep links。
+
+[斜杠命令](/docs/reference/slash-commands)页面涵盖 App 输入框中可用的命令，包括 `/feedback`、`/goal`、`/init`、`/mcp`、`/plan`、`/review` 和 `/status`。
+
+## Codex CLI 命令参考
+
+### 如何阅读本页
+
+本页汇总了所有已文档化的 Codex CLI 命令和选项。你可以按命令名或说明来查找。每个章节都会标明该功能是稳定还是实验性，并指出哪些组合存在更高风险。
+
+<Callout kind="note">
+
+CLI 的大部分默认值都继承自 `~/.codex/config.toml`。如果你在命令行里传入 `-c key=value` 覆盖项，它们会在本次调用中优先生效。关于优先级规则，参见 [配置基础](/docs/config-file/config-basic#configuration-precedence)。
+
+</Callout>
+
+### 全局选项
+
+<div className="doc-table-wrap">
+
+| 选项 | 类型 / 可选值 | 说明 |
+| --- | --- | --- |
+| `--add-dir` | path | 在主工作区之外，额外授予其他目录写权限。可重复传入多个路径。 |
+| `--ask-for-approval, -a` | `untrusted \| on-request \| never` | 控制 Codex 在运行命令前何时暂停并请求人工批准。`on-failure` 已弃用；交互模式推荐 `on-request`，非交互模式推荐 `never`。 |
+| `--cd, -C` | path | 在智能体开始处理请求前设置工作目录。 |
+| `--config, -c` | `key=value` | 覆盖配置值。若可解析为 TOML，则按 TOML 解析；否则按字面字符串处理。 |
+| `--dangerously-bypass-approvals-and-sandbox, --yolo` | boolean | 绕过所有审批与沙箱。只应在外部已加固的环境中使用。 |
+| `--dangerously-bypass-hook-trust` | boolean | 本次调用运行已启用的 hooks 时，不要求存在已持久化的 hook 信任记录。仅适用于已经在 Codex 外部审核 hook 来源的自动化环境。 |
+| `--disable` | feature | 强制关闭某个功能开关（等价于 `-c features.<name>=false`）。可重复。 |
+| `--enable` | feature | 强制开启某个功能开关（等价于 `-c features.<name>=true`）。可重复。 |
+| `--image, -i` | `path[,path...]` | 把一张或多张图片附加到初始提示词。可用逗号分隔多个路径，也可重复传 flag。 |
+| `--local-provider` | `lmstudio \| ollama` | 选择与 `--oss` 一起使用的本地提供方，并在本次运行中覆盖 `oss_provider`。 |
+| `--model, -m` | string | 覆盖配置中的 model，例如 `gpt-5.6-terra`。 |
+| `--no-alt-screen` | boolean | 关闭 TUI 的 alternate screen mode（仅覆盖本次运行中的 `tui.alternate_screen`）。 |
+| `--oss` | boolean | 使用本地开源模型提供方。Codex 会依次使用 `--local-provider`、已配置的 `oss_provider`，或提示你在 LM Studio 与 Ollama 之间选择。 |
+| `--profile, -p` | string | 在用户基础配置之上叠加 `$CODEX_HOME/profile-name.config.toml`。 |
+| `--remote` | `ws://host:port \| wss://host:port \| unix:// \| unix://PATH` | 通过 WebSocket 或 Unix socket 连接到远程 app-server 端点。支持 `codex`、`codex resume`、`codex fork`、`codex archive`、`codex delete` 和 `codex unarchive`；其他子命令会拒绝 remote mode。 |
+| `--remote-auth-token-env` | `ENV_VAR` | 从这个环境变量读取 bearer token，并在通过 `--remote` 连接时发送。要求同时使用 `--remote`；token 只会通过 `wss://` URL 或 local-only `ws://` URL 发送。 |
+| `--sandbox, -s` | `read-only \| workspace-write \| danger-full-access` | 为模型生成的 shell 命令选择沙箱策略。 |
+| `--search` | boolean | 开启实时 web search（把 `web_search` 从默认的 `"cached"` 切换为 `"live"`）。 |
+| `--strict-config` | boolean | 当 `config.toml` 中包含当前 Codex 版本不认识的字段时直接报错。`codex`、`exec`、`review`、`resume`、`fork`、`app-server`、`mcp-server` 和 `exec-server` 等运行时命令支持该选项。 |
+| PROMPT | string | 可选的初始提示词。省略时只启动 TUI，而不预填消息。 |
+
+</div>
+
+这些选项适用于基础 codex 命令，并会传播给各个子命令，除非下文明确说明例外。运行子命令时，建议把全局选项写在子命令后面，例如 `codex exec --oss ...`，这样 Codex 才能按预期解析。
+
+### 命令总览
+
+<Callout kind="note">
+
+“成熟度”这一列会使用 Experimental（实验性）、Beta（测试版）和 Stable（稳定）等功能成熟度标签。想了解这些标签分别代表什么，可参见 [功能成熟度](/docs/feature-maturity)。
+
+</Callout>
+
+<div className="doc-table-wrap">
+
+| 命令 | 成熟度 | 说明 |
+| --- | --- | --- |
+| [codex](#codex-interactive) | 稳定 | 启动终端 UI。接受上面的全局选项，以及可选提示词或图片附件。 |
+| [codex app](#codex-app) | 稳定 | 在 macOS 或 Windows 上启动 ChatGPT 桌面 App。macOS 可打开工作区路径；Windows 会打印要打开的路径。 |
+| [codex app-server](#codex-app-server) | 实验性 | 通过 stdio、WebSocket 或 Unix socket 启动本地 Codex app-server，用于开发或调试。 |
+| [codex apply](#codex-apply) | 稳定 | 把最近一次 Codex 云端任务生成的 diff 应用到本地工作树。别名：`codex a`。 |
+| [codex archive](#codex-archive-and-codex-unarchive) | 稳定 | 按 session ID 或 session 名称归档已保存的交互会话。 |
+| [codex cloud](#codex-cloud) | 实验性 | 在终端里浏览或执行 Codex 云端任务，而不必打开 TUI。别名：`codex cloud-tasks`。 |
+| [codex completion](#codex-completion) | 稳定 | 为 Bash、Zsh、Fish 或 PowerShell 生成 shell 补全脚本。 |
+| [codex debug app-server send-message-v2](#codex-debug-app-server-send-message-v2) | 实验性 | 通过内置测试客户端向 app-server 发送单条 V2 消息，便于调试。 |
+| [codex debug models](#codex-debug-models) | 实验性 | 打印 Codex 看到的原始 model catalog，也可只查看当前二进制内置的 catalog。 |
+| [codex debug prompt-input](#codex-debug-prompt-input) | 实验性 | 以 JSON 形式渲染模型可见的提示词输入列表，并可选择附加提示词和图片。 |
+| [codex delete](#codex-delete) | 稳定 | 按 session ID 或 session 名称永久删除已保存的交互会话。 |
+| [codex doctor](#codex-doctor) | 稳定 | 为本地安装、配置、认证、运行时、Git、终端、app-server 和对话线程清单问题生成诊断报告。 |
+| [codex exec](#codex-exec) | 稳定 | 以非交互模式运行 Codex。可输出 stdout 或 JSONL，也可恢复历史会话。别名：`codex e`。 |
+| [codex execpolicy](#codex-execpolicy) | 实验性 | 评估 execpolicy 规则文件，查看某条命令会被允许、要求批准还是被阻止。 |
+| [codex features](#codex-features) | 稳定 | 列出功能开关，并把启用 / 禁用状态持久写入当前活动配置文件。 |
+| [codex fork](#codex-fork) | 稳定 | 把一个已有交互会话分叉成新对话线程，保留原始对话记录。 |
+| [codex login](#codex-login) | 稳定 | 通过 ChatGPT OAuth、设备码认证，或从 stdin 读取 API key / access token 来认证 Codex。 |
+| [codex logout](#codex-logout) | 稳定 | 删除已保存的认证凭据。 |
+| [codex mcp](#codex-mcp) | 稳定 | 管理 Model Context Protocol Server（列出、添加、删除、认证）。 |
+| [codex mcp-server](#codex-mcp-server) | 稳定 | 通过 stdio 把 Codex 自身作为 MCP server 运行，便于被其他智能体调用。 |
+| [codex plugin](#codex-plugin) | 稳定 | 从已配置的 marketplace 来源安装、列出或移除插件。 |
+| [codex plugin marketplace](#codex-plugin-marketplace) | 稳定 | 从 Git 或本地来源添加、列出、升级或移除插件市场。 |
+| [codex remote-control](#codex-remote-control) | 实验性 | 确保本地 app-server daemon 正在运行，并启用了 remote-control 支持。 |
+| [codex resume](#codex-resume) | 稳定 | 按 ID 恢复某个交互会话，或恢复最近一次对话。 |
+| [codex review](#codex-review) | 稳定 | 对未提交改动、相对基础分支的 diff、某个 commit，或按自定义评审指令执行非交互式代码评审。 |
+| [codex sandbox](#codex-sandbox) | 稳定 | 在 Codex 提供的 macOS、Linux 或 Windows 沙箱中运行任意命令。 |
+| [codex unarchive](#codex-archive-and-codex-unarchive) | 稳定 | 按 session ID 或 session 名称恢复已归档的交互会话。 |
+| [codex update](#codex-update) | 稳定 | 在已安装版本支持 self-update 时，检查并应用 Codex CLI 更新。 |
+
+</div>
+
+### 命令细节
+
+<span id="codex-interactive"></span>
+
+#### codex（交互模式）
+
+直接运行 `codex` 而不带子命令时，会启动交互式终端 UI（TUI）。智能体会接受前面列出的全局选项，也支持附加图片。Web 搜索默认使用 `cached` 模式；使用 `--search` 可切换到实时浏览。若要进行低摩擦本地工作，请使用 `--sandbox workspace-write --ask-for-approval on-request`。
+
+如果要把 TUI 连接到远程 app server，可使用 `--remote ws://host:port`、`--remote wss://host:port`、`--remote unix://` 或 `--remote unix://PATH`，并将其指向通过 `codex app-server --listen ...` 启动的服务端。如果服务端要求通过 WebSocket 使用 bearer token 认证，可额外传入 `--remote-auth-token-env <ENV_VAR>`。
+
+#### codex app-server
+
+在本地启动 Codex app-server。这个命令主要用于开发和调试，未来可能会变更。
+
+<div className="doc-table-wrap">
+
+| 选项 | 类型 / 可选值 | 默认值 | 说明 |
+| --- | --- | --- | --- |
+| `--analytics-default-enabled` | boolean | `false` | 为第一方 app-server 客户端默认启用 analytics，除非用户在配置中选择退出。 |
+| `--listen` | `stdio:// \| ws://IP:PORT \| unix:// \| unix://PATH \| off` | `stdio://` | 传输监听 URL。用 `stdio://` 表示 JSONL，`ws://IP:PORT` 表示 TCP WebSocket 端点，`unix://` 表示默认 Unix socket，`unix://PATH` 表示自定义 Unix socket，`off` 表示禁用本地传输。 |
+| `--stdio` | boolean | `false` | 使用 stdio 传输。等价于 `--listen stdio://`，并且与 `--listen` 互斥。 |
+| `--ws-audience` | string |  | 已签名 bearer token 中预期的 `aud` 声明值。要求同时使用 `--ws-auth signed-bearer-token`。 |
+| `--ws-auth` | `capability-token \| signed-bearer-token` |  | 为 app-server 的 WebSocket 客户端指定认证模式。若省略，则不会启用 WebSocket 认证；如果监听地址不是本地地址，启动时会给出警告。 |
+| `--ws-issuer` | string |  | 已签名 bearer token 中预期的 `iss` 声明值。要求同时使用 `--ws-auth signed-bearer-token`。 |
+| `--ws-max-clock-skew-seconds` | number | `30` | 校验已签名 bearer token 的 `exp` 和 `nbf` 声明时，允许的时钟偏差秒数。要求同时使用 `--ws-auth signed-bearer-token`。 |
+| `--ws-shared-secret-file` | absolute path |  | 包含 HMAC 共享密钥的文件路径，用于校验已签名的 JWT bearer token。使用 `--ws-auth signed-bearer-token` 时必填。 |
+| `--ws-token-file` | absolute path |  | 包含共享 capability token 的文件路径。使用 `--ws-auth capability-token` 时传入，除非你改用 `--ws-token-sha256`。 |
+| `--ws-token-sha256` | hexadecimal SHA-256 digest |  | capability-token 认证所期望的 SHA-256 摘要。当客户端 token 来自其他来源时，可用它代替 `--ws-token-file`。 |
+
+</div>
+
+`codex app-server --listen stdio://` 会继续使用默认的 JSONL-over-stdio 传输方式，`codex app-server --stdio` 是这个传输方式的别名。`--listen ws://IP:PORT` 会为 app-server 客户端启用 WebSocket 传输。服务端接受 `ws://` 作为监听 URL；如果客户端通过 `wss://` 连接，则应在前面配置 TLS 终止或安全代理。使用 `--listen unix://` 可在 Codex 默认 Unix socket 上接受 WebSocket 握手；使用 `--listen unix:///absolute/path.sock` 可指定 socket 路径。如果你要为客户端绑定生成 schema，请额外加上 `--experimental`，这样受门控的字段和方法也会一并包含进去。
+
+添加 `--code-mode-host wss://code-mode.example.com/host`，可让 app-server 连接远程 Code Mode host，而不是启动本地 host。这条出站连接与 `--listen` 相互独立，并由 app-server 进程中的所有 thread 共享。只有连接 localhost 或通过 SSH 转发的 host 时才使用 `ws://`。
+
+#### codex remote-control
+
+运行 `codex remote-control` 会以前台方式启动远程控制。使用 `codex remote-control start` 可启动启用了远程控制的本地 app-server daemon，使用 `codex remote-control stop` 则可将其停止。托管 remote-control 客户端和 SSH 远程工作流会使用这些命令；如果你正在构建本地协议客户端，它们不能替代 `codex app-server --listen`。
+
+daemon 运行后，使用 `codex remote-control pair` 可创建并打印一个短期有效的手动配对码。为任意 remote-control 命令加上 `--json` 可获得机器可读输出。对于 `pair`，JSON 响应包含 `pairingCode`、`manualPairingCode`、`environmentId` 和 `expiresAt`。
+
+#### codex app
+
+从终端启动 ChatGPT 桌面 App（macOS 或 Windows）。在 macOS 上，Codex 可以直接打开指定工作区路径；在 Windows 上，Codex 会打印要打开的路径。
+
+<div className="doc-table-wrap">
+
+| 选项 | 类型 / 可选值 | 默认值 | 说明 |
+| --- | --- | --- | --- |
+| `--download-url` | url |  | 高级覆盖项，用于替换安装阶段使用的 ChatGPT 桌面 App 安装器 URL。 |
+| `PATH` | path | `.` | ChatGPT 桌面 App 的工作区路径。在 macOS 上，Codex 会打开该路径；在 Windows 上，Codex 会打印该路径。 |
+
+</div>
+
+`codex app` 会打开已安装的 ChatGPT 桌面 App；如果尚未安装，则启动安装器。在 macOS 上，Codex 会打开给定工作区路径；在 Windows 上，安装后会打印要打开的路径。
+
+#### codex debug app-server send-message-v2
+
+使用内置 app-server 测试客户端，通过 app-server 的 V2 对话线程 / 会话轮次流程发送一条消息。
+
+<div className="doc-table-wrap">
+
+| 参数 | 类型 / 可选值 | 说明 |
+| --- | --- | --- |
+| `USER_MESSAGE` | string | 通过内置 V2 测试客户端流程发送给 app-server 的消息文本。 |
+
+</div>
+
+这个调试流程会以 `experimentalApi: true` 初始化，然后启动对话线程、发送会话轮次，并流式输出服务端通知。适合在本地复现和观察 app-server 协议行为。
+
+#### codex debug models
+
+以 JSON 形式打印 Codex 看到的原始 model catalog。
+
+<div className="doc-table-wrap">
+
+| 选项 | 类型 / 可选值 | 默认值 | 说明 |
+| --- | --- | --- | --- |
+| `--bundled` | boolean | `false` | 跳过刷新，只打印当前 Codex 二进制内置的 model catalog。 |
+
+</div>
+
+当你只想检查当前二进制打包的 catalog，而不从远程 models endpoint 刷新时，请使用 `--bundled`。
+
+#### codex debug prompt-input
+
+以 JSON 形式渲染模型实际可见的提示词输入列表。调试指令发现、session 上下文或提示词构造时，可以使用这个命令。
+
+<div className="doc-table-wrap">
+
+| 参数 / 选项 | 类型 / 可选值 | 说明 |
+| --- | --- | --- |
+| `--image, -i` | `path[,path...]` | 把一张或多张图片附加到用户提示词。可用逗号分隔多个路径，也可重复传入该选项。 |
+| `PROMPT` | string | 可选的用户提示词，会追加到 session 上下文之后。 |
+
+</div>
+
+#### codex apply
+
+把最近一次 Codex 云端任务生成的 diff 应用到本地仓库。你必须已经认证，而且对该任务具有访问权限。
+
+<div className="doc-table-wrap">
+
+| 参数 | 类型 / 可选值 | 说明 |
+| --- | --- | --- |
+| `TASK_ID` | string | 要应用其 diff 的 Codex 云端任务 ID。 |
+
+</div>
+
+Codex 会打印被打补丁的文件；如果 `git apply` 失败（例如发生冲突），则以非零状态码退出。
+
+#### codex review
+
+以非交互方式运行代码评审。请只选择一个评审目标，也可以把自定义评审指令作为提示词传入。
+
+<div className="doc-table-wrap">
+
+| 参数 / 选项 | 类型 / 可选值 | 默认值 | 说明 |
+| --- | --- | --- | --- |
+| `--base` | branch |  | 评审相对于指定基础分支的改动。 |
+| `--commit` | SHA |  | 评审指定 commit 引入的改动。 |
+| `--strict-config` | boolean | `false` | 当 `config.toml` 中包含当前 Codex 版本无法识别的字段时，直接报错。 |
+| `--title` | string |  | 设置评审摘要中显示的 commit 标题。需要配合 `--commit` 使用。 |
+| `--uncommitted` | boolean | `false` | 评审已暂存、未暂存和未追踪的改动。 |
+| `PROMPT` | `string \| -（从 stdin 读取）` |  | 自定义评审指令。使用 `-` 可从 stdin 读取指令。 |
+
+</div>
+
+`--uncommitted`、`--base`、`--commit` 和自定义 `PROMPT` 彼此冲突。`--title` 只能与 `--commit` 一起使用。
+
+<span id="codex-archive-and-codex-unarchive"></span>
+
+#### codex archive 与 codex unarchive
+
+按 session ID 或 session 名称归档或恢复已保存的交互会话。当你想清理 session 选择器、但不删除 transcript 时，可以使用这两个命令。session ID 的优先级高于 session 名称。
+
+<CodeBlock code={"codex archive <SESSION>\ncodex unarchive <SESSION>"} language="bash" />
+
+<div className="doc-table-wrap">
+
+| 参数 / 选项 | 类型 / 可选值 | 说明 |
+| --- | --- | --- |
+| `--remote` | `ws://host:port \| wss://host:port \| unix:// \| unix://PATH` | 在改变归档状态前，先连接到远程 app-server 端点。 |
+| `--remote-auth-token-env` | `ENV_VAR` | 当 `--remote` 要求认证时，从这个环境变量读取 bearer token。 |
+| `SESSION` | `session ID \| session name` | 要归档或恢复的已保存 session。session ID 的优先级高于 session 名称。 |
+
+</div>
+
+#### codex delete
+
+永久删除一个已保存的交互会话，可按 session ID 或 session 名称指定。只有当你想移除 transcript，而不是仅把它从活动 session 列表中隐藏时，才使用这个命令。
+
+<CodeBlock code={"codex delete <SESSION>\ncodex delete <SESSION_UUID> --force"} language="bash" />
+
+<div className="doc-table-wrap">
+
+| 选项 | 类型 / 可选值 | 默认值 | 说明 |
+| --- | --- | --- | --- |
+| `--force` | boolean | `false` | 不再提示确认就删除。session 参数必须是 UUID；按名称删除仍需要交互确认。 |
+| `--remote` | `ws://host:port \| wss://host:port \| unix:// \| unix://PATH` |  | 删除 session 前先连接到远程 app-server 端点。 |
+| `--remote-auth-token-env` | `ENV_VAR` |  | 当 `--remote` 要求认证时，从这个环境变量读取 bearer token。 |
+| `SESSION` | session ID | session name |  | 要删除的已保存 session。session ID 优先于 session 名称。 |
+
+</div>
+
+只应对 session UUID 使用 `--force`。按名称删除仍会要求确认，避免 Codex 在名称重复或含糊时直接删除错误的 session。
+
+#### codex cloud
+
+在终端中操作 Codex 云端任务。默认命令会打开一个交互式选择器；`codex cloud exec` 可直接提交任务；`codex cloud list` 则可返回最近任务，便于脚本调用或快速查看。
+
+<div className="doc-table-wrap">
+
+| 参数 | 类型 / 可选值 | 说明 |
+| --- | --- | --- |
+| `--attempts` | `1-4` | Codex 云端要运行的 assistant 尝试次数（best-of-N）。 |
+| `--env` | `ENV_ID` | 目标 Codex 云端环境 ID（必填）。可先运行 `codex cloud` 查看可用值。 |
+| QUERY | string | 任务提示词。若省略，Codex 会交互式提示你输入。 |
+
+</div>
+
+认证沿用主 CLI 使用的同一套凭据。若任务提交失败，Codex 会以非零状态码退出。
+
+##### codex cloud list
+
+列出最近的云端任务，并支持过滤和分页。
+
+<div className="doc-table-wrap">
+
+| 选项 | 类型 / 可选值 | 说明 |
+| --- | --- | --- |
+| `--cursor` | string | 上一次请求返回的分页游标。 |
+| `--env` | `ENV_ID` | 按 environment ID 过滤任务。 |
+| `--json` | boolean | 输出机器可读 JSON，而不是纯文本。 |
+| `--limit` | `1-20` | 最多返回多少个任务。 |
+
+</div>
+
+纯文本输出会打印任务 URL 及状态信息；自动化场景请优先使用 `--json`。JSON 负载中包含 `tasks` 数组和可选的 `cursor` 值。每个任务会带有 `id`、`url`、`title`、`status`、`updated_at`、`environment_id`、`environment_label`、`summary`、`is_review` 和 `attempt_total` 字段。
+
+#### codex completion
+
+生成 shell completion 脚本，并把输出重定向到合适位置，例如 `codex completion zsh > "${fpath[1]}/_codex"`。
+
+<div className="doc-table-wrap">
+
+| 参数 | 类型 / 可选值 | 说明 |
+| --- | --- | --- |
+| SHELL | `bash \| zsh \| fish \| power-shell \| elvish` | 要生成 completion 的 shell 类型。输出写到 stdout。 |
+
+</div>
+
+#### codex doctor
+
+生成经过脱敏的本地诊断报告，用于排查安装、配置、认证、运行时、Git、终端、app-server 和对话线程清单问题。
+
+<div className="doc-table-wrap">
+
+| 选项 | 类型 / 可选值 | 默认值 | 说明 |
+| --- | --- | --- | --- |
+| `--all` | boolean | `false` | 在可读报告中展开较长列表。 |
+| `--ascii` | boolean | `false` | 在可读输出中使用 ASCII 状态标签和分隔符。 |
+| `--json` | boolean | `false` | 输出经过脱敏的机器可读支持报告。 |
+| `--no-color` | boolean | `false` | 在可读输出中禁用 ANSI 颜色。 |
+| `--summary` | boolean | `false` | 只显示按组排列的检查行和最终数量摘要。 |
+
+</div>
+
+#### codex features
+
+管理保存在 `$CODEX_HOME/config.toml` 中的功能开关。enable 与 disable 子命令会把变更持久写入配置，以便对后续会话生效。
+
+<div className="doc-table-wrap">
+
+| 子命令 | 类型 / 可选值 | 说明 |
+| --- | --- | --- |
+| `Disable subcommand` | `codex features disable <feature>` | 在 `$CODEX_HOME/config.toml` 中持久禁用某个功能开关。 |
+| `Enable subcommand` | `codex features enable <feature>` | 在 `$CODEX_HOME/config.toml` 中持久启用某个功能开关。 |
+| `List subcommand` | `codex features list` | 展示已知功能开关、成熟度阶段以及当前生效状态。 |
+
+</div>
+
+#### codex exec
+
+对于脚本式或 CI 风格的运行，请使用 `codex exec`（短命令是 `codex e`）。它会在无需人工交互的前提下完成任务。
+
+<div className="doc-table-wrap">
+
+| 选项 | 类型 / 可选值 | 说明 |
+| --- | --- | --- |
+| `--cd, -C` | path | 在执行任务前设置工作区根目录。 |
+| `--color` | `always \| never \| auto` | 控制 stdout 中 ANSI 颜色的输出。 |
+| `--dangerously-bypass-approvals-and-sandbox, --yolo` | boolean | 绕过审批与沙箱。风险极高，只能在隔离运行器中使用。 |
+| `--dangerously-bypass-hook-trust` | boolean | 本次调用运行已启用的 hooks 时，不要求存在已持久化的 hook 信任记录。仅适用于已经在 Codex 外部审核 hook 来源的自动化环境。 |
+| `--ephemeral` | boolean | 运行时不把会话运行记录文件持久化到磁盘。 |
+| `--full-auto` | boolean | 已弃用的兼容 flag。请优先使用 `--sandbox workspace-write`；使用该 flag 时 Codex 会打印警告。 |
+| `--ignore-rules` | boolean | 本次运行不加载用户或项目 execpolicy `.rules` 文件。 |
+| `--ignore-user-config` | boolean | 不加载 `$CODEX_HOME/config.toml`。认证仍会使用 `CODEX_HOME`。 |
+| `--image, -i` | `path[,path...]` | 给首条消息附加图片。可重复，也支持逗号分隔多个路径。 |
+| `--json, --experimental-json` | boolean | 输出按行分隔的 JSON 事件，而不是格式化文本。 |
+| `--local-provider` | `lmstudio \| ollama` | 选择与 `--oss` 一起使用的本地提供方，并在本次运行中覆盖 `oss_provider`。 |
+| `--model, -m` | string | 覆盖本次运行所使用的 model。 |
+| `--oss` | boolean | 使用本地开源提供方。Codex 会使用 `--local-provider` 或已配置的 `oss_provider`；如果两者都未设置，则报错退出。 |
+| `--output-last-message, -o` | path | 把 assistant 的最终消息写入文件，适合供下游脚本读取。 |
+| `--output-schema` | path | 描述最终输出结构的 JSON Schema 文件。Codex 会按此校验工具输出。 |
+| `--profile, -p` | string | 在用户基础配置之上叠加 `$CODEX_HOME/profile-name.config.toml`。 |
+| `--sandbox, -s` | `read-only \| workspace-write \| danger-full-access` | 模型生成命令所使用的沙箱策略。默认取配置值。 |
+| `--skip-git-repo-check` | boolean | 允许在 Git 仓库之外运行（适合一次性目录）。 |
+| `-c, --config` | `key=value` | 为这次非交互执行内联覆盖配置（可重复）。 |
+| PROMPT | `string \| - (read stdin)` | 任务的初始提示词。传 `-` 表示从 stdin 读取提示词。 |
+| `Resume subcommand` | `codex exec resume [SESSION_ID]` | 按 ID 恢复某个 exec 会话；或配合 `--last` 恢复当前工作目录下最近一次会话；加 `--all` 可跨目录查找。也支持额外跟一条后续提示词。 |
+
+</div>
+
+默认情况下，Codex 会输出格式化文本。加上 `--json` 后，会改为输出按行分隔的 JSON 事件（每个状态变化一条）。可选的 resume 子命令用于续跑非交互任务。使用 `--last` 会选取当前工作目录下最近的会话；如果要跨所有会话查找，则再加上 `--all`：
+
+<div className="doc-table-wrap">
+
+| 选项 | 类型 / 可选值 | 说明 |
+| --- | --- | --- |
+| `--all` | boolean | 在选择最近会话时，把当前工作目录之外的会话也纳入候选。 |
+| `--image, -i` | `path[,path...]` | 给后续提示词附加一张或多张图片。可重复，也支持逗号分隔路径。 |
+| `--last` | boolean | 恢复当前工作目录下最近一次对话。 |
+| PROMPT | `string \| - (read stdin)` | 恢复后立即发送的可选后续指令。 |
+| `SESSION_ID` | uuid | 恢复指定会话。若省略，则需配合 `--last` 使用。 |
+
+</div>
+
+#### codex execpolicy
+
+在保存 execpolicy 规则文件前先做检查。`codex execpolicy check` 接受一个或多个 `--rules` flag（例如指向 `~/.codex/rules` 下的文件），并输出 JSON，说明最严格的决策结果以及命中的规则。加上 `--pretty` 可格式化输出。execpolicy 当前仍属预览功能。
+
+<div className="doc-table-wrap">
+
+| 选项 | 类型 / 可选值 | 说明 |
+| --- | --- | --- |
+| `--pretty` | boolean | 以更易读的格式打印 JSON 结果。 |
+| `--rules, -r` | `path (repeatable)` | 要评估的 execpolicy 规则文件路径。可传多个，组合多份规则一起判断。 |
+| `COMMAND...` | `var-args` | 要按指定策略进行检查的命令。 |
+
+</div>
+
+#### codex login
+
+使用 ChatGPT 账号、API key 或 access token 对 CLI 进行认证。不加任何 flag 时，Codex 会打开浏览器走 ChatGPT OAuth 流程。
+
+<div className="doc-table-wrap">
+
+| 选项 | 类型 / 可选值 | 说明 |
+| --- | --- | --- |
+| `--device-auth` | boolean | 使用 OAuth 设备码流程，而不是直接拉起浏览器。 |
+| `--with-access-token` | boolean | 从 stdin 读取 access token，例如 `printenv CODEX_ACCESS_TOKEN \| codex login --with-access-token`。 |
+| `--with-api-key` | boolean | 从 stdin 读取 API key，例如 `printenv OPENAI_API_KEY \| codex login --with-api-key`。 |
+| `status subcommand` | `codex login status` | 打印当前认证方式；若已登录则以退出码 0 返回。 |
+
+</div>
+
+`codex login status` 在凭据存在时返回 0，因此很适合在自动化脚本中做登录状态检查。
+
+#### codex logout
+
+删除已保存的 API key 与 ChatGPT 认证凭据。这个命令没有额外 flag。
+
+#### codex mcp
+
+管理保存在 `~/.codex/config.toml` 中的模型上下文协议服务端配置。
+
+<div className="doc-table-wrap">
+
+| 子命令 | 类型 / 可选值 | 说明 |
+| --- | --- | --- |
+| `add <name>` | `-- <command...> \| --url <value>` | 使用 stdio 启动命令或 streamable HTTP URL 注册一个服务端。对 stdio 传输还支持 `--env KEY=VALUE`。 |
+| `get <name>` | `--json` | 查看某个服务端的配置。`--json` 会打印原始配置项。 |
+| list | `--json` | 列出已配置的 MCP server。加 `--json` 可输出机器可读结果。 |
+| `login <name>` | `--scopes scope1,scope2` | 为某个 streamable HTTP 服务端发起 OAuth 登录（仅对支持 OAuth 的服务端有效）。 |
+| `logout <name>` |  | 删除某个 streamable HTTP 服务端的已保存 OAuth 凭据。 |
+| `remove <name>` |  | 删除已保存的 MCP server 定义。 |
+
+</div>
+
+add 子命令同时支持 stdio 和 streamable HTTP 两种传输方式：
+
+<div className="doc-table-wrap">
+
+| 选项 | 类型 / 可选值 | 说明 |
+| --- | --- | --- |
+| `--bearer-token-env-var` | `ENV_VAR` | 连接 streamable HTTP 服务端时，取这个环境变量的值作为 bearer token。 |
+| `--env KEY=VALUE` | repeatable | 启动 stdio 服务端时附带的环境变量。 |
+| `--oauth-client-id` | `CLIENT_ID` | streamable HTTP MCP server 的 OAuth client identifier。需要配合 `--url` 使用。 |
+| `--oauth-resource` | `RESOURCE` | 登录 streamable HTTP MCP server 时附带的 OAuth resource 参数。需要配合 `--url` 使用。 |
+| `--url` | `https://…` | 注册 streamable HTTP 服务端，而不是 stdio。与 `COMMAND...` 互斥。 |
+| `COMMAND...` | `stdio transport` | 用于启动 MCP server 的可执行文件及参数。需要放在 `--` 之后。 |
+
+</div>
+
+OAuth 相关动作（login、logout）只适用于 streamable HTTP 服务端，而且服务端本身也必须支持 OAuth。
+
+#### codex plugin
+
+从已配置的 marketplace 安装、列出和移除插件。
+
+<div className="doc-table-wrap">
+
+| 子命令 | 类型 / 可选值 | 说明 |
+| --- | --- | --- |
+| `add <plugin[@marketplace]>` | `[--marketplace, -m NAME] [--json]` | 从已配置的 marketplace 安装插件。如果插件参数没有写 `@marketplace`，可用 `--marketplace` 或 `-m` 指定 marketplace。 |
+| `list` | `[--marketplace, -m NAME] [--available --json] [--json]` | 列出已安装插件。使用 `--json` 时，输出包含 `installed` 和 `available` 数组；`--available` 会包含尚未安装的 marketplace 插件，并且要求同时使用 `--json`。 |
+| `marketplace` |  | 管理已配置的 marketplace 来源。参见下面的 `codex plugin marketplace`。 |
+| `remove <plugin[@marketplace]>` | `[--marketplace, -m NAME] [--json]` | 从本地配置和缓存中移除已安装插件。使用 `--json` 可获得便于自动化处理的输出。 |
+
+</div>
+
+`codex plugin add --json` 会打印 `pluginId`、`name`、`marketplaceName`、`version`、`installedPath` 和 `authPolicy`。`codex plugin list --json` 会打印 `installed` 和 `available` 数组；条目包含 `pluginId`、`name`、`marketplaceName`、`version`、`installed`、`enabled`、`source`、`installPolicy`、`authPolicy`，可用时还会包含 `marketplaceSource`，其中记录已配置 marketplace 的来源类型和值。`codex plugin remove --json` 会打印 `pluginId`、`name` 和 `marketplaceName`。
+
+#### codex plugin marketplace
+
+管理 Codex 可浏览和安装的插件市场来源。
+
+<div className="doc-table-wrap">
+
+| 子命令 | 类型 / 可选值 | 说明 |
+| --- | --- | --- |
+| `add <source>` | `[--ref REF] [--sparse PATH] [--json]` | 从 GitHub 简写、Git URL、SSH URL 或本地 marketplace 根目录安装插件市场。`--sparse` 只支持 Git 来源，并且可重复传入。 |
+| `list` | `[--json]` | 显示 Codex 当前会考虑的插件市场，以及每个 marketplace 的根路径。 |
+| `remove <marketplace-name>` | `[--json]` | 移除一个已配置的插件市场。 |
+| `upgrade [marketplace-name]` | `[--json]` | 刷新一个已配置的 Git 插件市场；如果省略名称，则刷新所有已配置的 Git 插件市场。 |
+
+</div>
+
+`codex plugin marketplace add` 接受 `owner/repo` 或 `owner/repo@ref` 这类 GitHub 简写、HTTP 或 HTTPS Git URL、SSH Git URL，以及本地 marketplace 根目录。使用 `--ref` 可以固定 Git ref；对基于 Git 的 marketplace 仓库，可以重复传入 `--sparse PATH` 来使用 sparse checkout。
+
+`codex plugin marketplace list` 会打印当前作用域内的 marketplace 名称和根路径，包括隐式发现的默认 marketplace 和已配置的 marketplace 快照。
+
+为 marketplace 的 add、list、upgrade 或 remove 命令加上 `--json`，可获得便于自动化处理的输出。marketplace add 的 JSON 包含 `marketplaceName`、`installedRoot` 和 `alreadyAdded`；list 的 JSON 包含 `marketplaces` 数组，其中含 `name`、`root` 和可选的 `marketplaceSource`；upgrade 的 JSON 包含 `selectedMarketplaces`、`upgradedRoots` 和 `errors`；remove 的 JSON 包含 `marketplaceName` 和 `installedRoot`。
+
+#### codex mcp-server
+
+通过 stdio 把 Codex 自身作为 MCP server 运行，以便其他工具接入。这个命令会继承全局配置覆盖项，并在下游客户端关闭连接时退出。
+
+#### codex resume
+
+按 ID 恢复某个交互会话，或恢复最近一次对话。`codex resume` 会把 `--last` 默认限制在当前工作目录；如果你传 `--all`，则会跨目录查找。它支持与 `codex` 相同的全局选项，包括 model 和沙箱覆盖项。
+
+如果当前工作目录与会话保存的目录不同，Codex 会询问要使用哪个目录。将 [`tui.resume_cwd`](/docs/config-file/config-reference) 设为 `"current"` 或 `"session"`，即可复用该选择而不再提示。显式传入的 `--cd`（`-C`）会优先于 `tui.resume_cwd`。
+
+<div className="doc-table-wrap">
+
+| 选项 | 类型 / 可选值 | 默认值 | 说明 |
+| --- | --- | --- | --- |
+| `--all` | boolean |  | 在选择最近对话时，把当前工作目录之外的 session 一并纳入候选。 |
+| `--include-non-interactive` | boolean | `false` | 在选择器和 `--last` 的选择范围中包含非交互式 session。 |
+| `--last` | boolean |  | 跳过选择器，直接恢复当前工作目录下最近一次对话。 |
+| `SESSION_ID` | uuid |  | 恢复指定会话。若省略，则需配合 `--last` 使用。 |
+
+</div>
+
+#### codex fork
+
+把一个已有交互会话分叉成新对话线程。默认情况下，`codex fork` 会打开会话选择器；如果你加上 `--last`，则会直接分叉最近一次会话。
+
+当前目录与会话保存的目录不同时，`codex fork` 会使用与 `codex resume` 相同的工作目录提示和 `tui.resume_cwd` 设置。
+
+<div className="doc-table-wrap">
+
+| 选项 | 类型 / 可选值 | 说明 |
+| --- | --- | --- |
+| `--all` | boolean | 在选择器中显示当前工作目录之外的会话。 |
+| `--last` | boolean | 跳过选择器，直接分叉最近一次对话。 |
+| `SESSION_ID` | uuid | 分叉指定会话。若省略，则需配合 `--last` 使用。 |
+
+</div>
+
+#### codex sandbox
+
+使用沙箱辅助工具，以与 Codex 内部一致的策略来运行某条命令。
+
+##### macOS seatbelt
+
+<div className="doc-table-wrap">
+
+| 选项 | 类型 / 可选值 | 说明 |
+| --- | --- | --- |
+| `--allow-unix-socket` | path | 允许沙箱内命令绑定或连接位于该路径下的 Unix socket。可重复允许多个路径。 |
+| `--cd, -C` | DIR | 用于配置档案解析和命令执行的工作目录。需要配合 `--permission-profile` 使用。 |
+| `--config, -c` | `key=value` | 向沙箱运行注入配置覆盖项（可重复）。 |
+| `--include-managed-config` | boolean | 解析显式权限配置档案时包含托管 requirements。需要配合 `--permission-profile` 使用。 |
+| `--log-denials` | boolean | 命令运行期间用 `log stream` 捕获 macOS sandbox deny 记录，并在退出后打印。 |
+| `--permission-profile, -P` | NAME | 从当前激活配置栈中应用一个命名权限配置档案。 |
+| `--profile, -p` | NAME | 把 `$CODEX_HOME/NAME.config.toml` 叠加到基础用户配置之上。 |
+| `COMMAND...` | `var-args` | 在 macOS Seatbelt 中执行的 shell 命令。`--` 之后的内容都会原样转发。 |
+
+</div>
+
+##### Linux Landlock
+
+<div className="doc-table-wrap">
+
+| 选项 | 类型 / 可选值 | 说明 |
+| --- | --- | --- |
+| `--cd, -C` | DIR | 用于配置档案解析和命令执行的工作目录。需要配合 `--permission-profile` 使用。 |
+| `--config, -c` | `key=value` | 在启动沙箱前应用配置覆盖项（可重复）。 |
+| `--include-managed-config` | boolean | 解析显式权限配置档案时包含托管 requirements。需要配合 `--permission-profile` 使用。 |
+| `--permission-profile, -P` | NAME | 从当前激活配置栈中应用一个命名权限配置档案。 |
+| `--profile, -p` | NAME | 把 `$CODEX_HOME/NAME.config.toml` 叠加到基础用户配置之上。 |
+| `COMMAND...` | `var-args` | 在 Landlock + seccomp 中执行的命令。可执行文件需放在 `--` 之后。 |
+
+</div>
+
+##### Windows
+
+<div className="doc-table-wrap">
+
+| 选项 | 类型 / 可选值 | 说明 |
+| --- | --- | --- |
+| `--cd, -C` | DIR | 用于配置档案解析和命令执行的工作目录。需要配合 `--permission-profile` 使用。 |
+| `--config, -c` | `key=value` | 在启动沙箱前应用配置覆盖项（可重复）。 |
+| `--include-managed-config` | boolean | 解析显式权限配置档案时包含托管 requirements。需要配合 `--permission-profile` 使用。 |
+| `--permission-profile, -P` | NAME | 从当前激活配置栈中应用一个命名权限配置档案。 |
+| `--profile, -p` | NAME | 把 `$CODEX_HOME/NAME.config.toml` 叠加到基础用户配置之上。 |
+| `COMMAND...` | `var-args` | 在原生 Windows sandbox 中执行的命令。可执行文件需放在 `--` 之后。 |
+
+</div>
+
+#### codex update
+
+当已安装版本支持 self-update 时，检查并应用 Codex CLI 更新。Debug build 会打印提示，说明应安装 release build。
+
+### 选项组合与安全建议
+
+-   对于可以保持在工作区内的无人值守本地工作，请使用 `--sandbox workspace-write`；除非已经处在专用 sandbox VM 中，否则避免使用 `--dangerously-bypass-approvals-and-sandbox`。
+-   如果需要给 Codex 更多目录的写权限，优先使用 `--add-dir`，而不是直接切到 `--sandbox danger-full-access`。
+-   在 CI 中把 `--json` 与 `--output-last-message` 组合使用，可以同时捕获机器可读进度和最终自然语言摘要。
+
+### 相关资源
+
+-   [Codex CLI 概览](/docs/codex/ide)
+-   [配置基础](/docs/config-file/config-basic)
+-   [高级配置](/docs/config-file/config-advanced)
+-   [AGENTS.md](/docs/agent-configuration/agents-md)
+
+### 交互式快捷操作
+
+-   输入 `@` 可搜索工作区文件，并把路径加入提示词。
+-   按 <kbd>Up</kbd> 或 <kbd>Down</kbd> 可恢复草稿历史。
+-   按 <kbd>Ctrl</kbd>+<kbd>R</kbd> 搜索提示词历史，再按 <kbd>Enter</kbd> 使用匹配项，或按 <kbd>Esc</kbd> 取消。
+-   按 <kbd>Ctrl</kbd>+<kbd>O</kbd> 或运行 `/copy`，复制最近一次已完成的 Codex 输出。
+-   在行首输入 `!`，可按当前审批与沙箱设置运行本地 shell 命令。
+-   Codex 工作时按 <kbd>Tab</kbd>，可把后续提示词、斜杠命令或 shell 命令排入下一 turn。
+-   Codex 工作时按 <kbd>Enter</kbd>，可向当前 turn 注入新指令。
+-   输入框为空时连续按两次 <kbd>Esc</kbd>，可编辑上一条用户消息并从该处 fork。
+-   按 <kbd>Ctrl</kbd>+<kbd>C</kbd> 或运行 `/exit` 关闭会话。
+
+## Codex CLI 斜杠命令
+
+斜杠命令让你可以用键盘优先的方式快速控制 Codex。在输入框中输入 `/` 会打开斜杠命令弹出菜单；选中某个命令后，Codex 就能在不离开终端的情况下执行切换模型、调整权限、压缩长对话等操作。
+
+本页会说明如何：
+
+-   找到适合当前任务的内置斜杠命令
+-   用 `/model`、`/fast`、`/personality`、`/permissions`、`/approve`、`/raw`、`/agent`、`/status` 等命令调整正在进行中的会话
+
+### 内置斜杠命令
+
+Codex 内置了以下命令。打开斜杠命令弹出菜单后，开始输入命令名即可过滤列表。
+
+当某个任务已经在运行时，你可以输入斜杠命令并按 `Tab`，把它排队到下一轮执行。Codex 会在实际运行时再解析这些排队的斜杠命令，因此命令菜单和错误会在当前会话轮次结束后显示。排队前，斜杠补全仍然可用。
+
+<div className="doc-table-wrap">
+
+| 命令 | 用途 | 何时使用 |
+| --- | --- | --- |
+| [`/permissions`](#update-permissions-with-permissions) | 设置 Codex 在不先询问的情况下可以做什么。 | 想在会话中途放宽或收紧审批要求时，例如在 `Auto` 和 `Read Only` 之间切换。 |
+| [`/ide`](#include-ide-context-with-ide) | 包含打开文件、当前选区和其他 IDE 上下文。 | 想把编辑器上下文带进下一条提示词，而不重新解释 IDE 里打开了什么时。 |
+| [`/keymap`](#remap-tui-shortcuts-with-keymap) | 重新映射 TUI 快捷键。 | 想查看自定义快捷键绑定并把它们持久写入 `config.toml` 时。 |
+| [`/vim`](#toggle-vim-mode-with-vim) | 切换输入框的 Vim 模式。 | 想在 Vim normal / insert 行为和默认输入编辑模式之间切换时。 |
+| [`/setup-default-sandbox`](#set-up-the-elevated-windows-sandbox-with-setup-default-sandbox) | 设置提权后的智能体沙箱（仅 Windows）。 | Codex 提供提权设置后，用它替换功能受限的 Windows 沙箱。 |
+| [`/sandbox-add-read-dir`](#grant-sandbox-read-access-with-sandbox-add-read-dir) | 为额外目录授予沙箱读权限（仅 Windows）。 | 某些命令需要读取当前可读根目录之外的绝对路径时，用它解锁。 |
+| [`/agent`, `/subagents`](#switch-agent-threads-with-agent) | 切换当前激活的智能体对话线程。 | 想查看或继续某个已生成的子智能体对话线程时。 |
+| [`/apps`](#browse-apps-with-apps) | 浏览 Apps（连接器），并把它们插入提示词。 | 想先把某个 App 以 `$app-slug` 的形式附加进提示词，再让 Codex 调用它时使用。 |
+| [`/plugins`](#browse-plugins-with-plugins) | 浏览已安装和可发现的插件。 | 想检查插件工具、安装建议插件，或管理哪些插件可用时使用。 |
+| [`/hooks`](#view-and-manage-lifecycle-hooks-with-hooks) | 查看和管理生命周期 hooks。 | 想检查配置的 hooks、信任新增或变更的 hooks，或在非托管 hooks 运行前禁用它们时。 |
+| [`/clear`](#clear-the-terminal-and-start-a-new-chat-with-clear) | 清空终端，并开始一个新聊天。 | 想同时重置可见 UI 和当前对话时。 |
+| [`/rename`](#rename-the-current-chat-with-rename) | 重命名当前聊天。 | 无需离开 TUI，即可为已保存的 session 设置易于识别的名称。 |
+| [`/archive`](#archive-the-current-session-with-archive) | 归档当前会话并退出 Codex。 | 想把当前 session 从活动 session 列表中移除、但不删除 transcript 时使用。 |
+| [`/delete`](#delete-the-current-session-with-delete) | 永久删除当前会话并退出 Codex。 | 当归档还不够，需要移除 transcript 和派生 session 时使用。 |
+| [`/compact`](#keep-transcripts-lean-with-compact) | 总结当前可见对话，以释放 token。 | 长会话后压缩对话记录，保留重点并腾出上下文空间。 |
+| [`/copy`](#copy-the-latest-response-with-copy) | 复制最近一次已完成的 Codex 输出。 | 想直接拿到最近一条完成回复或计划文本，而不手动选中复制；也可以按 <kbd>Ctrl+O</kbd>。 |
+| [`/diff`](#review-changes-with-diff) | 显示 Git diff，包括 Git 尚未追踪的文件。 | 在提交或运行测试前，先审查 Codex 改了什么。 |
+| [`/exit`](#exit-the-cli-with-quit-or-exit) | 退出 CLI（等价于 `/quit`）。 | 作为 `/quit` 的另一种写法使用；两者都会直接退出会话。 |
+| [`/experimental`](#toggle-experimental-features-with-experimental) | 切换实验性功能。 | 想在 CLI 中开启可选能力，例如子智能体。 |
+| [`/approve`](#approve-an-auto-review-denial-with-approve) | 批准最近一次自动评审拒绝后的重试。 | 想让 Codex 重试被自动评审拒绝的命令或动作时。 |
+| [`/memories`](#configure-memories-with-memories) | 配置记忆使用和生成。 | 想在不离开 TUI 的情况下开启或关闭记忆注入 / 生成时。 |
+| [`/skills`](#use-skills-with-skills) | 浏览和使用技能。 | 想选择相关本地技能来改善特定任务行为时。 |
+| [`/import`](#import-claude-code-setup-with-import) | 导入 Claude Code 设置、项目和最近聊天。 | 把支持的外部智能体产物迁移到 Codex 配置和本地文件中。 |
+| [`/feedback`](#send-feedback-with-feedback) | 向 Codex 维护团队发送日志。 | 想报告问题或分享诊断信息时。 |
+| [`/init`](#generate-agentsmd-with-init) | 在当前目录生成 `AGENTS.md` 骨架。 | 想为仓库或子目录留下长期生效的操作指令时。 |
+| [`/logout`](#sign-out-with-logout) | 退出 Codex 登录状态。 | 在共享机器上清理本地凭据。 |
+| [`/mcp`](#list-mcp-tools-with-mcp) | 列出已配置的 Model Context Protocol（MCP）工具。 | 想确认本会话可用的外部工具能力时；添加 `verbose` 可查看 MCP server 详情。 |
+| [`/mention`](#highlight-files-with-mention) | 把文件附加到当前对话。 | 想让 Codex 下一步重点查看某个文件或目录。 |
+| [`/model`](#set-the-active-model-with-model) | 选择当前使用的模型，以及可用时的推理强度。 | 在执行任务前切换模型，例如 `gpt-5.6-luna` 或 `gpt-5.6-terra`。 |
+| [`/fast`](#toggle-fast-mode-with-fast) | 为受支持模型切换快速模式（Fast mode）。 | 打开 / 关闭快速模式，或检查当前对话线程是否处于快速模式。 |
+| [`/plan`](#switch-to-plan-mode-with-plan) | 切换到计划模式，并可选择立即附带一条提示词。 | 想先让 Codex 给出执行计划，再进入实现阶段时。 |
+| [`/goal`](#set-or-view-a-task-goal-with-goal) | 设置、暂停、恢复、查看或清除任务目标。 | 让 Codex 在较大的任务运行期间持续跟踪一个目标。 |
+| [`/personality`](#set-a-communication-style-with-personality) | 设定响应风格。 | 想让 Codex 更简洁、更解释型，或更偏协作式，而不改写原提示词。 |
+| [`/ps`](#check-background-terminals-with-ps) | 查看实验性的后台终端及其最近输出。 | 想不离开主对话记录就查看长任务进度时。 |
+| [`/stop`](#stop-background-terminals-with-stop) | 停止所有后台终端。 | 想取消当前会话启动的后台终端任务时。 |
+| [`/fork`](#fork-the-current-chat-with-fork) | 把当前对话分叉成新对话线程。 | 想在不丢失当前对话记录的情况下平行探索另一种做法。 |
+| [`/app`](#continue-in-the-desktop-app-with-app) | 在 ChatGPT 桌面 App 中继续当前 session。 | 在 macOS 或 Windows 上从 TUI 切换到桌面 App。 |
+| [`/side`, `/btw`](#start-a-side-chat-with-side) | 启动一个临时侧边会话（side conversation）。 | 想在不打断主对话线程记录的情况下提出一个聚焦追问。 |
+| [`/raw`](#toggle-raw-scrollback-with-raw) | 切换原始滚动回看（raw scrollback）模式。 | 想在查看长输出时让终端选中和复制更少受格式化影响。 |
+| [`/resume`](#resume-a-saved-chat-with-resume) | 从 session 列表中恢复某个已保存对话。 | 想继续之前的 CLI 会话，而不从头开始时。 |
+| [`/new`](#start-a-new-chat-with-new) | 在同一个 CLI 会话里开启一个新对话。 | 想在同一仓库中切换新任务，但不退出 CLI。 |
+| [`/quit`](#exit-the-cli-with-quit-or-exit) | 退出 CLI。 | 想立即离开当前会话时。 |
+| [`/review`](#ask-for-a-working-tree-review-with-review) | 让 Codex 审查当前工作树。 | 当 Codex 完成任务后，或你想让它再看一遍本地改动时。 |
+| [`/status`](#inspect-the-session-with-status) | 显示当前会话配置和 token 使用情况。 | 用来确认当前模型、审批策略、可写目录和上下文余量。 |
+| [`/usage`](#view-account-usage-with-usage) | 查看账户 token 用量，或使用 rate-limit reset。 | 在 TUI 内查看每日、每周或累计的 ChatGPT token 活动。 |
+| [`/debug-config`](#inspect-config-layers-with-debug-config) | 打印配置层叠与 requirements 诊断信息。 | 需要排查配置优先级、策略要求或实验性网络约束时。 |
+| [`/statusline`](#configure-footer-items-with-statusline) | 交互式配置 TUI 底部状态栏项。 | 想挑选并重排底部状态栏中显示的 model / context / limits / git / tokens / session 等信息时。 |
+| [`/title`](#configure-terminal-title-items-with-title) | 交互式配置终端窗口或标签标题项。 | 想把项目、状态、对话线程、分支、模型或任务进度等信息显示到终端标题中时。 |
+| [`/theme`](#choose-a-syntax-theme-with-theme) | 选择语法高亮主题。 | 想预览并保存终端语法高亮主题时。 |
+| [`/pets`, `/pet`](#choose-a-terminal-pet-with-pets) | 选择或隐藏终端宠物。 | 使用内置或自定义的环境宠物来个性化 TUI。 |
+
+</div>
+
+`/quit` 和 `/exit` 都会退出 CLI。退出前请确认你已经保存或提交了重要工作。
+
+使用 `/permissions` 调整 Codex 在不先询问的情况下可以做什么。只有当你需要重试最近被自动评审拒绝的动作时，才使用 `/approve`。
+
+### 用斜杠命令控制当前会话
+
+下面这些工作流可以帮助你在不重启 Codex 的情况下持续调整会话。
+
+<span id="set-the-active-model-with-model"></span>
+
+#### 用 `/model` 设置当前模型
+
+1.  启动 Codex 并打开输入框。
+2.  输入 `/model` 并按 Enter。
+3.  从弹出菜单中选择 `gpt-5.6-luna`、`gpt-5.6-terra` 等模型。
+
+预期结果：Codex 会在对话记录中确认模型已切换。你也可以运行 `/status` 再确认一次。
+
+<span id="toggle-fast-mode-with-fast"></span>
+
+#### 用 `/fast` 切换快速 service tier
+
+1.  输入 `/fast on`、`/fast off` 或 `/fast status`。
+2.  如果你希望这个设置持久生效，可以在 Codex 提示保存更新时确认。
+
+预期结果：Codex 会说明当前模型的 Fast service tier 是否已在当前对话线程开启。在 TUI 底部状态栏中，你也可以用 `/statusline` 显示快速模式的状态项。
+
+Fast tier 命令由模型目录驱动。如果当前模型没有声明 Fast tier，Codex 不会显示 `/fast`。
+
+<span id="set-a-communication-style-with-personality"></span>
+
+#### 用 `/personality` 设置沟通风格
+
+使用 `/personality` 可以在不重写提示词的情况下调整 Codex 的表达方式。
+
+1.  在当前对话中输入 `/personality` 并按 Enter。
+2.  从弹出菜单中选择一种风格。
+
+预期结果：Codex 会在对话记录中确认新的风格，并在后续回复中持续采用它。
+
+Codex 支持 `friendly`、`pragmatic` 和 `none` 三种沟通风格（personality）。使用 `none` 可关闭沟通风格指令。
+
+如果当前模型不支持沟通风格专用指令，Codex 会隐藏这个命令。
+
+<span id="switch-to-plan-mode-with-plan"></span>
+
+#### 用 `/plan` 切换到计划模式
+
+1.  输入 `/plan` 并按 Enter，把当前对话切换到计划模式。
+2.  你也可以直接附带一段内联提示词，例如 `/plan Propose a migration plan for this service`。
+3.  使用内联 `/plan` 参数时，你也可以粘贴内容或附加图片。
+
+预期结果：Codex 会进入计划模式，并把你可选提供的内联提示词作为第一条计划请求。
+
+当某个任务已经在运行时，`/plan` 会暂时不可用。
+
+<span id="set-or-view-a-task-goal-with-goal"></span>
+
+#### 用 `/goal` 设置或查看任务目标
+
+1.  输入 `/goal <objective>` 设置目标，例如 `/goal Finish the migration and keep tests green`。
+2.  输入 `/goal` 查看当前目标。
+3.  使用 `/goal pause`、`/goal resume` 或 `/goal clear` 暂停、恢复或移除目标。
+
+预期结果：Codex 会在工作继续推进时，把该目标持续附加到活动对话线程上。
+
+目标内容必须非空，且最多 4,000 个字符。对于更长的指令，请把细节放进文件，并让目标指向该文件。
+
+<span id="toggle-experimental-features-with-experimental"></span>
+
+#### 用 `/experimental` 切换实验性功能
+
+1.  输入 `/experimental` 并按 Enter。
+2.  切换你想启用的功能，例如 Apps 或 Guardian approval；如果 Codex 提示需要重启，则按提示执行。
+
+预期结果：Codex 会把你的功能选择写入配置，并在重启后生效。
+
+<span id="approve-an-auto-review-denial-with-approve"></span>
+
+#### 用 `/approve` 批准自动评审拒绝后的重试
+
+当自动评审拒绝了最近一次动作，而你希望 Codex 重试一次时，可以使用 `/approve`。
+
+1.  输入 `/approve`。
+2.  当 Codex 显示相关被拒绝动作时，确认重试。
+
+预期结果：Codex 会在当前会话策略下重试该被拒绝动作一次。
+
+<span id="configure-memories-with-memories"></span>
+
+#### 用 `/memories` 配置记忆
+
+1.  输入 `/memories`。
+2.  选择 Codex 应该使用已有记忆、生成新记忆，还是保持记忆行为关闭。
+
+预期结果：Codex 会更新后续会话使用的相关记忆设置。
+
+<span id="use-skills-with-skills"></span>
+
+#### 用 `/skills` 使用技能
+
+1.  输入 `/skills`。
+2.  选择你希望 Codex 应用的技能。
+
+预期结果：Codex 会插入所选技能上下文，让下一条请求遵循该技能的说明。
+
+<span id="import-claude-code-configuration-with-import"></span>
+
+#### 用 `/import` 导入 Claude Code 设置
+
+1.  输入 `/import`。
+2.  选择 **Claude Code**。
+3.  选择要迁移的设置、项目文件或最近聊天。
+
+预期结果：Codex 会打开外部智能体导入选择器，并把选中的受支持产物导入 Codex 配置和本地文件。session 发现范围包括最近 30 天内最多 50 个聊天。
+
+`/import` 只能在本地 TUI session 中运行。任务运行中、远程 session 中，以及连接到本地 app-server daemon 时不可用。
+
+桌面 App 工作流和支持的产物类型请参见[从其他智能体导入](/docs/import)。
+
+<span id="clear-the-terminal-and-start-a-new-chat-with-clear"></span>
+
+#### 用 `/clear` 清空终端并开始新聊天
+
+1.  输入 `/clear` 并按 Enter。
+
+预期结果：Codex 会清空终端、重置当前可见的对话记录，并在同一个 CLI 会话中启动一个全新的聊天。
+
+若要在创建时为新对话命名，请运行 `/clear release prep`。
+
+与 <kbd>Ctrl</kbd>+<kbd>L</kbd> 不同，`/clear` 会开启一个新对话。
+
+<kbd>Ctrl</kbd>+<kbd>L</kbd> 只会清空终端显示，不会清空当前聊天。任务运行中时，这两个动作都会被禁用。
+
+<span id="archive-the-current-session-with-archive"></span>
+
+#### 用 `/archive` 归档当前 session
+
+1.  输入 `/archive` 并按 Enter。
+2.  确认你要归档当前 session 并退出 Codex。
+
+预期结果：Codex 会归档当前 session，并关闭交互式 TUI。Codex 会继续在本地保存 session transcript；之后可用 `codex unarchive <SESSION>` 恢复。
+
+任务运行中时，`/archive` 不可用。
+
+<span id="delete-the-current-session-with-delete"></span>
+
+#### 用 `/delete` 删除当前 session
+
+1.  输入 `/delete` 并按 Enter。
+2.  确认你要删除当前 session 并退出 Codex。
+
+预期结果：Codex 会删除当前 session transcript，并关闭交互式 TUI。删除是永久性的，也会移除派生出的后代 sessions。
+
+任务运行中或处于侧边会话时，`/delete` 不可用。
+
+<span id="update-permissions-with-permissions"></span>
+
+#### 用 `/permissions` 更新权限
+
+1.  输入 `/permissions` 并按 Enter。
+2.  选择与你当前风险偏好匹配的审批预设，例如无人值守运行时可选 `Auto`，想先审查改动时可选 `Read Only`。启用具名权限配置档案时，选择器也会显示已配置的自定义配置档案及其说明。
+
+预期结果：Codex 会公布新的策略，后续动作都会遵守更新后的审批模式，直到你再次修改。
+
+<span id="include-ide-context-with-ide"></span>
+
+#### 用 `/ide` 包含 IDE 上下文
+
+1.  输入 `/ide`。
+2.  如果你想解释 Codex 应如何使用当前 IDE 选区或打开文件，可以追加可选行内文本。
+
+预期结果：Codex 会把可用 IDE 上下文加入下一条提示词。
+
+<span id="toggle-vim-mode-with-vim"></span>
+
+#### 用 `/vim` 切换 Vim 模式
+
+1.  输入 `/vim`。
+2.  继续在输入框中编辑。
+
+预期结果：Codex 会为当前会话切换输入框 Vim 模式。若要让新会话默认使用 Vim 模式，请在 `config.toml` 中设置 `tui.vim_mode_default = true`。
+
+<span id="set-up-the-elevated-windows-sandbox-with-setup-default-sandbox"></span>
+
+#### 用 `/setup-default-sandbox` 设置提权后的 Windows 沙箱
+
+这个命令仅在 Windows 上 Codex 正使用功能受限的 restricted-token 沙箱时显示。
+
+1.  输入 `/setup-default-sandbox`。
+2.  按照管理员设置流程操作。
+
+预期结果：Codex 会配置提权后的 Windows 沙箱，并选择相应的自动审批预设。
+
+<span id="copy-the-latest-response-with-copy"></span>
+
+#### 用 `/copy` 复制最新回复
+
+1.  输入 `/copy` 并按 Enter。
+
+预期结果：Codex 会把最近一条已完成的输出复制到剪贴板。
+
+如果当前会话轮次仍在运行，`/copy` 会复制最近一条已完成的输出，而不是正在生成中的回复。在第一条完整输出产生之前，以及回滚刚结束后，这个命令不可用。
+
+你也可以在主 TUI 中按 <kbd>Ctrl</kbd>+<kbd>O</kbd>，不打开斜杠命令菜单也能复制最近一次已完成回复。
+
+<span id="toggle-raw-scrollback-with-raw"></span>
+
+#### 用 `/raw` 切换原始滚动回看
+
+1.  输入 `/raw`、`/raw on` 或 `/raw off`。
+
+预期结果：Codex 会切换原始滚动回看（raw scrollback）模式，让终端选中和复制更直接。你也可以使用默认 <kbd>Alt</kbd>+<kbd>R</kbd> 绑定，或通过 `tui.raw_output_mode = true` 持久化默认值。
+
+<span id="grant-sandbox-read-access-with-sandbox-add-read-dir"></span>
+
+#### 用 `/sandbox-add-read-dir` 授予沙箱读权限
+
+这个命令只在 Windows 原生 CLI 中可用。
+
+1.  输入 `/sandbox-add-read-dir C:\absolute\directory\path` 并按 Enter。
+2.  确认该路径是一个存在的绝对目录。
+
+预期结果：Codex 会刷新 Windows 沙箱策略，并为后续在沙箱中运行的命令授予该目录的读权限。
+
+<span id="inspect-the-session-with-status"></span>
+
+#### 用 `/status` 查看当前会话
+
+1.  在任意对话中输入 `/status`。
+2.  查看输出中的当前模型、审批策略、可写根目录和 token 使用情况。TUI 远程连接时，输出还会显示远程地址和服务端版本。
+
+预期结果：Codex 会打印摘要，用来确认它正在你预期的位置和配置下运行。
+
+<span id="view-account-usage-with-usage"></span>
+
+#### 用 `/usage` 查看账户用量
+
+1.  输入 `/usage` 打开用量菜单。
+2.  选择查看 token 活动，或使用可用的 earned reset。
+3.  若要直接打开 token 活动视图，可以输入 `/usage daily`、`/usage weekly` 或 `/usage cumulative`。
+
+预期结果：Codex 会打开用量动作，或展示所选视图下的账户 token 活动。如果当前 session 没有 Codex service account auth，Codex 会提示需要登录。
+
+<span id="inspect-config-layers-with-debug-config"></span>
+
+#### 用 `/debug-config` 查看配置层
+
+1.  输入 `/debug-config`。
+2.  查看输出中的配置层顺序、启用状态和策略来源。
+
+预期结果：Codex 会打印各层配置诊断，以及策略细节，例如 `allowed_approval_policies`、`allowed_sandbox_modes`、`mcp_servers`、`rules`、`enforce_residency` 和 `experimental_network`（若已配置）。
+
+当某个生效设置与你在 `config.toml` 中看到的不一致时，这份输出很适合拿来排查原因。
+
+<span id="configure-footer-items-with-statusline"></span>
+
+#### 用 `/statusline` 配置底部状态栏项目
+
+1.  输入 `/statusline`。
+2.  用选择器切换并重排项目，然后确认。
+
+预期结果：底部状态栏会立刻更新，并把配置持久写入 `config.toml` 中的 `tui.status_line`。
+
+可显示的状态栏项包括 model、model+reasoning、context 统计、rate limits、Git branch、token 计数、session id、当前目录 / 项目根，以及 Codex 版本。
+
+<span id="configure-terminal-title-items-with-title"></span>
+
+#### 用 `/title` 配置终端标题项
+
+1.  输入 `/title`。
+2.  用选择器切换并重排项目，然后确认。
+
+预期结果：终端窗口或标签标题会立刻更新，并把配置持久写入 `config.toml` 中的 `tui.terminal_title`。
+
+可显示的标题项包括 app 名称、项目、加载指示器、状态、对话线程、Git 分支、模型和任务进度。
+
+<span id="choose-a-syntax-theme-with-theme"></span>
+
+#### 用 `/theme` 选择语法主题
+
+1.  输入 `/theme`。
+2.  从选择器中预览主题，然后确认。
+
+预期结果：Codex 会更新语法高亮，并把选择持久写入 `config.toml` 中的 `tui.theme`。
+
+<span id="choose-a-terminal-pet-with-pets"></span>
+
+#### 用 `/pets` 选择终端宠物
+
+1.  输入 `/pets`（或 `/pet`）打开宠物选择器。
+2.  选择内置或自定义宠物，也可以关闭宠物显示。
+
+预期结果：Codex 会在支持的终端中显示所选环境宠物，并持久保存该选择。你也可以输入 `/pets off` 将其隐藏。
+
+<span id="remap-tui-shortcuts-with-keymap"></span>
+
+#### 用 `/keymap` 重新映射 TUI 快捷键
+
+使用 `/keymap` 可以查看、更新并持久保存 TUI 的快捷键绑定。
+
+1.  输入 `/keymap`。
+2.  选择要修改的快捷键 context 和 action。
+3.  输入新的绑定，或移除现有绑定。
+
+预期结果：Codex 会更新当前 keymap，并把自定义绑定写入 `config.toml` 中的 `tui.keymap`。
+
+快捷键绑定使用 `ctrl-a`、`shift-enter`、`page-down` 这类名称。特定上下文的绑定会覆盖 `tui.keymap.global`；空绑定列表表示解除该动作绑定。
+
+<span id="check-background-terminals-with-ps"></span>
+
+#### 用 `/ps` 查看后台终端
+
+1.  输入 `/ps`。
+2.  查看后台终端列表及其状态。
+
+预期结果：Codex 会展示每个后台终端的命令，以及最多三行最近、非空输出，方便你快速判断进度。
+
+只有在启用了 `unified_exec` 时才会出现后台终端；否则列表可能为空。
+
+<span id="stop-background-terminals-with-stop"></span>
+
+#### 用 `/stop` 停止后台终端
+
+1.  输入 `/stop`。
+2.  如果 Codex 在停止前要求确认，就按提示确认。
+
+预期结果：Codex 会停止当前会话中的所有后台终端。`/clean` 仍可作为 `/stop` 的别名使用。
+
+<span id="keep-transcripts-lean-with-compact"></span>
+
+#### 用 `/compact` 精简对话记录
+
+1.  在一次较长的对话后输入 `/compact`。
+2.  当 Codex 提示是否要总结当前对话时，确认即可。
+
+预期结果：Codex 会用一段简洁摘要替换较早的会话轮次，在保留关键细节的同时释放上下文。
+
+<span id="review-changes-with-diff"></span>
+
+#### 用 `/diff` 审查改动
+
+1.  输入 `/diff` 查看 Git diff。
+2.  在 CLI 内滚动输出，审查改动和新增文件。
+
+预期结果：Codex 会显示已暂存的改动、未暂存的改动，以及 Git 尚未开始追踪的文件，帮助你决定要保留什么。
+
+<span id="highlight-files-with-mention"></span>
+
+#### 用 `/mention` 高亮文件
+
+1.  输入 `/mention` 后跟路径，例如 `/mention src/lib/api.ts`。
+2.  从弹出菜单中选择匹配结果。
+
+预期结果：Codex 会把该文件加入当前对话，使后续会话轮次能直接引用它。
+
+<span id="start-a-new-chat-with-new"></span>
+
+#### 用 `/new` 开启新对话
+
+1.  输入 `/new` 并按 Enter。
+
+预期结果：Codex 会在同一个 CLI 会话中开启一个全新对话，让你无需退出终端就能切换到另一项任务。
+
+若要在创建时为新对话命名，请运行 `/new bug bash`。
+
+与 `/clear` 不同，`/new` 不会先清空当前终端显示。
+
+<span id="rename-the-current-chat-with-rename"></span>
+
+#### 用 `/rename` 重命名当前聊天
+
+1.  输入 `/rename <name>`；也可以只输入 `/rename`，打开命名提示。
+2.  输入一个便于日后找到该聊天的简短名称。
+
+预期结果：Codex 会更新已保存的聊天名称，但不会更改 transcript。
+
+<span id="resume-a-saved-chat-with-resume"></span>
+
+#### 用 `/resume` 恢复已保存对话
+
+1.  输入 `/resume` 并按 Enter。
+2.  从保存的会话选择器中选中你要恢复的对话。
+
+预期结果：Codex 会载入你所选对话的完整记录，让你从原来的进度继续，而不会丢掉历史内容。
+
+<span id="fork-the-current-chat-with-fork"></span>
+
+#### 用 `/fork` 分叉当前对话
+
+1.  输入 `/fork` 并按 Enter。
+
+预期结果：Codex 会把当前对话复制成一个带有新 ID 的对话线程，原始对话记录保持不变，因此你可以并行探索另一种方案。
+
+如果你要 fork 的不是当前对话，而是某个已保存 session，请在终端中运行 `codex fork`，打开 session picker。
+
+<span id="continue-in-the-desktop-app-with-app"></span>
+
+#### 用 `/app` 在桌面 App 中继续
+
+在 macOS 和 Windows 上，输入 `/app` 可在 ChatGPT 桌面 App 中打开当前 session。如果 App 尚未安装或没有运行，Codex 会显示错误，提示你安装或启动它。
+
+预期结果：桌面 App 会打开同一个已保存的聊天，你可以在那里继续。
+
+<span id="start-a-side-chat-with-side"></span>
+
+#### 用 `/side` 启动侧边会话（side conversation）
+
+使用 `/side` 可以从当前对话启动一个临时分叉，而不离开主任务。
+
+1.  输入 `/side` 打开侧边会话。
+2.  也可以附带行内文本，例如 `/side Check whether this plan has an obvious risk`。
+3.  这个聚焦插曲结束后，返回父对话线程。
+
+预期结果：Codex 会打开一个转录记录与父对话线程分离的侧边会话。处于侧边模式时，TUI 仍会显示父对话线程状态，方便你确认主任务是否仍在运行。
+
+`/side` 不能在另一个侧边会话内使用，也不能在评审模式中使用。
+
+<span id="generate-agentsmd-with-init"></span>
+
+#### 用 `/init` 生成 `AGENTS.md`
+
+1.  在你希望 Codex 查找长期指令的目录中运行 `/init`。
+2.  查看生成的 `AGENTS.md`，再按仓库约定继续编辑。
+
+预期结果：Codex 会创建一个可继续完善并提交、供后续会话使用的 `AGENTS.md` 骨架。
+
+<span id="ask-for-a-working-tree-review-with-review"></span>
+
+#### 用 `/review` 审查工作树
+
+1.  输入 `/review`。
+2.  如果你还想查看精确的文件改动，可继续运行 `/diff`。
+
+预期结果：Codex 会总结它在当前工作树中发现的问题，重点关注行为变化与缺失测试。默认使用当前 session 的 model，除非你在 `config.toml` 中单独设置了 `review_model`。
+
+<span id="list-mcp-tools-with-mcp"></span>
+
+#### 用 `/mcp` 列出 MCP 工具
+
+1.  输入 `/mcp`。
+2.  查看列表，确认当前有哪些 MCP server 和工具可用。
+
+预期结果：你会看到当前会话中 Codex 可调用的 MCP 工具列表。
+
+使用 `/mcp verbose` 可以包含详细的服务端诊断信息。如果传入的参数不是 `verbose`，Codex 会显示命令用法。
+
+<span id="browse-apps-with-apps"></span>
+
+#### 用 `/apps` 浏览 Apps
+
+1.  输入 `/apps`。
+2.  从列表中选择一个 App。
+
+预期结果：Codex 会把 App mention 以 `$app-slug` 的形式插入输入框，这样你就可以立刻要求 Codex 调用它。
+
+<span id="browse-plugins-with-plugins"></span>
+
+#### 用 `/plugins` 浏览插件
+
+1.  输入 `/plugins`。
+2.  选择一个插件市场标签页，然后选中某个插件，查看它的能力或可用动作。
+
+预期结果：Codex 会打开插件浏览器，让你查看已安装插件、当前配置允许发现的插件，以及已安装插件状态。在已安装插件上按 <kbd>Space</kbd> 可以切换它的启用状态。
+
+<span id="view-and-manage-lifecycle-hooks-with-hooks"></span>
+
+#### 用 `/hooks` 查看和管理生命周期 hooks
+
+1.  输入 `/hooks`。
+2.  查看当前会话中已加载的生命周期 hook 配置。
+
+预期结果：Codex 会显示当前会话可运行的 hooks。
+
+<span id="switch-agent-threads-with-agent"></span>
+
+#### 用 `/agent` 切换智能体对话线程
+
+1.  输入 `/agent` 并按 Enter。
+2.  从选择器中选中你要查看或继续的对话线程。
+
+预期结果：Codex 会切换当前激活对话线程，让你查看或继续该智能体的工作。
+
+<span id="send-feedback-with-feedback"></span>
+
+#### 用 `/feedback` 发送反馈
+
+1.  输入 `/feedback` 并按 Enter。
+2.  按提示选择是否附带日志或其他诊断信息。
+
+预期结果：Codex 会收集所需诊断信息，并把它提交给维护团队。
+
+<span id="sign-out-with-logout"></span>
+
+#### 用 `/logout` 退出登录
+
+1.  输入 `/logout` 并按 Enter。
+
+预期结果：Codex 会清除当前用户会话在本地保存的凭据。
+
+<span id="exit-the-cli-with-quit-or-exit"></span>
+
+#### 用 `/quit` 或 `/exit` 退出 CLI
+
+1.  输入 `/quit` 或 `/exit` 并按 Enter。
+
+预期结果：Codex 会立即退出。退出前请先保存或提交重要工作。
+
+## IDE 扩展命令
+
+你可以通过 VS Code 的 Command Palette（命令面板）调用这些命令来控制 Codex，也可以把它们绑定到快捷键。
+
+### 分配快捷键
+
+1.  打开 Command Palette：macOS 使用 **Cmd+Shift+P**，Windows / Linux 使用 **Ctrl+Shift+P**。
+2.  运行 **Preferences: Open Keyboard Shortcuts**。
+3.  搜索 `Codex` 或命令 ID，例如 `chatgpt.newChat`。
+4.  选择铅笔图标，然后输入所需快捷键。
+
+### 扩展命令
+
+<div className="doc-table-wrap">
+
+| 命令 | 默认快捷键 | 说明 |
+| --- | --- | --- |
+| `chatgpt.addToThread` | \- | 将选中的文本范围作为上下文加入当前聊天 |
+| `chatgpt.addFileToThread` | \- | 将整个文件作为上下文加入当前聊天 |
+| `chatgpt.newChat` | macOS: <kbd>Cmd+N</kbd>  
+Windows / Linux: <kbd>Ctrl+N</kbd> | 创建新聊天 |
+| `chatgpt.newCodexPanel` | \- | 创建新的 Codex 面板 |
+| `chatgpt.openCommandMenu` | \- | 打开 Codex 命令菜单 |
+| `chatgpt.openSidebar` | \- | 打开 Codex 侧边栏面板 |
+
+</div>
+
+## IDE 扩展斜杠命令
+
+斜杠命令让你无需离开输入框即可控制 Codex，用于检查状态、切换本地或云端模式，以及发送反馈。
+
+### 使用斜杠命令
+
+1.  在 Codex 输入框中键入 `/`。
+2.  从列表中选择命令，或继续输入进行筛选，例如 `/status`。
+3.  按 **Enter**。
+
+### 可用的斜杠命令
+
+<div className="doc-table-wrap">
+
+| 斜杠命令 | 说明 |
+| --- | --- |
+| `/approve` | 自动评审启用时，批准一次最近被拒操作的重试。 |
+| `/cloud` | 云端执行可用时，在云端运行聊天。 |
+| `/cloud-environment` | 为聊天选择云端环境。 |
+| `/compact` | 压缩当前聊天的上下文。 |
+| `/fast` | 可用时开启或关闭 catalog 提供的 Fast service tier。 |
+| `/feedback` | 打开反馈对话框，可选择附带日志。 |
+| `/fork` | 将本地聊天复制为新的本地聊天。 |
+| `/goal` | 设置一个让 Codex 持续推进的目标。 |
+| `/ide-context` | 开启或关闭自动 IDE 上下文。 |
+| `/init` | 为当前项目生成 `AGENTS.md` 框架。 |
+| `/local` | 在本地工作区中运行聊天。 |
+| `/mcp` | 打开 MCP 状态并查看已连接的 server。 |
+| `/memories` | 配置 Memories 可用时，是否允许聊天使用或生成记忆。 |
+| `/model` | 为当前聊天选择模型。 |
+| `/personality` | 当前模型支持时，选择 Codex 的回应风格。 |
+| `/plan` | 切换计划模式。 |
+| `/project` | 为新聊天选择项目。 |
+| `/reasoning` | 为当前聊天选择推理强度。 |
+| `/review` | 启动代码评审模式。 |
+| `/side` | 启动临时 side chat，不中断主聊天。 |
+| `/status` | 显示聊天 ID、上下文用量与速率限制。 |
+| `/worktree` | 在新的 Git 工作树中运行聊天。 |
+
+</div>

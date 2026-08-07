@@ -1,0 +1,51 @@
+---
+title: "权限"
+description: "选择 ChatGPT 可以在你的电脑上执行什么操作，以及何时请求审批"
+locale: "zh"
+translationKey: "permission-modes"
+section: "foundations"
+order: 4
+draft: false
+translationStatus: complete
+lastUpdated: 2026-08-06
+---
+<h2 id="权限模式">权限模式</h2>
+
+权限决定 ChatGPT（桌面 App）和 Codex（CLI 或 IDE）如何处理编辑文件、运行命令、使用互联网等本地操作。你选择的模式会划定 ChatGPT 可以自行完成的范围，以及哪些动作需要评审。
+
+大多数工作建议从 **Ask for approval（请求审批）** 开始。ChatGPT 可以在当前工作区内推进任务，需要越过这个边界时会暂停并请求确认。
+
+你可以在权限菜单中选择不同模式，了解每种模式的具体行为。
+
+<PermissionDemo />
+
+<h2 id="启用权限模式">启用权限模式</h2>
+
+第一次使用 ChatGPT 桌面 App 时，需要先在应用设置中启用所需模式。
+
+**Ask for approval** 始终可用。要把 **Approve for me（替我审批）**（设置中称为 **Auto-review**）或 **Full access（完全访问）** 加入权限菜单，请打开 ChatGPT 桌面 App 的 **Settings &gt; General（设置 &gt; 通用）**，然后在 **Permissions（权限）** 下启用相应模式。
+
+启用模式只会让它出现在菜单中，不会自动选中，也不会改变现有聊天的权限。
+
+<PermissionSettings />
+
+<Note>
+
+可用模式可能受本地配置和组织要求影响；不允许使用的模式会显示为禁用状态。
+
+</Note>
+
+<h2 id="权限如何工作">权限如何工作</h2>
+
+下面两项控制会共同生效：
+
+- **沙箱**定义 ChatGPT 可以访问哪些文件和网络资源。
+- **审批**决定 ChatGPT 何时必须在操作前暂停，或把请求交给自动评审。
+
+改变由谁评审请求不会扩大沙箱边界。例如，**Approve for me** 与 **Ask for approval** 使用同一工作区边界，只是将越界请求发送给自动评审。
+
+在 ChatGPT 桌面 App 或 IDE 扩展中，可以通过输入框下方的权限控件切换模式。在 CLI 中输入 `/permissions`。
+
+<PermissionPicker />
+
+技术细节请参见[沙箱](/docs/sandboxing)、[自动评审](/docs/sandboxing/auto-review)和[权限配置档案](/docs/permissions)。

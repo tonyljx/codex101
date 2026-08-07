@@ -1,0 +1,86 @@
+---
+title: "工作区模型可用性"
+description: "区分 ChatGPT、桌面 App 中的 Codex、Codex CLI、IDE 扩展、Codex 云端与 OpenAI API Platform 的模型访问"
+locale: "zh"
+translationKey: "enterprise/workspace-model-availability"
+section: "explore"
+order: 1095
+draft: false
+translationStatus: complete
+lastUpdated: 2026-08-06
+pageKind: article
+referenceHub: "administration"
+sourceUrl: "https://www.codex-docs.com/docs/enterprise/workspace-model-availability"
+outline:
+  - id: "确认模型边界"
+    label: "确认模型边界"
+  - id: "为-gpt-54-退役做好准备"
+    label: "为 GPT-5.4 退役做好准备"
+  - id: "区分访问权限与运行时权限"
+    label: "区分访问权限与运行时权限"
+  - id: "排查模型访问问题"
+    label: "排查模型访问问题"
+  - id: "当前来源"
+    label: "当前来源"
+  - id: "相关文档"
+    label: "相关文档"
+---
+
+模型可用性取决于产品入口和身份认证边界。ChatGPT 工作区中的模型设置，并不是 ChatGPT 桌面 App、Codex CLI、IDE 扩展、Codex 云端或 Platform API 中 Codex 的通用模型开关。
+
+完整管理模型请参见[角色与工作区权限](/docs/enterprise/roles-and-workspace-permissions)。
+
+## 确认模型边界
+
+<div className="doc-table-wrap">
+
+| 产品或身份认证边界 | 模型访问取决于 | 当前来源 |
+| --- | --- | --- |
+| ChatGPT 工作区 | 工作区计划、成员访问权限、工作区设置和受支持的角色权限 | [ChatGPT Enterprise 和 Edu 模型与限制](https://help.openai.com/en/articles/11165333-chatgpt-enterprise-models-limits) |
+| 使用 ChatGPT 登录的 ChatGPT 桌面 App、Codex CLI 和 IDE 扩展中的 Codex | 相应客户端支持的模型，以及已登录 ChatGPT 身份拥有的访问权限 | [Codex 模型](/docs/models)和当前工作区指南 |
+| Codex 云端 | 托管 Codex 工作流支持的模型，以及已登录 ChatGPT 身份拥有的访问权限 | [Codex 模型](/docs/models)和 [Codex 云端](/docs/cloud) |
+| 使用 API key 认证的 ChatGPT 桌面 App、Codex CLI 和 IDE 扩展中的 Codex | 与该 key 关联的 OpenAI API 组织和项目 | [身份认证](/docs/auth)和 [OpenAI API Platform](https://platform.openai.com/docs/overview) |
+
+</div>
+
+请根据用户实际使用的入口检查对应的当前来源。不要复制一份模型目录，也不要假设 ChatGPT 模型选择器设置会对 ChatGPT 桌面 App、Codex CLI、IDE 扩展、Codex 云端和 API Platform 中的 Codex 产生相同效果。
+
+## 为 GPT-5.4 退役做好准备
+
+2026 年 8 月 31 日，GPT-5.4 和 GPT-5.4 mini 将从使用 ChatGPT 登录的 Codex 中退役。请在此之前更新受影响的工作区默认设置、已保存的模型设置、托管配置、自定义智能体和定时任务：
+
+-   将 `gpt-5.4` 替换为 `gpt-5.6-terra`（GPT-5.6 Terra）。
+-   将 `gpt-5.4-mini` 替换为 `gpt-5.6-luna`（GPT-5.6 Luna）。
+
+OpenAI API 和使用自有 API key 认证的 Codex 不受影响。迁移详情参见 [Codex 模型](/docs/models#deprecated-codex-models)与[托管配置](/docs/enterprise/managed-configuration)。
+
+## 区分访问权限与运行时权限
+
+模型访问决定已认证用户能否在受支持入口使用某个模型。本地权限配置档案和托管要求则决定本地运行开始后智能体可以做什么，例如能够修改哪些文件、可以访问哪些网络目标。
+
+权限配置档案不能授予模型访问权限。模型访问权限也不能削弱适用于运行的沙箱、审批策略、网络控制或来源系统权限。
+
+## 排查模型访问问题
+
+如果用户无法选择预期模型：
+
+-   确认产品入口和登录方式。
+-   确认 ChatGPT 工作区，或 Platform API 的组织和项目。
+-   检查该身份认证边界当前的访问控制。
+-   检查所选本地客户端或 Codex 云端是否支持该模型。
+
+## 当前来源
+
+-   [ChatGPT Enterprise 和 Edu 模型与限制](https://help.openai.com/en/articles/11165333-chatgpt-enterprise-models-limits)
+-   [管理工作区设置](https://help.openai.com/en/articles/8411955)
+-   [基于角色的访问控制](https://help.openai.com/en/articles/11750701-rbac)
+-   [Codex 模型](/docs/models)
+-   [按计划划分的 Codex 功能可用性](/docs/pricing#feature-availability)
+-   [身份认证](/docs/auth)
+
+## 相关文档
+
+-   [管理员发布指南](/docs/enterprise/admin-setup)
+-   [组与预配](/docs/enterprise/groups-and-provisioning)
+-   [角色与工作区权限](/docs/enterprise/roles-and-workspace-permissions)
+-   [托管配置](/docs/enterprise/managed-configuration)

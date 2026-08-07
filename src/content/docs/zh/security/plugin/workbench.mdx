@@ -1,0 +1,87 @@
+---
+title: "使用 Codex Security 工作台"
+navTitle: "使用 Security 工作台"
+description: "在 Codex App 中启动安全扫描、评审发现并查看仓库历史。"
+locale: "zh"
+translationKey: "security/plugin/workbench"
+section: "explore"
+order: 1067
+draft: false
+translationStatus: complete
+lastUpdated: 2026-08-06
+pageKind: article
+referenceHub: "security-administration"
+sourceUrl: "https://www.codex-docs.com/docs/security/plugin/workbench"
+outline:
+  - id: "启动扫描"
+    label: "启动扫描"
+  - id: "跟踪扫描进度"
+    label: "跟踪扫描进度"
+  - id: "跨扫描评审发现"
+    label: "跨扫描评审发现"
+  - id: "查看仓库历史"
+    label: "查看仓库历史"
+  - id: "从对话启动扫描"
+    label: "从对话启动扫描"
+---
+
+Security（安全）工作台把扫描、发现和仓库集中到 Codex App 中。Codex 会在普通任务中执行扫描分析；你离开后，工作台仍会保存扫描及其结果，方便返回时继续查看。
+
+安装并启用 [Codex Security plugin](/docs/security/plugin)，然后在 Codex App 侧边栏中选择 **Security**。
+
+<Callout kind="note">
+
+如果没有看到 **Security**，请确认插件已安装并启用。必要时更新 Codex App 和插件，并检查工作区管理员是否允许使用该插件。
+
+</Callout>
+
+## 启动扫描
+
+为获得最佳扫描质量，请使用 `gpt-5.6-sol`，并将推理强度设为 `xhigh`。
+
+1.  打开 **Scans（扫描）**，然后选择 **\+ Scan（+ 扫描）**。
+2.  选择现有仓库，或选择其他文件夹。
+3.  选择 **Codebase（代码库）** 扫描仓库，或选择 **Changes（变更）** 评审 Git 跟踪的变更。
+4.  对于标准代码库扫描，选择整个仓库或一个文件夹。
+5.  对于深度扫描，先选择仓库或文件夹作为代码库，再开启 **Deep scan（深度扫描）**。深度扫描会评审选中的整个代码库。
+6.  对于变更扫描，选择未提交的变更、一个 commit 或一个 revision 范围。变更扫描不支持 **Deep scan**。
+7.  选择模型和推理强度。打开 **Additional context（附加上下文）**，说明相关攻击向量、关注区域或其他安全上下文。
+8.  选择 **Start scan（开始扫描）**。
+
+<Screenshot src="/images/openai/learn.chatgpt.com/_astro/scan-overview.yP-kWp8o.webp" darkSrc="/images/openai/learn.chatgpt.com/_astro/scan-overview-dark.C7WLYB0s.webp" alt="Codex Security 工作台中正在配置新的仓库扫描" maxHeight={520} />
+
+有关每种扫描类型的详细说明，请参阅[运行安全扫描](/docs/security/plugin/scans)、[运行深度安全扫描](/docs/security/plugin/deep-scans)或[评审代码变更的安全性](/docs/security/plugin/code-changes)。
+
+## 跟踪扫描进度
+
+扫描页面会显示当前阶段，以及插件报告的扫描进度。标准扫描的阶段包括威胁建模、发现、验证、影响与路径分析、报告和最终化。
+
+选择 **View activity（查看活动）**，打开运行该扫描的 Codex 任务。你可以离开工作台，稍后返回 **Scans**；已保存的扫描不会丢失。如果要主动停止工作，请打开扫描并选择 **Stop scan（停止扫描）**。
+
+扫描完成后，打开结果，评审目标、修订版本（revision）、发现、覆盖范围和可用的报告产物。
+
+<Screenshot src="/images/openai/learn.chatgpt.com/_astro/findings-workspace.CBRmmbMI.webp" darkSrc="/images/openai/learn.chatgpt.com/_astro/findings-workspace-dark.DMK43Kic.webp" alt="已完成的 Codex Security 扫描，显示发现、扫描覆盖范围和报告产物" maxHeight={520} />
+
+## 跨扫描评审发现
+
+打开 **Findings（发现）**，查看不同仓库和扫描中保存的发现。搜索或筛选列表，然后选择某项发现，评审其摘要、来源证据、验证和影响。
+
+使用 **Summary（摘要）** 查看发现详情；需要生成、评审、应用或验证聚焦的修复时，使用 **Patch（补丁）**。修复流程参见[修复并验证安全发现](/docs/security/plugin/fix-findings)。
+
+<Callout kind="note">
+
+**Findings（安全发现）** 标签页会显示已保存的 Codex Security 扫描中的安全发现。导入的工单和其它现有安全问题仍属于单独的[积压分诊工作流](/docs/security/plugin/triage-backlog)。
+
+</Callout>
+
+## 查看仓库历史
+
+打开 **Repositories（仓库）**，浏览可用的仓库和文件夹。选择一个仓库，查看其扫描历史、最近扫描的 revision 和未解决发现。在仓库详情中，可以打开之前的扫描，或查看与该仓库关联的发现。
+
+如果仓库还没有扫描，可以从详情页启动扫描，或在工作台中选择 **\+ Scan**。
+
+## 从对话启动扫描
+
+你也可以在普通对话中要求 Codex 运行已安装的 Codex Security plugin。使用共享插件工作台的扫描会出现在 **Scans** 中，因此你可以回到 Security 工作台查看其进度和结果。
+
+如需基于终端的扫描和自动化，请参阅 [Codex Security CLI 快速开始](/docs/security/cli)。

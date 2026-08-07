@@ -1,0 +1,138 @@
+---
+import { ArrowDown, ArrowRight, ArrowUpRight } from 'lucide-react';
+import InteractiveHeader from './InteractiveHeader';
+import ModeSection from './ModeSection';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getDocsNavigation } from '../lib/docs';
+import {
+  copy,
+  localizedPath,
+  modeItems,
+  useCaseCards,
+  type Locale,
+} from '../lib/site';
+
+type Props = {
+  locale: Locale;
+  currentPath: string;
+};
+
+const { locale, currentPath } = Astro.props;
+const c = copy[locale];
+const modes = modeItems(locale);
+const cards = useCaseCards(locale);
+const isZh = locale === 'zh' || locale === 'zh-TW';
+const navigation = await getDocsNavigation(locale);
+---
+
+<BaseLayout locale={locale} title={`${c.siteName} | ${c.heroTitle}`} description={c.heroDescription}>
+  <InteractiveHeader client:load locale={locale} currentPath={currentPath} kind="landing" navigation={navigation} />
+
+  <main class="landing-main">
+    <section class="landing-hero" aria-labelledby="landing-title">
+      <h1 id="landing-title">{c.heroTitle}</h1>
+      <p>{c.heroDescription}</p>
+      <div class="landing-hero__actions">
+        <a class="pill-button" href="https://chatgpt.com/" target="_blank" rel="noreferrer">
+          {c.download}
+          <ArrowDown aria-hidden="true" />
+        </a>
+        <a class="pill-button pill-button--secondary" href={localizedPath(locale, '/docs/quickstart')}>
+          {c.getStarted}
+          <ArrowRight aria-hidden="true" />
+        </a>
+      </div>
+      <div
+        class="landing-hero__demo"
+        role="img"
+        aria-label={isZh ? 'ChatGPT Work 应用界面' : 'ChatGPT Work app interface'}
+      ></div>
+    </section>
+
+    <div class="landing-modes">
+      <ModeSection
+        client:visible
+        title={c.exploreTitle}
+        description={c.exploreDescription}
+        items={modes.explore}
+        image="/images/explore-visual.png"
+        imageAlt={isZh ? 'ChatGPT 对话界面' : 'ChatGPT conversation interface'}
+        cta={c.tryChatGPT}
+        href="https://chatgpt.com/"
+      />
+      <ModeSection
+        client:visible
+        title={c.workTitle}
+        description={c.workDescription}
+        items={modes.work}
+        image="/images/work-visual.png"
+        imageAlt={isZh ? 'ChatGPT 分析销售表格' : 'ChatGPT analyzing a sales spreadsheet'}
+        reverse
+        cta={isZh ? '了解更多' : 'Learn more'}
+        href={localizedPath(locale, '/docs/features')}
+      />
+      <ModeSection
+        client:visible
+        title={c.buildTitle}
+        description={c.buildDescription}
+        items={modes.build}
+        image="/images/build-visual.png"
+        imageAlt={isZh ? 'Codex 显示代码修改' : 'Codex showing code changes'}
+        cta={c.download}
+        href={localizedPath(locale, '/docs/developers')}
+      />
+    </div>
+
+    <section class="use-cases-section" id="use-cases" aria-labelledby="use-cases-title">
+      <div class="use-cases-section__header">
+        <h2 id="use-cases-title">{c.useCasesTitle}</h2>
+        <p>{c.useCasesDescription}</p>
+      </div>
+      <div class="use-case-grid">
+        {cards.map((card) => (
+          <a class="use-case-card" href={localizedPath(locale, '/docs/use-chatgpt')}>
+            <div class="use-case-card__image"><img src={card.image} alt="" loading="lazy" /></div>
+            <h3>{card.title}</h3>
+            <p>{card.description}</p>
+            <span>{isZh ? '工作流' : 'Workflow'} · Codex</span>
+          </a>
+        ))}
+      </div>
+    </section>
+
+    <section class="news-section" aria-labelledby="news-title">
+      <h2 id="news-title">{c.newsTitle}</h2>
+      <a class="news-card" href={localizedPath(locale, '/docs/whats-new')}>
+        <div>
+          <h3>{isZh ? '让工作在桌面、设备和云端持续推进' : 'Keep work moving across desktop, hardware, and cloud'}</h3>
+          <p>{isZh ? '在桌面端保留 Work 对话和项目，通过并行任务持续推进复杂工作。' : 'Keep Work conversations and Projects together while parallel tasks continue moving.'}</p>
+          <strong>{isZh ? '阅读最新一期' : 'Read the latest issue'} <ArrowUpRight aria-hidden="true" /></strong>
+        </div>
+        <img src="/images/codex-overview-desktop.png" alt="" loading="lazy" />
+      </a>
+    </section>
+  </main>
+
+  <footer class="landing-footer" id="resources">
+    <a class="landing-footer__brand" href={localizedPath(locale, '/')}>
+      <img src="/images/openai-mark.svg" alt="" width="24" height="24" />
+      <span>Codex</span>
+    </a>
+    <section>
+      <h2>{c.resources}</h2>
+      <a href={localizedPath(locale, '/docs/quickstart')}>{c.getStarted}</a>
+      <a href={localizedPath(locale, '/docs')}>{c.docs}</a>
+      <a href="https://help.openai.com/" target="_blank" rel="noreferrer">Help center <ArrowUpRight aria-hidden="true" /></a>
+    </section>
+    <section>
+      <h2>{isZh ? '社区' : 'Community'}</h2>
+      <a href="https://community.openai.com/" target="_blank" rel="noreferrer">Codex community <ArrowUpRight aria-hidden="true" /></a>
+      <a href="https://github.com/openai" target="_blank" rel="noreferrer">GitHub <ArrowUpRight aria-hidden="true" /></a>
+    </section>
+    <section>
+      <h2>{isZh ? '更新' : 'Updates'}</h2>
+      <a href={localizedPath(locale, '/docs/whats-new')}>{c.newsTitle}</a>
+      <a href={localizedPath(locale, '/docs/changelog')}>Changelog</a>
+    </section>
+  </footer>
+</BaseLayout>

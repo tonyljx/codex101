@@ -1,0 +1,90 @@
+---
+import InteractiveHeader from '../components/InteractiveHeader';
+import DocsSidebar from '../components/DocsSidebar.astro';
+import BaseLayout from './BaseLayout.astro';
+import { docsUi, type DocsNavigation } from '../lib/docs';
+import type { Locale } from '../lib/site';
+
+type OutlineItem = { id: string; label: string };
+type Props = {
+  locale: Locale;
+  title: string;
+  description: string;
+  currentPath: string;
+  currentSlug?: string;
+  wide?: boolean;
+  reserveOutline?: boolean;
+  outline?: OutlineItem[];
+  navigation: DocsNavigation;
+};
+
+const {
+  locale,
+  title,
+  description,
+  currentPath,
+  currentSlug = '',
+  wide = false,
+  reserveOutline = false,
+  outline = [],
+  navigation,
+} = Astro.props;
+const ui = docsUi(locale);
+const docsRouteTransition = {
+  forwards: {
+    old: {
+      name: 'docsRouteExitForward',
+      duration: '120ms',
+      easing: 'cubic-bezier(0.25, 1, 0.5, 1)',
+      fillMode: 'both',
+    },
+    new: {
+      name: 'docsRouteEnterForward',
+      duration: '220ms',
+      delay: '20ms',
+      easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
+      fillMode: 'both',
+    },
+  },
+  backwards: {
+    old: {
+      name: 'docsRouteExitBackward',
+      duration: '120ms',
+      easing: 'cubic-bezier(0.25, 1, 0.5, 1)',
+      fillMode: 'both',
+    },
+    new: {
+      name: 'docsRouteEnterBackward',
+      duration: '220ms',
+      delay: '20ms',
+      easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
+      fillMode: 'both',
+    },
+  },
+};
+---
+
+<BaseLayout locale={locale} title={`${title} | Codex Learn`} description={description}>
+  <InteractiveHeader client:load locale={locale} currentPath={currentPath} kind="docs" navigation={navigation} />
+  <div class:list={['docs-shell', {
+    'docs-shell--wide': wide,
+    'docs-shell--no-outline': !outline.length && !reserveOutline,
+    'docs-shell--reserved-empty-outline': !outline.length && reserveOutline,
+  }]}> 
+    <DocsSidebar locale={locale} currentSlug={currentSlug} navigation={navigation} />
+    <main
+      class="docs-main"
+      aria-label={title}
+      transition:name="docs-content"
+      transition:animate={docsRouteTransition}
+    >
+      <slot />
+    </main>
+    {outline.length > 0 && (
+      <aside class="docs-outline" aria-label={ui.onThisPage}>
+        <h2>{ui.onThisPage}</h2>
+        {outline.map((item) => <a href={`#${item.id}`}>{item.label}</a>)}
+      </aside>
+    )}
+  </div>
+</BaseLayout>

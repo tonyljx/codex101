@@ -1,0 +1,162 @@
+<header class="docs-page-header"> <h1>ChatGPT 与 Codex Changelog</h1> <p>ChatGPT 与 Codex 的最新更新。</p> </header> <div class="docs-changelog"> <div class="docs-changelog__preamble doc-content"><p>官方 Changelog 是动态发布流。本地页面保留最新的重要条目供中文检索，并链接到包含 CLI 详细版本信息的完整实时页面。</p></div> <section class="docs-changelog__month" aria-labelledby="2026-年-7-月"> <h2 id="2026-年-7-月">2026 年 7 月</h2>  <ul class="docs-changelog__entries" role="list"> <li class="docs-changelog__entry"> <time datetime="2026-07-31">2026-07-31</time> <h3 id="codex-2026-07-31">GPT-5.4 和 GPT-5.4 mini 将于 8 月 31 日从 Codex 中退役</h3> <div class="docs-changelog__entry-body doc-content"><p>2026 年 8 月 31 日，GPT-5.4 和 GPT-5.4 mini 将不再向使用 ChatGPT 登录的 Codex 用户提供。GPT-5.4 和 GPT-5.4 mini 仍可通过 OpenAI API，以及使用 API key 认证的 Codex 会话使用。</p>
+<p>请切换到推荐的替代模型：</p>
+<ul>
+<li>将 <code>gpt-5.4</code> 替换为 <code>gpt-5.6-terra</code>（GPT-5.6 Terra）。</li>
+<li>将 <code>gpt-5.4-mini</code> 替换为 <code>gpt-5.6-luna</code>（GPT-5.6 Luna）。</li>
+</ul>
+<p>请在截止日期前更新仍在使用这两个模型的工作区默认设置、已保存的模型设置、托管配置、自定义智能体和定时任务。</p>
+<p>详情见 <a href="/docs/models#deprecated-codex-models">Codex 模型</a>和<a href="/docs/enterprise/workspace-model-availability">工作区模型可用性</a>。</p>
+<p>来源：<a href="/docs/changelog#codex-2026-07-31">官方 changelog 条目</a></p></div> </li><li class="docs-changelog__entry"> <time datetime="2026-07-30">2026-07-30</time> <h3 id="codex-2026-07-30-app">浏览器升级、跨仓库评审与图像编辑 26.727</h3> <div class="docs-changelog__entry-body doc-content"><p>最新 ChatGPT 桌面 App 更新让浏览、代码评审和编辑生成图像变得更快、更轻松。</p>
+<h4 id="更快浏览和查找上下文">更快浏览和查找上下文</h4>
+<ul>
+<li>在内建浏览器地址栏中输入内容，可以重新打开浏览历史记录中的页面；没有匹配项时则会搜索 Google。</li>
+<li>在 Settings（设置）中管理浏览历史记录，并允许 ChatGPT 在任务需要时搜索你之前访问过的页面。</li>
+<li>使用 Chrome extension 提及已打开的 tab，或把页面中高亮的文本带入侧边聊天。</li>
+<li>在 Chrome extension 中询问任意 YouTube 视频的内容，并快速获得回答。</li>
+<li>右键点击网页并选择 <strong>Ask ChatGPT（询问 ChatGPT）</strong>。</li>
+</ul>
+<p>进一步了解<a href="/docs/browser">内建浏览器</a>和 <a href="/docs/chrome-extension">Chrome extension</a>。</p>
+<h4 id="跨仓库评审变更">跨仓库评审变更</h4>
+<p>查看<a href="/docs/projects#use-local-projects-for-folders-and-codebases">多文件夹项目</a>中的全部仓库，以及每个仓库的变更行。选择 <strong>Review（评审）</strong>，即可在同一处检查跨仓库 diff，无需在多个独立评审视图之间切换。</p>
+<h4 id="优化生成的图像">优化生成的图像</h4>
+<p>在扩展查看器中打开生成图像，并在 <strong>Focused view（聚焦视图）</strong> 与 <strong>Canvas view（画布视图）</strong> 之间切换。你可以跨图像添加评论、选择目标图像并发送定向编辑，而无需离开当前对话。进一步了解<a href="/docs/image-generation">图像生成</a>。</p>
+<h4 id="其它改进与-bug-修复">其它改进与 Bug 修复</h4>
+<ul>
+<li>侧栏新增 <strong>Activity view（活动视图）</strong>，用于查看最近互动或需要关注的聊天。选择铃铛，或按 <kbd>Cmd</kbd>/<kbd>Ctrl</kbd>+<kbd>Opt</kbd>+<kbd>U</kbd> 即可切换。</li>
+<li>浏览器设置现在只显示受支持的浏览器。</li>
+<li>提升 Windows 安装可靠性，尤其是软件包文件路径较长时。</li>
+<li>其它性能改进与 Bug 修复。</li>
+</ul>
+<p>来源：<a href="/docs/changelog#codex-2026-07-30-app">官方 changelog 条目</a></p></div> </li><li class="docs-changelog__entry"> <time datetime="2026-07-29">2026-07-29</time> <h3 id="codex-2026-07-29">Sign in with ChatGPT（Beta）</h3> <div class="docs-changelog__entry-body doc-content"><p>Sign in with ChatGPT 已开始在部分 plugin 和合作伙伴网站中以 Beta 形式逐步推出，首批包括 Airtable、GitLab、HubSpot、Notion、Supabase 和 Vercel。</p>
+<p>从 ChatGPT plugin directory 连接支持的 plugin 时，你可以使用 Sign in with ChatGPT，以更少的步骤创建该服务的账号或关联现有账号。在参与计划的合作伙伴网站中，也可以选择 <strong>Sign in with ChatGPT</strong> 来创建或访问账号。</p>
+<p>这让你可以更轻松地在 ChatGPT 和 Codex 中开始使用受支持的工具。</p>
+<p>登录时，合作伙伴只会收到你的姓名、电子邮件地址和个人资料图片（如有）。每个 plugin 请求的访问权限仍需单独查看并批准。</p>
+<p>来源：<a href="/docs/changelog#codex-2026-07-29">官方 changelog 条目</a></p></div> </li><li class="docs-changelog__entry"> <time datetime="2026-07-29">2026-07-29</time> <h3 id="github-release-361463950">Codex CLI 0.146.0</h3> <div class="docs-changelog__entry-body doc-content"><pre class="shiki shiki-themes github-light github-dark code-copy-host has-copy-button" style="background-color:#fff;--shiki-dark-bg:#24292e;color:#24292e;--shiki-dark:#e1e4e8" data-language="bash" data-copy-ready="true"><button type="button" class="code-copy-button" data-state="idle" aria-label="复制代码" title="复制代码"></button><code class="language-bash"><span class="line"><span style="color:#6F42C1;--shiki-dark:#B392F0">npm</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> install</span><span style="color:#005CC5;--shiki-dark:#79B8FF"> -g</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> @openai/codex@0.146.0</span></span></code></pre><h4 id="新功能">新功能</h4>
+<ul>
+<li>可通过 <code>/new</code> 或 <code>/clear</code> 为新会话命名、固定重要对话线程，并在不关闭侧边对话的情况下切换。</li>
+<li>支持 Agent Plugins manifest、工作区 plugin 发布，以及适用于 Amazon Bedrock 和 Claude Code 的更多 plugin marketplace。</li>
+<li>支持从分页历史中 fork 对话线程，包括不会出现在对话线程列表中的临时 fork。</li>
+<li>App Server 可通过 WebSocket 连接远程 Code Mode host。</li>
+<li>兼容的自定义模型提供商可以启用独立 Web 搜索。</li>
+<li>可发现执行器提供的 skill，并安全读取其关联资源，包括用户显式选择的 skill。</li>
+</ul>
+<h4 id="bug-修复">Bug 修复</h4>
+<ul>
+<li>认证、plugin 下载、MCP 授权、远程执行、WebSocket、重定向和 LM Studio 连接现在都会遵循已配置的代理。</li>
+<li>认证或配置变化时会刷新 MCP 连接和 Apps 工具，并在不中断健康连接的情况下重连已关闭的 MCP servers。</li>
+<li>在中断、回放、导入和 fork 过程中保留已提交消息、最终响应、失败 turn 错误、导入时间戳和审批设置。</li>
+<li>改进终端响应速度与渲染，包括非阻塞中断、键盘处理、窄屏布局、超链接和刷新的 mention 结果。</li>
+<li>修复 Windows 导航键，可靠终止沙箱进程树，并在安全评审期间保留代理设置。</li>
+<li>在上下文预算紧张时保留更多可用 skill，并在 skill catalog 必须截断时发出警告。</li>
+</ul>
+<h4 id="文档">文档</h4>
+<ul>
+<li>说明共享 HTTP client、支持代理的连接池和安全的出站请求处理方式。</li>
+<li>明确 <code>PathUri</code> 值的 Windows 盘符规范化规则。</li>
+</ul>
+<h4 id="维护">维护</h4>
+<ul>
+<li>通过 OpenAI 托管的发布基础设施分发 release artifact、channel metadata 和 installer alias，并保留 GitHub fallback。</li>
+<li>在打包前签名并公证随附的 macOS helper executable。</li>
+<li>减少 App Server 序列化开销和不必要的请求构建分配。</li>
+<li>新增企业套餐识别和用于 App 内更新的管理员控制项。</li>
+</ul>
+<p>完整 changelog：<a href="https://github.com/openai/codex/compare/rust-v0.145.0...rust-v0.146.0">rust-v0.145.0...rust-v0.146.0</a></p>
+<p>完整 GitHub release：<a href="https://github.com/openai/codex/releases/tag/rust-v0.146.0">rust-v0.146.0</a></p>
+<p>来源：<a href="/docs/changelog#github-release-361463950">官方 changelog 条目</a></p></div> </li><li class="docs-changelog__entry"> <time datetime="2026-07-27">2026-07-27</time> <h3 id="codex-2026-07-27-mobile">ChatGPT for iOS 1.2026.202</h3> <div class="docs-changelog__entry-body doc-content"><h4 id="改进与-bug-修复">改进与 Bug 修复</h4>
+<ul>
+<li>Voice 对话现在使用你选择的 ChatGPT voice，并会显示用量限制提醒。</li>
+<li>改进返回 App 或使用 Face ID 解锁后的任务重连与连续性。</li>
+<li>输入框自动补全现在与桌面端的 plugin mention 一致，并包含已安装 plugin 提供的 skill。</li>
+<li>发送后仍会保留选中文本引用，方便再次预览。</li>
+<li>改进目标控制，暂停或恢复时会更清楚地显示进度。</li>
+<li>改进内联可视化中的表格和视觉主题渲染。</li>
+<li>提升大型工作区 diff 的响应速度。</li>
+<li>修复恢复任务后所选模型发生变化的问题。</li>
+<li>修复提示词开始后输入框卡住的问题。</li>
+<li>修正 browser 和 computer 工具的标签、图标和占位输出。</li>
+</ul>
+<p>来源：<a href="/docs/changelog#codex-2026-07-27-mobile">官方 changelog 条目</a></p></div> </li><li class="docs-changelog__entry"> <time datetime="2026-07-23">2026-07-23</time> <h3 id="2026-07-23-chatgpt-voice-与多文件夹项目-26715">ChatGPT Voice 与多文件夹项目 26.715</h3> <div class="docs-changelog__entry-body doc-content"><p>由 GPT-Live 驱动的 ChatGPT Voice 允许你在 ChatGPT 桌面 App 的 Chat、Work 和 Codex 中通过语音讨论工作并协调任务。</p>
+<h4 id="新功能-2">新功能</h4>
+<ul>
+<li>进入语音模式开始新聊天或任务，再让 ChatGPT 启动、检查或调整其他对话线程中的工作。</li>
+<li>在 macOS 上开启 <strong>Screen context（屏幕上下文）</strong>，即可分享最前方窗口的 <a href="/docs/appshots">appshot</a>。</li>
+<li>Plus、Pro、Business、Edu 和 Enterprise 套餐都可在桌面 App 中使用 Voice，也可通过 <a href="/docs/remote-connections">iOS 版 Remote</a> 使用。</li>
+<li>为本地项目添加多个相关文件夹，选择主文件夹用于新聊天、Git 操作，以及自动发现 <code>AGENTS.md</code>、skills 和 <code>config.toml</code>；辅助文件夹仍可用于搜索、读取和编辑文件。</li>
+</ul>
+<p>开始使用 <a href="/docs/features/voice">ChatGPT Voice</a>和<a href="/docs/projects#use-local-projects-for-folders-and-codebases">多文件夹本地项目</a>。</p>
+<p>来源：<a href="/docs/changelog#codex-2026-07-23-app">官方 changelog 条目</a></p></div> </li><li class="docs-changelog__entry"> <time datetime="2026-07-21">2026-07-21</time> <h3 id="2026-07-21-codex-cli-01450">Codex CLI 0.145.0</h3> <div class="docs-changelog__entry-body doc-content"><pre class="shiki shiki-themes github-light github-dark code-copy-host has-copy-button" style="background-color:#fff;--shiki-dark-bg:#24292e;color:#24292e;--shiki-dark:#e1e4e8" data-language="bash" data-copy-ready="true"><button type="button" class="code-copy-button" data-state="idle" aria-label="复制代码" title="复制代码"></button><code class="language-bash"><span class="line"><span style="color:#6F42C1;--shiki-dark:#B392F0">npm</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> install</span><span style="color:#005CC5;--shiki-dark:#79B8FF"> -g</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> @openai/codex@0.145.0</span></span></code></pre><h4 id="新功能-3">新功能</h4>
+<ul>
+<li>新增分页对话线程历史，支持恢复、搜索、持久化名称、子智能体和 memories。</li>
+<li>扩展 <code>/import</code>，可迁移 Cursor 与 Claude Code 设置、MCP servers、plugins、sessions、commands 和项目 memories。</li>
+<li>新增实验性 Amazon Bedrock 登录与 endpoint、音频输入与工具输出、realtime V3、multi-agent V2 控制，以及安全可点击的终端可视化链接。</li>
+</ul>
+<h4 id="改进和问题修复">改进和问题修复</h4>
+<ul>
+<li>编辑早期提示词或重试经过安全缓冲的会话轮次时，会保留上下文并创建分支。</li>
+<li>改进长对话终端渲染、MCP 启动与 OAuth、Windows 执行与沙箱、macOS code-mode 回退，以及安全审批。</li>
+<li>更新内建 OpenAI Docs skill 的 GPT-5.6 指导，并把随附 ripgrep 升级到 15.2.0。</li>
+</ul></div> </li><li class="docs-changelog__entry"> <time datetime="2026-07-20">2026-07-20</time> <h3 id="2026-07-20-chatgpt-for-ios-12026195">ChatGPT for iOS 1.2026.195</h3> <div class="docs-changelog__entry-body doc-content"><h4 id="新功能-4">新功能</h4>
+<ul>
+<li>新增行内 Mermaid 图表、Codex 任务交互式表单，并可在切换任务、host 与工作区时恢复尚未发送的提示词。</li>
+</ul>
+<h4 id="改进和问题修复-2">改进和问题修复</h4>
+<ul>
+<li>改进任务列表、输入框切换、目标恢复、计划进度、Fast controls、行内听写、Remote onboarding 和 iPad 导航。</li>
+<li>修复重复任务列表导致的崩溃、iOS 18 任务操作、间距、附件菜单 padding 和重复转写指示器。</li>
+</ul></div> </li><li class="docs-changelog__entry"> <time datetime="2026-07-18">2026-07-18</time> <h3 id="2026-07-18-codex-cli-01446">Codex CLI 0.144.6</h3> <div class="docs-changelog__entry-body doc-content"><pre class="shiki shiki-themes github-light github-dark code-copy-host has-copy-button" style="background-color:#fff;--shiki-dark-bg:#24292e;color:#24292e;--shiki-dark:#e1e4e8" data-language="bash" data-copy-ready="true"><button type="button" class="code-copy-button" data-state="idle" aria-label="复制代码" title="复制代码"></button><code class="language-bash"><span class="line"><span style="color:#6F42C1;--shiki-dark:#B392F0">npm</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> install</span><span style="color:#005CC5;--shiki-dark:#79B8FF"> -g</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> @openai/codex@0.144.6</span></span></code></pre><h4 id="问题修复">问题修复</h4>
+<ul>
+<li>刷新内建 GPT-5.6 Sol、Terra 和 Luna 指令，并把其上下文窗口修正为 272,000 tokens。</li>
+</ul></div> </li><li class="docs-changelog__entry"> <time datetime="2026-07-16">2026-07-16</time> <h3 id="2026-07-16-codex-cli-01445">Codex CLI 0.144.5</h3> <div class="docs-changelog__entry-body doc-content"><pre class="shiki shiki-themes github-light github-dark code-copy-host has-copy-button" style="background-color:#fff;--shiki-dark-bg:#24292e;color:#24292e;--shiki-dark:#e1e4e8" data-language="bash" data-copy-ready="true"><button type="button" class="code-copy-button" data-state="idle" aria-label="复制代码" title="复制代码"></button><code class="language-bash"><span class="line"><span style="color:#6F42C1;--shiki-dark:#B392F0">npm</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> install</span><span style="color:#005CC5;--shiki-dark:#79B8FF"> -g</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> @openai/codex@0.144.5</span></span></code></pre><h4 id="问题修复-2">问题修复</h4>
+<ul>
+<li>改进危险命令检测，覆盖更多强制 <code>rm</code> 形式，并提供更清晰的命令拒绝原因。</li>
+</ul></div> </li><li class="docs-changelog__entry"> <time datetime="2026-07-14">2026-07-14</time> <h3 id="2026-07-14-codex-cli-01444">Codex CLI 0.144.4</h3> <div class="docs-changelog__entry-body doc-content"><pre class="shiki shiki-themes github-light github-dark code-copy-host has-copy-button" style="background-color:#fff;--shiki-dark-bg:#24292e;color:#24292e;--shiki-dark:#e1e4e8" data-language="bash" data-copy-ready="true"><button type="button" class="code-copy-button" data-state="idle" aria-label="复制代码" title="复制代码"></button><code class="language-bash"><span class="line"><span style="color:#6F42C1;--shiki-dark:#B392F0">npm</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> install</span><span style="color:#005CC5;--shiki-dark:#79B8FF"> -g</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> @openai/codex@0.144.4</span></span></code></pre><h4 id="维护-2">维护</h4>
+<ul>
+<li>这个补丁版本没有面向用户的变更。</li>
+</ul></div> </li><li class="docs-changelog__entry"> <time datetime="2026-07-13">2026-07-13</time> <h3 id="2026-07-13-chatgpt-for-ios-12026188">ChatGPT for iOS 1.2026.188</h3> <div class="docs-changelog__entry-body doc-content"><h4 id="新功能-5">新功能</h4>
+<ul>
+<li>新增 Codex 任务内行内可视化支持。</li>
+</ul>
+<h4 id="改进和问题修复-3">改进和问题修复</h4>
+<ul>
+<li>改进从对话创建和管理任务的流程，并为新建任务提供可靠链接。</li>
+<li>改进工具活动样式和进度指示器。</li>
+<li>改进文件打开反馈。</li>
+<li>改进输入框控件，确保长提示词和较大字号下控件仍显示在键盘上方。</li>
+<li>修复每项任务的 Fast 模式选择和恢复。</li>
+<li>修复初始提示词忽略已选审批预设的问题。</li>
+<li>修复自动补全背景，以及任务行在滑动手势期间无响应的问题。</li>
+</ul></div> </li><li class="docs-changelog__entry"> <time datetime="2026-07-13">2026-07-13</time> <h3 id="2026-07-13-codex-cli-01443">Codex CLI 0.144.3</h3> <div class="docs-changelog__entry-body doc-content"><pre class="shiki shiki-themes github-light github-dark code-copy-host has-copy-button" style="background-color:#fff;--shiki-dark-bg:#24292e;color:#24292e;--shiki-dark:#e1e4e8" data-language="bash" data-copy-ready="true"><button type="button" class="code-copy-button" data-state="idle" aria-label="复制代码" title="复制代码"></button><code class="language-bash"><span class="line"><span style="color:#6F42C1;--shiki-dark:#B392F0">npm</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> install</span><span style="color:#005CC5;--shiki-dark:#79B8FF"> -g</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> @openai/codex@0.144.3</span></span></code></pre><h4 id="维护-3">维护</h4>
+<ul>
+<li>这是一个仅更新版本号的发布；自 <code>rust-v0.144.2</code> 以来没有合并新的 PR 变更。</li>
+</ul></div> </li><li class="docs-changelog__entry"> <time datetime="2026-07-13">2026-07-13</time> <h3 id="2026-07-13-codex-cli-01442">Codex CLI 0.144.2</h3> <div class="docs-changelog__entry-body doc-content"><pre class="shiki shiki-themes github-light github-dark code-copy-host has-copy-button" style="background-color:#fff;--shiki-dark-bg:#24292e;color:#24292e;--shiki-dark:#e1e4e8" data-language="bash" data-copy-ready="true"><button type="button" class="code-copy-button" data-state="idle" aria-label="复制代码" title="复制代码"></button><code class="language-bash"><span class="line"><span style="color:#6F42C1;--shiki-dark:#B392F0">npm</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> install</span><span style="color:#005CC5;--shiki-dark:#79B8FF"> -g</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> @openai/codex@0.144.2</span></span></code></pre><h4 id="问题修复-3">问题修复</h4>
+<ul>
+<li>回滚一项提示词回归，恢复先前的 Guardian 自动评审策略、request 格式和工具行为。</li>
+</ul></div> </li><li class="docs-changelog__entry"> <time datetime="2026-07-09">2026-07-09</time> <h3 id="2026-07-09-codex-并入-chatgpt-桌面-app">Codex 并入 ChatGPT 桌面 App</h3> <div class="docs-changelog__entry-body doc-content"><p>Codex 现已成为 macOS 与 Windows 版 ChatGPT 桌面 App 的一部分。现有 Codex App 用户可以照常更新，并继续保留项目、设置和工作流。</p>
+<h4 id="新功能-6">新功能</h4>
+<ul>
+<li>直接编辑 Markdown 与代码，并使用行内批注。</li>
+<li>在侧边栏评审 GitHub PR。</li>
+<li>在一个项目中跨多个仓库工作。</li>
+</ul>
+<h4 id="改进和问题修复-4">改进和问题修复</h4>
+<ul>
+<li>提升 GPT-5.6 的 Computer Use 速度。</li>
+<li>改进任务活动展示和 plugin 管理。</li>
+<li>提升移动连接可靠性。</li>
+<li>改进 SSH 项目的视频渲染。</li>
+</ul></div> </li><li class="docs-changelog__entry"> <time datetime="2026-07-09">2026-07-09</time> <h3 id="2026-07-09-codex-cli-01441-与-01440">Codex CLI 0.144.1 与 0.144.0</h3> <div class="docs-changelog__entry-body doc-content"><pre class="shiki shiki-themes github-light github-dark code-copy-host has-copy-button" style="background-color:#fff;--shiki-dark-bg:#24292e;color:#24292e;--shiki-dark:#e1e4e8" data-language="bash" data-copy-ready="true"><button type="button" class="code-copy-button" data-state="idle" aria-label="复制代码" title="复制代码"></button><code class="language-bash"><span class="line"><span style="color:#6F42C1;--shiki-dark:#B392F0">npm</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> install</span><span style="color:#005CC5;--shiki-dark:#79B8FF"> -g</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> @openai/codex@0.144.1</span></span></code></pre></div> </li><li class="docs-changelog__entry"> <time datetime="2026-07-08">2026-07-08</time> <h3 id="2026-07-08-codex-cli-01430">Codex CLI 0.143.0</h3> <div class="docs-changelog__entry-body doc-content"><pre class="shiki shiki-themes github-light github-dark code-copy-host has-copy-button" style="background-color:#fff;--shiki-dark-bg:#24292e;color:#24292e;--shiki-dark:#e1e4e8" data-language="bash" data-copy-ready="true"><button type="button" class="code-copy-button" data-state="idle" aria-label="复制代码" title="复制代码"></button><code class="language-bash"><span class="line"><span style="color:#6F42C1;--shiki-dark:#B392F0">npm</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> install</span><span style="color:#005CC5;--shiki-dark:#79B8FF"> -g</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> @openai/codex@0.143.0</span></span></code></pre></div> </li><li class="docs-changelog__entry"> <time datetime="2026-07-06">2026-07-06</time> <h3 id="2026-07-06-chatgpt-for-ios-12026181">ChatGPT for iOS 1.2026.181</h3> <div class="docs-changelog__entry-body doc-content"><h4 id="新功能-7">新功能</h4>
+<ul>
+<li>创建和管理 Codex 任务。</li>
+<li>使用更丰富的 diff 筛选。</li>
+<li>把对话记录选区加入输入框。</li>
+<li>预览附件。</li>
+<li>打开 SSH 连接快捷入口。</li>
+</ul>
+<h4 id="改进">改进</h4>
+<ul>
+<li>让用量信息更清晰。</li>
+</ul></div> </li><li class="docs-changelog__entry"> <time datetime="2026-07-01">2026-07-01</time> <h3 id="2026-07-01-codex-cli-01425">Codex CLI 0.142.5</h3> <div class="docs-changelog__entry-body doc-content"><pre class="shiki shiki-themes github-light github-dark code-copy-host has-copy-button" style="background-color:#fff;--shiki-dark-bg:#24292e;color:#24292e;--shiki-dark:#e1e4e8" data-language="bash" data-copy-ready="true"><button type="button" class="code-copy-button" data-state="idle" aria-label="复制代码" title="复制代码"></button><code class="language-bash"><span class="line"><span style="color:#6F42C1;--shiki-dark:#B392F0">npm</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> install</span><span style="color:#005CC5;--shiki-dark:#79B8FF"> -g</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> @openai/codex@0.142.5</span></span></code></pre></div> </li> </ul> </section><section class="docs-changelog__section doc-content" aria-labelledby="更多更新"> <h2 id="更多更新">更多更新</h2> <div><ul>
+<li><a href="/docs/changelog">查看完整的 Codex 实时 Changelog</a></li>
+<li><a href="/docs/whats-new">查看整理后的最新动态时间线</a></li>
+</ul></div> </section> </div> <nav class="docs-page-prev-next" aria-label="文档导航" data-pagefind-ignore="all"><a href="/docs/cloud" rel="prev" data-astro-prefetch="hover"><span>上一篇</span><strong>Codex 云端</strong></a><a href="/docs/feature-maturity" rel="next" data-astro-prefetch="hover"><span>下一篇</span><strong>功能成熟度</strong></a></nav>

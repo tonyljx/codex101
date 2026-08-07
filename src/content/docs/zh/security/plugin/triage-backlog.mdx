@@ -1,0 +1,137 @@
+---
+title: "分诊积压"
+navTitle: "梳理积压项"
+description: "对已有安全发现做只读静态分析，判断哪些需要行动或进一步评审。"
+locale: "zh"
+translationKey: "security/plugin/triage-backlog"
+section: "explore"
+order: 1071
+draft: false
+translationStatus: complete
+lastUpdated: 2026-08-06
+pageKind: article
+referenceHub: "security-administration"
+sourceUrl: "https://www.codex-docs.com/docs/security/plugin/triage-backlog"
+outline:
+  - id: "选择要分诊的发现"
+    label: "选择要分诊的发现"
+  - id: "运行只读分诊"
+    label: "运行只读分诊"
+  - id: "评审结果"
+    label: "评审结果"
+  - id: "后续步骤"
+    label: "后续步骤"
+---
+
+使用 `$codex-security:triage-finding` 可以针对当前仓库评审已有安全发现。这个工作流执行只读静态分析：Codex 会把每个发现当作尚未证明的声称（claim），在不执行代码的情况下检查仓库证据。
+
+请在作用域指向目标仓库的 Codex project 中运行这个工作流。Codex 必须能够读取仓库源码。Jira 与 Linear 连接器可以提供安全发现数据；GitHub 安全发现则需要经过认证的 GitHub REST 访问。这些方式都不能替代源码访问。
+
+在底层，Codex 会从引用的代码或版本信息开始，追踪声称的攻击者可控来源、相关安全控制、危险汇点（sink）和可达路径。它还会检查产品功能面和信任边界，寻找相互矛盾的证据，并记录证据缺口。随后，Codex 会为每个发现返回一个结论（verdict），并对需要行动或进一步评审的发现排序。
+
+这不同于 `$codex-security:validation`。后者可以构建或运行代码、创建聚焦测试或 proof of concept，或操作真实界面来复现或反驳发现。使用分诊对已有待处理列表做分类和优先级排序；当运行时证据可以解决静态证据留下的不确定性时，再使用 validation。
+
+<Callout kind="note">
+
+积压发现分诊从已有发现开始。如果要在仓库中查找新漏洞，请[运行安全扫描](/docs/security/plugin/scans)。分诊不会修改仓库，也不会实现修复。
+
+</Callout>
+
+## 选择要分诊的发现
+
+你可以提供单个发现，也可以从以下来源提供一组发现：
+
+<div className="doc-table-wrap">
+
+| 来源 | 需要提供什么 | 要求 |
+| --- | --- | --- |
+| 粘贴或本地发现 | SARIF 结果、CVE 或 GHSA、advisory、scanner ticket、bug bounty 报告、Codex Security 发现产物，或纯文本漏洞声称。 | 不需要连接器。 |
+| Jira 或 Linear | 精确的安全或漏洞 issue URL / identifier、Jira JQL，或 Linear team、project、搜索短语。Codex 会在 triage 前拉取选中的 issue 内容。 | 需要有读权限的 [Jira through Atlassian Rovo](codex://plugins/plugin_connector_692de805e3ec8191834719067174a384) 或 [Linear](codex://plugins/plugin_asdk_app_69a089a326dc8191b32a3f2553f5be2c)。 |
+| GitHub | 一个 repository 和一种发现来源：code scanning、`Dependabot` vulnerabilities and malware、security advisories and private vulnerability reports，或 all sources。如果没有指定 repository，Codex 会在可用时使用当前 Codex project 关联的 GitHub repository。GitHub Issues 不包含在默认 GitHub sources 中；如果要分诊 GitHub Issues，请提供具体 issue，或明确要求 GitHub Issues。 | 经过认证的 GitHub REST 访问，例如 `gh auth token`、`GH_TOKEN` 或 `GITHUB_TOKEN`；凭据必须有权读取所选 repository 和 finding type。 |
+
+</div>
+
+Codex 会为每个输入发现保留一条结果，并保持输入顺序，因此每个源发现都可追溯。它不会合并或丢弃看起来重复的发现。
+
+## 运行只读分诊
+
+对于粘贴的发现或本地产物，可以发送类似提示词：
+
+<CodeBlock code={"Use $codex-security:triage-finding to triage these existing security findings against this repository:\n\n[Paste the findings or provide the artifact path.]"} language="text" />
+
+对于 Jira 或 Linear issues，请明确 issue 集合，并保持来源系统只读：
+
+<CodeBlock code={"Use $codex-security:triage-finding to import and triage the security findings from [Jira or Linear issue URLs, identifiers, or query] against this repository.\nDo not change the source issues."} language="text" />
+
+对于 GitHub 发现，请指定 repository 和来源：
+
+<CodeBlock code={"Use $codex-security:triage-finding to import and triage [code scanning, Dependabot vulnerabilities and malware, security advisories and private vulnerability reports, or all] from [owner/repository] against this repository."} language="text" />
+
+如果要使用当前 Codex project 关联的 GitHub repository，只指定发现来源：
+
+<CodeBlock code={"Use $codex-security:triage-finding to import and triage [code scanning, Dependabot vulnerabilities and malware, security advisories and private vulnerability reports, or all] from GitHub against this repository. Use the GitHub repository attached to the current Codex project."} language="text" />
+
+工作流会按这个顺序进行：
+
+1.  收集并组织发现
+    
+    Codex 会拉取任何请求的 issue 或 GitHub 内容，保留来源标识符和引用，并为每个输入创建一个分诊项目。它会先构建完整项目列表，再分配结论。
+    
+2.  确认仓库上下文
+    
+    Codex 会在可用时解析当前 repository 和 revision。如果存在 `SECURITY.md`，它会读取其中内容，让支持版本、可信输入、产品边界和范围外的功能面参与评估。
+    
+3.  检查静态证据
+    
+    对于每个发现，Codex 会追踪声称的攻击者可控来源、相关安全控制、易受攻击的汇点（sink）、可达路径和支持的安全边界。它会记录支持性证据、反对该声称的证据，以及证据缺口。
+    
+4.  分配结论和排序
+    
+    Codex 会为每个发现分配结论和置信度。它会分别在 `confirmed` 和 `needs_review` 队列中，按可利用性对发现排序。
+    
+
+## 评审结果
+
+<div className="doc-table-wrap">
+
+| 结论 | 含义 |
+| --- | --- |
+| `confirmed` | 仓库证据表明易受攻击路径在所述前提下可达，并跨越了受支持的安全边界。 |
+| `not_actionable` | 仓库证据排除了该声称，例如显示版本不受影响、路径不可达、已有有效防护，或属于未发布表面。 |
+| `needs_review` | 仓库证据不足以判断，因为所需信息缺失、含糊、依赖运行时、依赖环境或依赖策略。 |
+
+</div>
+
+<Callout kind="note">
+
+可利用性排序使用从 `1` 开始的正整数，且在每个结论队列内独立排序。这样会把修复优先级与仍需评审的问题分开。排序 `1` 是该结果集中最可利用的 `confirmed` 发现，或最高优先级的 `needs_review` 发现。这个排序不是扫描器严重性评分，`not_actionable` 发现不会排序。
+
+</Callout>
+
+对每个发现，评审：
+
+-   结论和排序的理由
+-   支持性证据与反对该声称的证据
+-   未解问题和剩余证据缺口
+-   受影响位置和组件
+-   产品功能面和来源可信级别
+-   建议下一步
+-   当发现为 `confirmed` 时，交接给 [`$codex-security:fix-finding`](/docs/security/plugin/fix-findings) 的内容
+
+当每个输入发现都有一个结果、Codex 保留了它的来源标识符，并且任何不确定性都被明确记录时，分诊才算完成。Jira、Linear 和其他待处理记录会保持不变，除非你在评审分诊结果后要求 Codex 写回。
+
+## 后续步骤
+
+-   `confirmed`：当人工接受该发现并准备修复后，使用 [`$codex-security:fix-finding`](/docs/security/plugin/fix-findings) 修复并验证。分诊会准备可直接放进提示词的交接内容，但不会自动调用该技能。
+    
+-   `needs_review`：如果运行代码可以解决证据缺口，使用 `$codex-security:validation` 执行有边界的动态验证。请从分诊结果中传入发现声称、受影响位置、前提条件、静态证据和证据缺口：
+    
+    <CodeBlock code={"Use $codex-security:validation to dynamically validate finding [triage item ID or source ID] from the backlog triage result. Use the strongest realistic, bounded method, record exactly what was tested, and preserve any remaining proof gaps."} language="text" />
+    
+    与分诊不同，validation 可能会构建或运行代码、创建聚焦测试或 proof of concept，或操作真实界面。批准前请评审拟执行命令，并保持 [Codex 审批与安全策略](/docs/agent-approvals-security) 生效。
+    
+-   `needs_review`：如果发现依赖产品策略或部署上下文，请先回答列出的 open questions，再修改代码。
+    
+-   `not_actionable`：把证据保留在分诊记录中。Codex 不会自动关闭或更新来源 ticket。
+    
+-   如果要查找已提供待处理列表之外的漏洞，请[运行安全扫描](/docs/security/plugin/scans)。

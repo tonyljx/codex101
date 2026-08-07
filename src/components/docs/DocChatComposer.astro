@@ -1,0 +1,20 @@
+---
+type Props = {
+  caption: string;
+  options: string[];
+  prompt: string;
+  hint: string;
+  label: string;
+};
+
+const { caption, options, prompt, hint, label } = Astro.props;
+---
+
+<figure class="doc-chatgpt-composer" role="img" aria-label={label}>
+  <figcaption>{caption}</figcaption>
+  <div class="doc-chatgpt-composer__options">
+    {options.map((option, index) => <span class:list={{ 'is-selected': index === 0 }}>{option}</span>)}
+  </div>
+  <div class="doc-chatgpt-composer__prompt">{prompt}</div>
+  <footer><span>＋</span><span>{hint}</span><span>↗</span></footer>
+</figure>

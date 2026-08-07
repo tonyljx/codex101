@@ -1,0 +1,123 @@
+---
+title: "代码评审"
+description: "跨 ChatGPT 和 Codex 客户端评审代码变更"
+locale: "zh"
+translationKey: "code-review"
+section: "explore"
+order: 1040
+draft: false
+translationStatus: complete
+lastUpdated: 2026-08-06
+pageKind: article
+referenceHub: "developers"
+sourceUrl: "https://www.codex-docs.com/docs/code-review"
+outline:
+  - id: "开始评审"
+    label: "开始评审"
+  - id: "选择评审范围"
+    label: "选择评审范围"
+  - id: "处理评审结果"
+    label: "处理评审结果"
+  - id: "浏览评审面板"
+    label: "浏览评审面板"
+  - id: "使用行内评论提供反馈"
+    label: "使用行内评论提供反馈"
+  - id: "pull-request-评审"
+    label: "Pull request 评审"
+  - id: "staging-and-reverting-files"
+    label: "暂存和还原文件"
+---
+
+在提交或推送代码前，使用 ChatGPT 或 Codex 检查改动。
+
+## 开始评审
+
+### 在 App 中评审
+
+打开评审面板，了解发生了哪些变化、提供精确到行的反馈，并决定要暂存、还原、提交或推送哪些内容。
+
+要让 Codex 评审改动，请在输入框中输入 `/review`，然后选择 **Review against a base branch（与基线分支比较）** 或 **Review uncommitted changes（评审未提交改动）**。Codex 会按优先级报告发现，但不会修改工作树。
+
+评审面板要求项目位于 Git 仓库中。如果项目尚未使用 Git，应用会提示你创建仓库。
+
+## 选择评审范围
+
+### 面板会显示哪些改动
+
+评审面板反映 Git 仓库的状态，而不只是 Codex 编辑过的内容。它同时包含 Codex 的改动、你自己的改动，以及仓库中的其他未提交改动。
+
+默认显示 **Unstaged（未暂存）** 改动。你还可以选择：
+
+-   **Staged（已暂存）**：Git index 中的改动。
+-   **Commit（提交）**：某个选定提交。
+-   **Branch（分支）**：当前分支与基线分支之间的差异。
+-   **Last turn（最近一轮）**：助手最近一个会话轮次产生的改动。
+
+### 评审多个仓库
+
+当[本地项目包含多个文件夹](/docs/projects#use-local-projects-for-folders-and-codebases)，并且它们属于不同的 Git 仓库时，评审面板可以显示每个仓库的改动。打开评审标题栏中的仓库选择器，即可检查其他仓库并查看新增或删除的行，无需离开当前评审面板。
+
+选择 **Last turn（最近一轮）** 可以查看助手最近一次对所有已附加仓库所做的改动。此时仓库选择器会显示 **All repos（所有仓库）**。**Unstaged**、**Staged** 和 **Branch** 等其他评审范围只应用于你选择的仓库。
+
+## 处理评审结果
+
+### 代码评审结果
+
+评审发现会以行内评论形式出现在评审面板中。
+
+默认情况下，评审在当前聊天中运行。前往 **Settings > General > Code review（设置 > 通用 > 代码评审）**，选择 **Detached（分离）**，可以改为启动一个独立评审聊天。参阅[开发者设置](/docs/developer-settings?surface=app#app-code-review)。
+
+<Screenshot src="/images/codex/app/inline-code-review-light.webp" darkSrc="/images/codex/app/inline-code-review-dark.webp" alt="评审面板中显示的行内代码评审评论" maxHeight={400} />
+
+如果你让 Codex 应用它发现的修复，正常的[沙箱和审批设置](/docs/sandboxing)仍会生效。
+
+## 浏览评审面板
+
+-   单击文件名通常会在你选择的编辑器中打开文件。默认编辑器可在[开发者设置](/docs/developer-settings?surface=app#app-project-and-terminal-behavior)中配置。
+-   单击文件名所在的背景区域，可以展开或折叠 diff。
+-   按住 Command 键并单击某一行，可以在所选编辑器中打开该行。
+-   如果某项改动符合预期，可以暂存它；不需要的改动可以[还原](#staging-and-reverting-files)。
+
+## 使用行内评论提供反馈
+
+行内评论可以把反馈直接附加到 diff 中的具体行，通常是引导 Codex 修正问题最快的方式。
+
+1.  打开评审面板。
+2.  将鼠标悬停在要评论的行上。
+3.  选择出现的 **+** 按钮。
+4.  写下反馈并提交。
+5.  完成所有评论后，向聊天发送一条消息。
+
+由于评论精确到行，Codex 可以比面对笼统指令时更准确地响应。Codex 会把这些评论视为评审指导；留下评论后，再发送一条明确说明意图的后续消息，例如：“Address the inline comments and keep the scope minimal.”
+
+## Pull request 评审
+
+当 Codex 可以访问仓库的 GitHub，并且当前项目位于 pull request 分支上时，ChatGPT 桌面 App 可以直接协助处理 PR 反馈。侧边栏会显示 PR 上下文和评审者反馈，评审面板会把评论与 diff 放在一起，因此你可以在同一聊天中让 Codex 处理问题。
+
+请安装 GitHub CLI（`gh`），并使用 `gh auth login` 完成认证，以便 Codex 加载 PR 上下文、评审评论和变更文件。如果没有安装 `gh` 或尚未认证，侧边栏和评审面板可能不会显示 PR 详情。
+
+推荐流程：
+
+1.  在 PR 分支上打开评审面板。
+2.  检查 PR 上下文、评论和变更文件。
+3.  让 Codex 修复你明确选择的评论。
+4.  在评审面板中检查生成的 diff。
+5.  确认后暂存、提交改动，并推送到 PR 分支。
+
+GitHub 触发的评审请参阅[在 GitHub 中使用 Codex](/docs/third-party/github)。
+
+<span id="staging-and-reverting-files"></span>
+
+## 暂存和还原文件
+
+评审面板提供 Git 操作，帮助你在提交前整理 diff。可以在以下层级执行暂存、取消暂存或还原：
+
+-   **Entire diff（整个 diff）**：使用评审标题栏中的 **Stage all** 或 **Revert all** 等按钮。
+-   **Per file（按文件）**：处理单个文件。
+-   **Per hunk（按 hunk）**：处理单个变更块。
+
+使用暂存来接受部分工作；使用还原来丢弃不需要的改动。
+
+### 已暂存与未暂存状态
+
+Git 允许同一个文件同时包含已暂存和未暂存的改动，因此评审面板可能会在两个视图中同时显示该文件。这是正常的 Git 行为。

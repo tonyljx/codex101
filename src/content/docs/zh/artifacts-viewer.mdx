@@ -1,0 +1,77 @@
+---
+title: "处理文件"
+description: "在 ChatGPT 中创建、预览和完善文档、演示文稿、电子表格和 PDF 文件"
+locale: "zh"
+translationKey: "artifacts-viewer"
+section: "explore"
+order: 1018
+draft: false
+translationStatus: complete
+lastUpdated: 2026-08-06
+pageKind: article
+referenceHub: "features"
+sourceUrl: "https://www.codex-docs.com/docs/artifacts-viewer"
+outline:
+  - id: "创建可供评审的文件"
+    label: "创建可供评审的文件"
+  - id: "refine-files-with-annotations"
+    label: "使用标注修改文件"
+  - id: "评审并完善文件"
+    label: "评审并完善文件"
+  - id: "相关文档"
+    label: "相关文档"
+---
+
+当任务需要生成文件时，请向 ChatGPT 提供源数据、预期文件类型、结构，以及对这项任务重要的评审标准。可用的预览和评审工具取决于你使用的产品界面。
+
+ChatGPT 桌面 App 可以在对话旁预览生成的文档、演示文稿、电子表格和 PDF。启用自动预览后，任务完成时，App 可以自动打开生成的文件。
+
+HTML 预览可用时，生成的 `.html` 和 `.htm` 文件也可以作为交互式预览打开。你可以在渲染后的预览与源代码视图之间切换，检查输出效果或底层 HTML。
+
+你可以用标注指向受支持预览中的具体区域，并要求进行聚焦修改。
+
+### ChatGPT Work 网页版
+
+在 ChatGPT Work 网页版中，你可以附加源文件，也可以要求 ChatGPT 创建文档、演示文稿、电子表格或 PDF。在对话中评审生成的文件，按需下载，并针对下一版给出聚焦反馈。
+
+### Codex CLI
+
+Codex CLI 可以在工作目录中创建和编辑文件，但不提供可视化文件预览或标注界面。请 Codex 报告每个输出路径以及它执行的检查。
+
+### IDE 扩展
+
+IDE 扩展可以在工作区中创建和编辑文件。文本和代码文件可直接在编辑器中评审；文档、演示文稿、电子表格或 PDF 则应在兼容的查看器中打开。
+
+<Screenshot src="/images/codex/app/artifact-viewer-light.webp" darkSrc="/images/codex/app/artifact-viewer-dark.webp" alt="ChatGPT 桌面 App 显示生成的演示文稿预览" maxHeight={420} />
+
+## 创建可供评审的文件
+
+对于电子表格和演示文稿，请描述预期的工作表、列、图表、幻灯片章节与检查项。要求 ChatGPT 说明输出保存在哪里，以及它如何检查结果。
+
+<span id="refine-files-with-annotations"></span>
+
+## 使用标注修改文件
+
+标注让你可以指向文件中的具体区域，并告诉 ChatGPT 应修改什么。代码、Markdown 文件和网站使用的标注工作流，同样适用于文档、电子表格和演示文稿。
+
+例如，你可以：
+
+-   选中网站的导航栏，要求 ChatGPT 修改字体。
+-   高亮投资论点中的一项主张，要求提供来源。
+-   标记幻灯片中的图表，要求使用更清晰的标签。
+
+ChatGPT 会把选中区域作为请求上下文，因此你无需从头开始，也不用改动已经满意的部分。标注在初稿完成后的评审和迭代阶段尤其有用。
+
+### 在网页端评审并完善文件
+
+在合适的查看器中打开或下载生成的文件进行评审。请求修改时，请明确指出需要调整的页面、幻灯片、工作表、表格或段落，并说明哪些内容应保持不变。在下载下一版之前，请 ChatGPT 报告新的文件名以及它执行的检查。
+
+## 评审并完善文件
+
+任务运行时，可以使用聊天侧边栏查看智能体的计划、来源、生成文件和聊天摘要，从而引导工作、检查文件并要求再次处理。
+
+请 ChatGPT 说明每个文件的保存位置和验证方式。使用预览检查输出，再针对需要继续修改的结构、数据、布局或验证问题给出聚焦反馈。
+
+## 相关文档
+
+-   [图像生成](/docs/image-generation)

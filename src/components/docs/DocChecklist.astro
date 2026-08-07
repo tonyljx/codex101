@@ -1,0 +1,10 @@
+---
+import { Check } from 'lucide-react';
+
+type Props = { items: string[] };
+const { items } = Astro.props;
+---
+
+<ul class="doc-checklist">
+  {items.map((item) => <li><Check aria-hidden="true" /><span>{item}</span></li>)}
+</ul>

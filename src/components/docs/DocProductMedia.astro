@@ -1,0 +1,32 @@
+---
+type Media =
+  | { type: 'image'; src: string; alt: string; width?: number; height?: number }
+  | { type: 'video'; src: string; title: string }
+  | { type: 'fragment'; fragment: string };
+
+type Props = { media: Media };
+const { media } = Astro.props;
+const fragments = import.meta.glob('./product-illustrations/*.html', {
+  query: '?raw',
+  import: 'default',
+  eager: true,
+}) as Record<string, string>;
+const fragmentHtml = media.type === 'fragment'
+  ? fragments[`./product-illustrations/${media.fragment}`]
+  : undefined;
+---
+
+{media.type === 'image' ? (
+  <img src={media.src} alt={media.alt} width={media.width} height={media.height} loading="lazy" decoding="async" />
+) : media.type === 'video' ? (
+  <div class="deferred-video">
+    <video muted loop playsinline preload="none" title={media.title} data-deferred-video data-video-src={media.src}>
+      你的浏览器不支持 video 标签。
+    </video>
+    <button type="button" class="deferred-video__play" aria-label="播放视频" data-deferred-video-play>
+      <span aria-hidden="true"></span><span class="sr-only">播放视频</span>
+    </button>
+  </div>
+) : (
+  <Fragment set:html={fragmentHtml ?? ''} />
+)}

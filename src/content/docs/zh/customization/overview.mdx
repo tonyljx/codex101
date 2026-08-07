@@ -1,0 +1,165 @@
+---
+title: "自定义"
+navTitle: "概览"
+description: "通过指令、AGENTS.md、技能和 MCP 等能力，把 OpenAI Codex 调整成更贴合团队的协作方式。"
+locale: "zh"
+translationKey: "customization/overview"
+section: "explore"
+order: 1023
+draft: false
+translationStatus: complete
+lastUpdated: 2026-08-06
+pageKind: article
+referenceHub: "configuration"
+sourceUrl: "https://www.codex-docs.com/docs/customization/overview"
+outline:
+  - id: "agents-指导"
+    label: "AGENTS 指导"
+  - id: "技能"
+    label: "技能"
+  - id: "模型上下文协议mcp"
+    label: "模型上下文协议（MCP）"
+  - id: "子智能体"
+    label: "子智能体"
+  - id: "技能与-mcp-结合使用"
+    label: "技能与 MCP 结合使用"
+  - id: "下一步"
+    label: "下一步"
+---
+
+自定义，就是让 Codex 按照你的团队工作方式来协作。
+
+在 Codex 中，自定义主要来自几层可以互相配合的能力：
+
+-   **项目指导（`AGENTS.md`）**：用于持久化说明
+-   **[Memories](/docs/customization/memories)**：用于保留从过往工作中学到的有用上下文
+-   **技能**：用于可复用工作流和领域知识
+-   **[MCP](/docs/extend/mcp)**：用于访问外部工具和共享系统
+-   **[子智能体](/docs/agent-configuration/subagents)**：用于把任务委派给专门化子智能体
+
+这些能力彼此互补，而不是互相替代。`AGENTS.md` 负责塑造行为，Memories 负责延续本地上下文，技能负责封装可重复使用的流程，[MCP](/docs/extend/mcp) 则负责把 Codex 连接到本地工作区之外的系统。
+
+## AGENTS 指导
+
+`AGENTS.md` 为 Codex 提供可持续的项目指导。它会随着仓库一起携带，并在智能体开始工作前生效。保持精简。
+
+把它用于那些你希望 Codex 在仓库中每次都遵守的规则，例如：
+
+-   构建和测试命令
+-   代码评审期望
+-   仓库特有约定
+-   目录级说明
+
+当智能体对你的代码库做出错误假设时，把修正写进 `AGENTS.md`，并要求智能体顺手更新 `AGENTS.md`，让这个修正可以在后续会话中持续生效。把它当成一个反馈回路。
+
+<Callout kind="note">
+
+**更新 `AGENTS.md`：**从真正重要的指令开始；把反复出现的评审反馈写进去；把指导放在最接近其生效范围的目录；当你纠正了智能体时，顺便要求它更新 `AGENTS.md`，让后续会话自动继承这次修正。
+
+</Callout>
+
+### 什么时候该更新 `AGENTS.md`
+
+-   **重复犯错**：如果智能体反复犯同一个错误，就把规则补进去。
+-   **读了太多不必要的内容**：如果它能找到正确文件，但读了太多文档，就补充路径引导，说明优先看哪些目录或文件。
+-   **反复出现的 PR 反馈**：如果你多次留下同样的反馈，就把它固化下来。
+-   **在 GitHub 中**：在 PR 评论里可以直接 `@codex` 并提出请求，例如 `@codex add this to AGENTS.md`，把更新委派给云端聊天。
+-   **自动检查漂移**：使用[定时任务](/docs/automations)定期运行检查（例如每天一次），发现指导缺口并建议补充到 `AGENTS.md`。
+
+让 `AGENTS.md` 与真正能强制执行规则的基础设施配合起来：pre-commit hooks、linters 和 type checkers 可以在你看到问题之前就把它拦住，让系统越来越擅长避免重复犯错。
+
+Codex 可以从多个位置加载指导：例如位于 Codex 主目录中的全局文件（面向你个人）和仓库内可提交的仓库级文件（面向团队）。距离当前工作目录越近的文件优先级越高。用全局文件来塑造 Codex 如何与你沟通，例如评审风格、表达详略和默认值；把仓库文件聚焦在团队规则和代码库规则上。
+
+<CodeBlock code={"~/.codex/AGENTS.md 面向你个人的全局指导repo-root/AGENTS.md 面向团队的仓库指导"} language="text" />
+
+[使用 AGENTS.md 编写自定义说明](/docs/agent-configuration/agents-md)
+
+## 技能
+
+技能为可重复工作流提供可复用能力。对于重复性工作流，技能往往是最佳选择，因为它们既可以承载更丰富的说明、脚本和参考资料，又能在不同任务间复用。技能会被智能体加载并可见，至少它们的元数据可见，因此 Codex 既可以显式调用它们，也可以隐式发现并选择它们。这样做可以在不提前膨胀上下文的前提下，让复杂工作流保持可用。
+
+使用技能目录在本地编写和迭代工作流。如果某个工作流已经有 plugin，优先安装它，复用成熟方案。当你希望把自己的工作流分发给团队，或与连接器一起打包时，再把它封装成 [plugin](/docs/build-plugins)。技能仍然是创作格式；plugin 则是可安装的分发单元。
+
+一个技能通常由 `SKILL.md` 加上可选的脚本、参考资料和资源文件构成。
+
+<CodeBlock code={"my-skill/SKILL.md 必需：说明和元数据scripts/ 可选：可执行代码references/ 可选：文档assets/ 可选：模板和资源"} language="text" />
+
+技能目录可以包含一个 `scripts/` 文件夹，里面放 CLI 脚本，Codex 会在工作流中调用这些脚本，例如植入测试数据或运行校验。当工作流还需要外部系统，例如问题跟踪器、设计工具或文档服务时，可以再配合 [MCP](/docs/extend/mcp) 使用。
+
+示例 `SKILL.md`：
+
+<CodeBlock code={"---\nname: commit\ndescription: Stage and commit changes in semantic groups. Use when the user wants to commit, organize commits, or clean up a branch before pushing.\n---\n\n1. Do not run `git add .`. Stage files in logical groups by purpose.\n2. Group into separate commits: feat → test → docs → refactor → chore.\n3. Write concise commit messages that match the change scope.\n4. Keep each commit focused and reviewable."} language="markdown" />
+
+技能适合用在以下场景：
+
+-   可重复工作流，例如发布步骤、评审例程、文档更新
+-   团队特有的专业知识
+-   需要示例、参考资料或辅助脚本的流程
+
+技能可以是全局的，也可以是仓库级的：
+
+<div className="doc-table-wrap">
+
+| 层级 | 全局 | 仓库 |
+| --- | --- | --- |
+| AGENTS | `~/.codex/AGENTS.md` | 仓库根目录或嵌套目录中的 `AGENTS.md` |
+| 技能 | `~/.agents/skills` | 仓库内的 `.agents/skills` |
+
+</div>
+
+如果某个工作流只适用于这个项目，就把技能放在 `.agents/skills`；如果你想在所有仓库里都能使用它，就放在用户目录里。
+
+Codex 对技能采用渐进展开的方式：
+
+-   它先读取元数据，例如 `name` 和 `description`，用于发现技能
+-   只有当技能被选中时，才会加载 `SKILL.md`
+-   只有在需要时，才会读取参考资料或运行脚本
+
+技能可以被显式调用，Codex 也可以在任务与技能描述匹配时隐式选择它们。清晰的技能描述能显著提升触发的可靠性。
+
+[构建技能](/docs/build-skills)
+
+## 模型上下文协议（MCP）
+
+MCP（Model Context Protocol）是把 Codex 连接到外部工具和上下文提供者的标准方式。它特别适合远程托管的系统，例如 Figma、Linear、GitHub，或你的团队依赖的内部知识服务。
+
+当 Codex 需要本地仓库之外的能力时，就使用 MCP，例如 issue tracker、设计工具、浏览器，或共享文档系统。
+
+可以这样理解它：
+
+-   **Host**：Codex
+-   **Client**：Codex 内部的 MCP 连接
+-   **Server**：外部工具或上下文提供者
+
+MCP server 可以暴露：
+
+-   **工具（Tools）**
+-   **资源（Resources）**
+-   **提示词（Prompts）**
+
+这种分层有助于你思考信任边界与能力边界。有些服务端主要提供上下文，有些则暴露更强的执行能力。
+
+在实际工作流里，MCP 往往和技能搭配时价值最高：
+
+-   技能定义工作流，并指明要使用哪些 MCP 工具
+
+[Model Context Protocol](/docs/extend/mcp)
+
+## 子智能体
+
+你可以创建职责不同的智能体，并让它们以不同方式使用工具。例如，一个智能体专门运行测试命令和配置，另一个智能体则挂载能够抓取生产日志的 MCP server 来调试。每个子智能体都能保持聚焦，并使用适合自己工作的工具。
+
+[子智能体](/docs/agent-configuration/subagents)
+
+## 技能与 MCP 结合使用
+
+技能和 MCP 结合起来时，工作流能力才真正完整：技能定义可复用的方法，MCP 把它们连接到外部工具和系统。如果某个技能依赖 MCP，请在 `agents/openai.yaml` 中声明这个依赖，让 Codex 能自动安装并完成接线（见[构建技能](/docs/build-skills)）。
+
+## 下一步
+
+按这个顺序构建：
+
+1.  [使用 AGENTS.md 编写自定义说明](/docs/agent-configuration/agents-md)，让 Codex 遵守你的仓库约定，并配上 pre-commit hooks 和 linters 来强制执行这些规则。
+2.  如果已有可复用工作流，优先安装 [plugin](/docs/plugins)。否则就[创建技能](/docs/build-skills)，在你需要分享时再把它打包成 plugin。
+3.  当工作流需要外部系统（例如 Linear、GitHub、文档服务、设计工具）时，接入 [MCP](/docs/extend/mcp)。
+4.  当你已经准备好把高噪声或高度专门化的工作委派出去时，再引入[子智能体](/docs/agent-configuration/subagents)。

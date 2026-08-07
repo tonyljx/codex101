@@ -1,0 +1,38 @@
+---
+title: "Web 搜索"
+navTitle: "网页搜索"
+description: "在 ChatGPT 中工作时搜索网络"
+locale: "zh"
+translationKey: "web-search"
+section: "explore"
+order: 1013
+draft: false
+translationStatus: complete
+lastUpdated: 2026-08-06
+pageKind: article
+referenceHub: "features"
+sourceUrl: "https://www.codex-docs.com/docs/web-search"
+outline:
+  - id: "配置本地-web-搜索"
+    label: "配置本地 Web 搜索"
+---
+
+ChatGPT 内置第一方 Web 搜索工具。应始终把所有 Web 搜索结果视为不可信输入。
+
+在 ChatGPT 桌面 App 的聊天中，可以直接请求当前信息。ChatGPT 会把搜索活动与其他工具调用一起记录在 transcript 中。
+
+## 配置本地 Web 搜索
+
+对于本地 Codex 聊天，Codex 默认启用缓存搜索。缓存模式使用 OpenAI 维护的索引，不会实时抓取任意页面，因此可以降低提示词注入风险，但无法完全消除风险。
+
+当任务依赖最新信息时，请使用实时搜索。在 `config.toml` 中设置 `web_search = "live"`；要关闭该工具，请设置 `web_search = "disabled"`。`"indexed"` 模式只会在搜索索引允许请求时开放外部 Web 访问。Codex 以完全访问权限运行时，Web 搜索默认使用实时结果。配置文件的位置和优先级请参见[配置基础](/docs/config-file/config-basic)。
+
+### 使用自定义模型提供商搜索
+
+当自定义模型提供商支持兼容的搜索端点时，可以选择启用独立 Web 搜索：
+
+<CodeBlock code={"model_provider = \"custom\"\nweb_search = \"live\"\n\n[model_providers.custom]\nname = \"Custom Responses provider\"\nbase_url = \"https://example.com/v1\"\nenv_key = \"CUSTOM_RESPONSES_API_KEY\"\nsupports_standalone_web_search = true"} language="toml" />
+
+自定义提供商的 `supports_standalone_web_search` 默认为 `false`。独立 Web 搜索仍在开发中，并且默认关闭。设置这项提供商能力并不会自动启用该功能：提供商、所选模型和运行时也必须支持独立搜索。工作区和托管搜索限制仍然适用。
+
+Codex 云端环境适用的网络边界请参见[互联网访问](/docs/cloud/internet-access)。

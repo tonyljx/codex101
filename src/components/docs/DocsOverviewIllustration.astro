@@ -1,0 +1,102 @@
+---
+import {
+  ArrowUp,
+  Clock3,
+  Folder,
+  GitBranch,
+  GitPullRequest,
+  Mic,
+  PanelsTopLeft,
+  Pin,
+  Plug,
+  Plus,
+  Search,
+  SquarePen,
+  SquareTerminal,
+  Zap,
+} from 'lucide-react';
+import type { Locale } from '../../lib/site';
+
+type Props = {
+  locale: Locale;
+};
+
+const { locale } = Astro.props;
+const isZh = locale === 'zh' || locale === 'zh-TW';
+const labels = isZh
+  ? {
+      aria: 'Codex 主界面，包含导航、任务建议和任务输入区',
+      explore: '探索并理解代码',
+      build: '构建新功能、应用或工具',
+      review: '评审代码并提出修改建议',
+      fix: '修复问题与故障',
+    }
+  : {
+      aria: 'Codex interface with navigation, task suggestions, and task composer',
+      explore: 'Explore and understand code',
+      build: 'Build a new feature, app, or tool',
+      review: 'Review code and suggest changes',
+      fix: 'Fix bugs and problems',
+    };
+---
+
+<figure class="docs-overview-illustration" data-markdown-export="illustration" role="img" aria-label={labels.aria}>
+  <div class="docs-overview-illustration__window">
+    <aside class="docs-overview-illustration__sidebar" aria-hidden="true">
+      <div class="docs-overview-illustration__traffic-lights"><span></span><span></span><span></span></div>
+      <strong>Codex</strong>
+      <ul class="docs-overview-illustration__primary-nav">
+        <li><Search /><span>Search</span><small>⌘K</small></li>
+        <li class="is-selected"><SquarePen /><span>New task</span><small>⌘N</small></li>
+      </ul>
+      <ul>
+        <li><Clock3 /><span>Scheduled</span></li>
+        <li><Plug /><span>Plugins</span></li>
+        <li><PanelsTopLeft /><span>Sites</span></li>
+        <li><GitPullRequest /><span>Pull requests</span></li>
+      </ul>
+      <div class="docs-overview-illustration__section">
+        <strong>Pinned</strong>
+        <p><Pin /><span>Update landing page illustrations</span><small>2m</small></p>
+      </div>
+      <div class="docs-overview-illustration__section">
+        <strong>Projects</strong>
+        <p><Folder /><span>developers-website</span></p>
+        <p><Folder /><span>codex</span></p>
+      </div>
+      <div class="docs-overview-illustration__section">
+        <strong>Tasks</strong>
+        <p><span>Polish onboarding flow</span><small>1h</small></p>
+        <p><span>Review sidebar changes</span><small>3h</small></p>
+      </div>
+    </aside>
+
+    <div class="docs-overview-illustration__main" aria-hidden="true">
+      <div class="docs-overview-illustration__pet">
+        <span><SquareTerminal /></span>
+        <small>1/8</small>
+      </div>
+      <h2>What should we build?</h2>
+      <div class="docs-overview-illustration__suggestions">
+        <div data-kind="search"><span><Search /></span><strong>{labels.explore}</strong></div>
+        <div data-kind="terminal"><span><SquareTerminal /></span><strong>{labels.build}</strong></div>
+        <div data-kind="review"><span><GitPullRequest /></span><strong>{labels.review}</strong></div>
+        <div data-kind="fix"><span><Zap /></span><strong>{labels.fix}</strong></div>
+      </div>
+      <div class="docs-overview-illustration__composer-context">
+        <span><Folder />Choose project</span>
+        <span><GitBranch />main</span>
+        <span><SquareTerminal />On my computer</span>
+      </div>
+      <div class="docs-overview-illustration__composer">
+        <p>Do anything</p>
+        <footer>
+          <span class="docs-overview-illustration__add"><Plus /></span>
+          <span><Zap />5.6 Sol Extra High</span>
+          <Mic />
+          <span class="docs-overview-illustration__send"><ArrowUp /></span>
+        </footer>
+      </div>
+    </div>
+  </div>
+</figure>

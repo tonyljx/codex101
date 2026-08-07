@@ -1,0 +1,212 @@
+---
+title: "配置基础"
+description: "了解如何为本地 Codex 客户端做基础配置"
+locale: "zh"
+translationKey: "config-file/config-basic"
+section: "explore"
+order: 1026
+draft: false
+translationStatus: complete
+lastUpdated: 2026-08-06
+pageKind: article
+referenceHub: "configuration"
+sourceUrl: "https://www.codex-docs.com/docs/config-file/config-basic"
+outline:
+  - id: "codex-配置文件"
+    label: "Codex 配置文件"
+  - id: "configuration-precedence"
+    label: "配置优先级"
+  - id: "常见配置项"
+    label: "常见配置项"
+  - id: "功能开关"
+    label: "功能开关"
+---
+
+Codex 会从多个位置读取配置。你的个人默认配置位于 `~/.codex/config.toml`，也可以通过 `.codex/config.toml` 为项目添加覆盖配置。出于安全考虑，Codex 只会在你信任该项目时加载项目级 `.codex/` 配置层。
+
+## Codex 配置文件
+
+Codex 会把用户级配置保存在 `~/.codex/config.toml`。如果你想让某些设置只作用于特定项目或子目录，可以在仓库中添加 `.codex/config.toml`。
+
+如果你想从 Codex IDE 扩展中直接打开配置文件，请点击右上角的齿轮图标，然后选择 **Codex Settings > Open config.toml（Codex 设置 > 打开 config.toml）**。
+
+CLI 和 IDE 扩展共享同一套配置层。你可以用它们统一配置：
+
+-   默认模型与提供方
+-   [审批策略与沙箱设置](/docs/agent-approvals-security#sandbox-and-approvals)
+-   [MCP servers](/docs/extend/mcp)
+
+<span id="configuration-precedence"></span>
+
+## 配置优先级
+
+Codex 会按以下顺序解析配置值，优先级从高到低依次为：
+
+1.  CLI flag 与 `--config` 覆盖
+    
+2.  项目级配置文件 `.codex/config.toml`
+    
+    Codex 会从项目根目录一路遍历到当前工作目录，越接近当前目录的文件优先级越高；仅可信项目会加载这一层。
+    
+3.  通过 `--profile profile-name` 选择的[配置档案文件](/docs/config-file/config-advanced#profiles)，即 `~/.codex/profile-name.config.toml`
+    
+4.  用户级配置 `~/.codex/config.toml`
+    
+5.  系统级配置（如果存在），例如 Unix 上的 `/etc/codex/config.toml`
+    
+6.  内建默认值
+    
+
+可以利用这一优先级规则：把共享默认值放在 `config.toml` 中，把[配置档案文件](/docs/config-file/config-advanced#profiles)聚焦在那些真正有差异的设置上。
+
+如果你把某个项目标记为不可信，Codex 会跳过项目作用域下的 `.codex/` 配置层，包括项目本地配置、钩子和规则。用户级和系统级配置仍会加载，其中也包括用户 / 全局钩子和规则。
+
+关于通过 `-c` / `--config` 执行一次性覆盖的细节，包括 TOML 引号规则，参见 [高级配置](/docs/config-file/config-advanced#one-off-overrides-from-the-cli)。
+
+<Callout kind="note">
+
+在受管理设备上，组织还可能通过 `requirements.toml` 强制施加一些约束，例如禁止 `approval_policy = "never"` 或 `sandbox_mode = "danger-full-access"`。详见 [托管配置](/docs/enterprise/managed-configuration) 和 [管理员强制要求](/docs/enterprise/managed-configuration#admin-enforced-requirements-requirementstoml)。
+
+</Callout>
+
+## 常见配置项
+
+下面是最常被修改的一组配置项：
+
+#### 默认模型
+
+选择 CLI 和 IDE 中默认使用的模型。
+
+<CodeBlock code={"model = \"gpt-5.6\""} language="toml" />
+
+#### 审批提示
+
+控制 Codex 在运行生成命令前何时暂停并征求你的批准。
+
+<CodeBlock code={"approval_policy = \"on-request\""} language="toml" />
+
+关于 `untrusted`、`on-request` 和 `never` 三种模式的行为差异，参见[在不弹出审批提示的情况下运行](/docs/agent-approvals-security#run-without-approval-prompts)和[常见的沙箱与审批组合](/docs/agent-approvals-security#common-sandbox-and-approval-combinations)。
+
+#### 沙箱级别
+
+调整 Codex 在执行命令时能够获得多少文件系统与网络访问权限。
+
+<CodeBlock code={"sandbox_mode = \"workspace-write\""} language="toml" />
+
+关于不同模式的具体行为，包括受保护的 `.git` / `.codex` 路径与默认网络访问行为，参见[沙箱与审批](/docs/agent-approvals-security#sandbox-and-approvals)、[可写根目录中的受保护路径](/docs/agent-approvals-security#protected-paths-in-writable-roots)和[网络访问](/docs/agent-approvals-security#network-access)。
+
+#### 权限配置档案
+
+Codex 也支持命名权限配置档案，用来复用文件系统和网络策略。内建配置档案包括 `:read-only`、`:workspace` 和 `:danger-full-access`。自定义配置档案使用 `[permissions.<name>]` 表，并配套设置同名 `default_permissions`。参见[权限](/docs/permissions)。
+
+#### Windows 沙箱模式
+
+如果你在 Windows 原生环境中运行 Codex，可在 `windows` 表中把原生沙箱模式设置为 `elevated`。只有在你没有管理员权限，或者 `elevated` 模式初始化失败时，才建议使用 `unelevated`。
+
+<CodeBlock code={"[windows]\nsandbox = \"elevated\"   # Recommended\n# sandbox = \"unelevated\" # Fallback if admin permissions/setup are unavailable"} language="toml" />
+
+#### Web 搜索模式
+
+Codex 默认会为本地聊天启用 Web 搜索，并从 Web 搜索缓存返回结果。这个缓存是 OpenAI 维护的网页索引，因此 `cached` 模式返回的是预先索引好的结果，而不是实时抓取页面。这样能降低暴露在任意实时网页提示词注入下的风险，但你仍然应该把 Web 结果视为不可信输入。如果你使用 `--yolo` 或其他[完全访问沙箱设置](/docs/agent-approvals-security#common-sandbox-and-approval-combinations)，Web 搜索会默认切换为 `live` 结果。你可以通过 `web_search` 选择模式：
+
+-   `"cached"`（默认）：使用 Web 搜索缓存，不访问外部网络。
+-   `"indexed"`：只有搜索索引放行请求时，才允许访问外部 Web。
+-   `"live"`：抓取最新数据，与 CLI 的 `--search` 等价。
+-   `"disabled"`：关闭 Web 搜索工具。
+
+<CodeBlock code={"web_search = \"cached\"  # default; serves results from the web search cache\n# web_search = \"indexed\" # gate external web access through the search index\n# web_search = \"live\"  # fetch the most recent data from the web (same as --search)\n# web_search = \"disabled\""} language="toml" />
+
+#### 推理强度
+
+在支持的模型上调整推理强度。
+
+<CodeBlock code={"model_reasoning_effort = \"high\""} language="toml" />
+
+#### 沟通风格
+
+为支持沟通风格（personality）的模型设置默认沟通风格。
+
+<CodeBlock code={"personality = \"friendly\" # or \"pragmatic\" or \"none\""} language="toml" />
+
+你也可以在活动会话里通过 `/personality` 覆盖这个设置；如果你使用 App Server API，也可以按对话线程 / 会话轮次级别覆盖。
+
+#### TUI 快捷键映射
+
+可以在 `tui.keymap` 下自定义终端快捷键。部分 composer 动作会回退到匹配的 `tui.keymap.global` 绑定；支持特定上下文绑定时，该上下文会优先生效。空列表表示解除某个动作的绑定。
+
+<CodeBlock code={"[tui.keymap.global]\nopen_transcript = \"ctrl-t\"\n\n[tui.keymap.composer]\nsubmit = [\"enter\", \"ctrl-m\"]\n\n[tui.keymap.chat]\ninterrupt_turn = \"f12\""} language="toml" />
+
+#### 命令环境
+
+控制 Codex 会向其启动的命令转发哪些环境变量。使用按键匹配的过滤器，只保留任务需要的变量：
+
+<CodeBlock code={"[shell_environment_policy]\nignore_default_excludes = false\n\n[shell_environment_policy.filters]\n\"PATH\" = \"include\"\n\"HOME\" = \"include\""} language="toml" />
+
+`ignore_default_excludes` 默认为 `true`，因此不会自动过滤名称中包含 `KEY`、`SECRET` 或 `TOKEN` 的变量。如果希望应用这项自动过滤，请将其设为 `false`。有关排除规则、优先级和旧版配置，请参阅 [Shell 环境策略](/docs/config-file/config-advanced#shell-environment-policy)。
+
+#### 日志目录
+
+覆盖 Codex 写本地日志的位置。显式设置 `log_dir` 也会在该目录中启用可选的明文 TUI 日志 `codex-tui.log`。
+
+<CodeBlock code={"log_dir = \"/absolute/path/to/codex-logs\""} language="toml" />
+
+对于一次性运行，也可以直接在 CLI 中指定：
+
+<CodeBlock code={"codex -c log_dir=./.codex-log"} language="bash" />
+
+## 功能开关
+
+使用 `config.toml` 中的 `[features]` 表来切换可选功能和实验性能力。
+
+### 常用功能开关
+
+<div className="doc-table-wrap">
+
+| 键 | 默认值 | 成熟度 | 说明 |
+| --- | --- | --- | --- |
+| `apps` | true | Stable（稳定） | 启用 App（连接器）集成 |
+| `goals` | true | Stable（稳定） | 启用持久化目标和自动续跑 |
+| `hooks` | true | Stable（稳定） | 启用从 `hooks.json` 或内联 `[hooks]` 加载的生命周期钩子。参见 [Hooks](/docs/hooks)。 |
+| `fast_mode` | true | Stable（稳定） | 启用快速模式（Fast mode）选择，以及 `service_tier = "fast"` 路径 |
+| `memories` | false | Experimental（实验性） | 启用 [Memories](/docs/customization/memories) |
+| `multi_agent` | true | Stable（稳定） | 启用子智能体协作工具 |
+| `personality` | true | Stable（稳定） | 启用沟通风格（personality）选择控件 |
+| `remote_plugin` | true | Stable（稳定） | 启用远程 plugin 目录 |
+| `shell_snapshot` | true | Stable（稳定） | 快照当前 shell 环境，用于加速重复命令 |
+| `shell_tool` | true | Stable（稳定） | 启用默认 shell 工具 |
+| `unified_exec` | true except Windows | Stable（稳定） | 使用统一的 PTY 支撑 exec 工具 |
+| `web_search` | true | Deprecated（已弃用） | 旧版开关；优先使用顶层 `web_search` 设置 |
+| `web_search_cached` | false | Deprecated（已弃用） | 旧版开关；在 `web_search` 未设置时映射到 `web_search = "cached"` |
+| `web_search_request` | false | Deprecated（已弃用） | 旧版开关；在 `web_search` 未设置时映射到 `web_search = "live"` |
+
+</div>
+
+<Callout kind="note">
+
+这张表只列出常见的面向用户的开关，不包含每一项内部功能或开发中功能。成熟度列使用 Experimental、Beta、Stable 等标签。如何理解这些标签，参见 [功能成熟度](/docs/feature-maturity)。
+
+</Callout>
+
+<Callout kind="note">
+
+省略功能键即可保留其默认值。
+
+</Callout>
+
+生命周期 hook 配置请参见 [Hooks](/docs/hooks)。
+
+### 启用功能开关
+
+-   在 `config.toml` 里添加：
+    
+    <CodeBlock code={"[features]\nfeature_name = true"} language="toml" />
+    
+-   使用 CLI：
+    
+    <CodeBlock code={"codex --enable feature_name"} language="bash" />
+    
+-   一次启用多个功能：
+    
+    <CodeBlock code={"codex --enable feature_a --enable feature_b"} language="bash" />
+    
+-   若要禁用，把 `config.toml` 中对应项设为 false。

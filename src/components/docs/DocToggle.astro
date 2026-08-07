@@ -1,0 +1,9 @@
+---
+type Props = { summary: string };
+const { summary } = Astro.props;
+---
+
+<details class="doc-toggle">
+  <summary>{summary}</summary>
+  <slot />
+</details>

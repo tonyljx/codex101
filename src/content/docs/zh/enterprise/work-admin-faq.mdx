@@ -1,0 +1,239 @@
+---
+title: "ChatGPT Work 管理员常见问题"
+description: "管理 ChatGPT Work 的访问、数据、治理、可观测性、用量和事件控制"
+locale: "zh"
+translationKey: "enterprise/work-admin-faq"
+section: "explore"
+order: 1088
+draft: false
+translationStatus: complete
+lastUpdated: 2026-08-06
+pageKind: article
+referenceHub: "administration"
+sourceUrl: "https://www.codex-docs.com/docs/enterprise/work-admin-faq"
+outline:
+  - id: "概览"
+    label: "概览"
+  - id: "核心管理控制"
+    label: "核心管理控制"
+  - id: "访问数据系统与用户操作"
+    label: "访问、数据、系统与用户操作"
+  - id: "合规"
+    label: "合规"
+  - id: "可观测性"
+    label: "可观测性"
+  - id: "治理"
+    label: "治理"
+  - id: "用量与成本"
+    label: "用量与成本"
+  - id: "事件与撤销控制"
+    label: "事件与撤销控制"
+  - id: "面向团队的其他资源"
+    label: "面向团队的其他资源"
+  - id: "建议的管理员行动"
+    label: "建议的管理员行动"
+---
+
+ChatGPT Work 把 Codex 背后的技术带入 ChatGPT，用于更长的多步骤任务。它可以从聊天、文件、工作区资源和连接系统收集上下文，使用经过批准的工具，并创建可供评审的交付物。访问、上下文、操作、网络行为和 credit 使用会因计划、工作区设置、来源权限和使用入口而异。
+
+## 概览
+
+ChatGPT Work 允许用户把更长的多步骤任务委派给 ChatGPT。它可以从连接来源收集信息，跨步骤推理，创建文档、演示文稿或分析，并返回结果供用户评审。
+
+ChatGPT Work 于 2026 年 7 月 9 日发布。对于 Enterprise 和 Edu，Web 与移动端访问在为期两周的预览期间默认关闭。管理员可以启用可计费使用；当默认值之后发生变化时，明确选择退出的设置仍会保留。桌面端访问仍通过 Codex Local 权限和托管配置单独管理。
+
+本页说明管理员如何管理 ChatGPT Work：访问与数据控制、合规与可见性、用量与支出、事件响应以及发布实践。
+
+## 核心管理控制
+
+管理员通过多个控制层治理 ChatGPT Work：
+
+-   **企业工作区访问：** 身份与访问控制负责身份认证和工作区访问。根据计划和配置，管理员控制的身份功能可以包括 SSO、域名验证、SCIM 预配、用户生命周期管理和身份组同步。用户可以启用账号级 OpenAI MFA；要在整个工作区强制 MFA，请通过身份提供商实施。在 [Global Admin Console](https://help.openai.com/en/articles/12289294-admin-portal) 中管理 SSO 和相关身份设置。
+-   **工作区内的 ChatGPT Work 访问：** 在 Web 和移动端，管理员使用 ChatGPT Work 访问控制与基于角色的访问控制（RBAC）决定谁可以使用。Enterprise 和 Edu 在两周预览期间默认关闭访问；管理员可以启用，且当默认值变化时，明确选择退出的设置仍会保留。桌面端访问遵循独立的 Codex Local 权限和[托管配置](/docs/enterprise/managed-configuration)。控制方式因计划和入口而异。
+-   **组成员资格：** 组可以通过 SCIM 与身份提供商同步，使员工加入组织、变更角色或离职时自动更新访问。参见[组与预配](/docs/enterprise/groups-and-provisioning)。
+-   **工作区和成员角色：** 内置 Owner、Admin 和 Member 角色决定谁可以管理工作区。自定义角色与成员 RBAC 则分别控制终端用户对 ChatGPT Work、plugins 和其他能力的访问。参见[角色与工作区权限](/docs/enterprise/roles-and-workspace-permissions)。
+-   **Plugins 与连接器：** Plugin 策略管理 plugin 可用性与安装。连接器访问、操作控制与审批行为需要单独配置，Workspace Agents 还具有按智能体设置的额外控制。参见[插件控制](/docs/enterprise/apps-and-connectors)、[插件](/docs/plugins)和 [App 安全白皮书](https://cdn.openai.com/business-guides-and-resources/app-security-whitepaper.pdf)。
+-   **来源系统权限：** 用户只能访问原生应用中其账号或共享连接获准访问的内容与操作。参见 [Apps 中的管理员控制、安全与合规](https://help.openai.com/en/articles/11509118-admin-controls-security-and-compliance-in-apps-enterprise-edu-and-business)。
+-   **审批与操作限制：** 对于支持 Action control 的连接器，管理员可以允许所有操作、只读操作或自定义操作集，并决定如何处理新增操作。App permissions 则另行决定 ChatGPT 何时需要在使用连接器前询问。
+-   **Credits：** ChatGPT Work 与 Codex 共享定价、credits 和使用限制。符合条件的 Enterprise 和 Edu 管理员可以通过工作区默认值、组默认值和个人覆盖值设置每位用户的月度限制；工作区允许时，用户可以请求提高限制。Business 使用另一套 credit 和支出控制模型。参见 [ChatGPT 使用限制与支出控制](/docs/enterprise/usage-limits)。
+-   **分析与报告：** Global Admin Console 和 workspace analytics 支持采用率和 credit 用量分析。Compliance API 与 Codex 报告入口分别覆盖其文档所述的事件和产品作用域；在承诺特定提示词、文件、审批、操作、错误或工具调用的覆盖范围前，请先检查当前 schema。参见[治理](/docs/enterprise/governance)。
+
+## 访问、数据、系统与用户操作
+
+### 如何保护数据、系统和用户操作的访问？
+
+ChatGPT Work 受 ChatGPT 工作区中已经建立的身份、访问和权限控制管理。管理员使用身份管理、[RBAC](https://help.openai.com/en/articles/11750701-rbac)和工作区角色决定谁可以使用 ChatGPT Work。
+
+在受支持的场景中，可以通过 [SCIM](https://help.openai.com/en/articles/10011769-openai-platform-scim-integration-faq)和组同步与身份提供商同步访问。这样，员工加入组织、变更角色或离职时，管理员都能集中管理访问与权限。
+
+底层来源系统会继续强制执行企业数据访问控制。ChatGPT Work 遵循连接应用中定义的权限，因此用户和智能体只能访问其获准使用的文件、仓库、频道、记录与操作。ChatGPT Work 不会绕过现有访问控制，也不会在连接系统中授予新权限。
+
+<span id="how-does-work-access-data-and-context"></span>
+
+### ChatGPT Work 如何访问数据与上下文？
+
+ChatGPT Work 可以通过 plugins 使用当前聊天、上传文件、工作区资源和连接系统。根据已启用能力和权限，这些来源可以包括文档、仓库、工单、频道、电子邮件和日历。较早聊天中的文件或记忆，在被纳入当前聊天或项目，或者适用的工作区与用户记忆控制已启用时，也可能可用。
+
+每种上下文来源都保留自己的控制：用户提供聊天上下文，管理员管理工作区资源，连接系统执行身份认证与权限。ChatGPT Work 只能访问为该用户或经过批准的共享连接授权的信息。
+
+ChatGPT Work 会继承适用的 ChatGPT 工作区防护。数据驻留、保留、日志记录和功能可用性会因计划、地区、入口及连接系统而异，因此请针对实际配置确认覆盖范围。
+
+### 哪些高影响操作会受限或需要评审？
+
+不同操作的风险不同。读取或起草通常比修改数据、共享信息或在外部系统中执行操作影响更低。请结合角色、最小化的权限与凭据以及受支持的审批机制，把高影响操作限制在可信且经过评审的使用场景中。
+
+常见操作类别包括：
+
+-   **读取：** 从经过批准的来源访问、搜索或总结信息，不更改底层数据。
+-   **起草：** 准备文档、电子邮件、报告、代码或其他内容，交由人员评审后再使用。
+-   **写入：** 在连接系统中创建、更新或删除记录，例如文档、工单、仓库或项目管理工具中的记录。
+-   **共享：** 发送、发布信息，或以其他方式让更多人员、系统或外部目标可以获得信息。
+-   **计划任务：** 在未来时间或按周期启动任务，无需用户手动发起每次运行。
+-   **执行：** 运行代码、shell 命令、浏览器自动化或其他直接与外部环境交互的工具驱动任务。
+
+对于高影响操作，请使用人工评审、受限凭据、最小作用域和受支持的审批机制。插件操作仍需遵守每项集成自身的权限和安全控制。
+
+## 合规
+
+<span id="how-does-work-support-enterprise-privacy-and-data-commitments"></span>
+
+### ChatGPT Work 如何支持企业隐私与数据承诺？
+
+ChatGPT Work 使用适用于客户 ChatGPT 工作区的隐私、安全与数据承诺，但仍受计划、配置、入口、功能和地区限制。对于 ChatGPT Enterprise，这包括[默认不使用业务数据训练](https://help.openai.com/en/articles/8983130-what-if-i-want-to-keep-my-history-on-but-disable-model-training)、传输中与静态加密、工作区级访问控制以及受支持的审计日志。
+
+数据驻留、推理驻留、FedRAMP、HIPAA 或 Business Associate Agreement 的覆盖并非通用。请针对所用功能和地区确认当前的[数据与推理驻留指南](https://help.openai.com/en/articles/9903489-data-residency-and-inference-residency-for-chatgpt)及客户协议。
+
+连接服务拥有自己的保留、日志记录、访问、驻留与合规要求。ChatGPT Work 使用 plugins、仓库或第三方系统时，需要同时评估 ChatGPT 工作区控制和连接系统控制。
+
+对于 Codex 活动，企业控制可以延伸到开发环境、仓库、已配置工具及相关活动。请结合工作区控制一起查看[管理员发布指南](/docs/enterprise/admin-setup)和[治理](/docs/enterprise/governance)。
+
+### 哪些数据会被存储、保留或删除？
+
+ChatGPT Work 的数据保留与删除由 ChatGPT 工作区计划、管理设置和使用的能力管理。ChatGPT Work 所访问的不同信息可能适用不同保留方式。ChatGPT 存储的数据遵循已配置的工作区保留策略，连接应用则继续管理自身数据与生命周期策略。参见 [Chat 与文件保留策略](https://help.openai.com/en/articles/8983778-chat-and-file-retention-policies-in-chatgpt)。
+
+ChatGPT Work 可以创建聊天内容、上传或生成的文件、交付物和执行元数据。Codex 聊天还可以创建仓库或环境元数据、命令输出、差异和日志。确切的数据类别、保留期限和删除路径请查看当前产品与 [Compliance API](/docs/enterprise/compliance-api) 文档。
+
+请同时评审 ChatGPT 工作区和连接企业系统的保留要求，确保组织的数据治理、合规和记录保留策略适用于每个系统。
+
+## 可观测性
+
+### 管理员或所有者可以查看哪些用量数据？
+
+管理员和所有者可以使用产品分析与合规日志获得不同类型的可见性。Global Admin Console 按用户、产品和模型展示采用率与 credit 用量，并支持下钻 Chat、ChatGPT Work 和 Codex 使用。Compliance API 覆盖 Chat、ChatGPT Work 与 Codex 中的所有用户消息和响应。参见[工作区分析](/docs/enterprise/workspace-analytics)和 [Compliance API](/docs/enterprise/compliance-api)。
+
+### 是否会记录提示词、输出、文件、操作或工具调用？
+
+Compliance Logs Platform 提供用户提示词和智能体响应，不跟踪文件、操作或工具调用。
+
+Compliance Logs Platform 保留数据 30 天。如果组织需要更长保留时间，请持续把记录导出到经过批准的电子取证、数据泄漏防护、SIEM 或数据湖系统。参见 [OpenAI Compliance Platform 指南](https://help.openai.com/en/articles/9261474-compliance-api-for-chatgpt-enterprise-edu-and-chatgpt-for-teachers)。
+
+### 能否快速发现异常行为、失败或用量激增？
+
+Workspace analytics、合规日志和连接的监控工具可帮助管理员评审用量，并调查受支持的 ChatGPT、ChatGPT Work 与 Codex 活动。信号可以包括活跃用户、消息、工具活动、智能体活动、身份认证与管理事件以及 credit 消耗。导出日志可以支持电子取证、数据泄漏防护、SIEM、审计与调查。检测质量取决于计划、事件覆盖范围、归因、数据新鲜度和已配置规则。
+
+可能需要评审的信号包括用量或 credit 消耗意外增长、异常用户或智能体活动、反复出现的运行错误，以及相关身份认证或管理事件。请根据适用的分析、合规与审计日志 schema 确认确切信号。
+
+对于 Codex 活动，Codex analytics 和 Analytics API 提供受支持的采用率与活动指标。使用本地 Codex 客户端的组织可以选择启用 OpenTelemetry 导出，获取 API 请求、错误、提示词元数据、工具审批决定和工具结果等事件。除非另行明确启用 `otel.log_user_prompt = true`，否则提示词内容会被脱敏。参见[监控与遥测](/docs/agent-approvals-security#monitoring-and-telemetry)。
+
+## 治理
+
+### 管理员如何控制访问、权限和策略？
+
+治理横跨三个相关但相互独立的层级：
+
+-   **ChatGPT Work 访问控制**决定谁可以在每个入口使用 ChatGPT Work。
+-   **Workspace Agent 控制**决定谁可以构建、发布、共享、安排或配置可复用智能体与共享连接。
+-   **Codex 托管配置**管理受覆盖的本地运行时行为，包括权限、审批、文件系统与网络访问、MCP servers、hooks 和命令规则。
+
+托管配置用于约束受支持的运行时行为。它不会授予工作区访问权限、取代 RBAC 或撤销用户的工作区访问。这些层级并不是统一的 ChatGPT Work 策略面。分析与合规日志会在各自文档所述的产品和事件作用域内提供额外可见性。
+
+Enterprise 管理员可以使用 [managed requirements](/docs/enterprise/managed-configuration)强制执行用户在 requirements 生效期间无法覆盖的受支持设置。受支持策略覆盖审批行为、权限配置档案、Web 搜索、hooks、MCP servers、功能开关、命令规则和文件系统访问。网络 requirements 仍属实验性；广泛使用前，应在部署所用客户端版本和操作系统上测试。对于当前 Codex 客户端，托管[权限配置档案](/docs/permissions)是定义文件系统、网络和运行时访问的首选方式。
+
+### 能否按组、角色、工作区或能力划分访问？
+
+可以。ChatGPT Work 能力可以通过工作区角色、身份组和管理员定义的权限划分。请按照业务需要和组织政策向组分配能力，不要让所有用户拥有完全相同的访问。参见 [RBAC 指南](https://help.openai.com/en/articles/11750701-rbac)和这份 [RBAC 操作演示](https://vimeo.com/1207482321/d1286e4467?share=copy&fl=sv&fe=ci)。
+
+组织可以使用 RBAC 决定哪些用户可以访问 ChatGPT Work、管理工作区设置、配置经过批准的 plugins，或者构建和发布 Workspace Agents。对于符合条件的 Enterprise 和 Edu 工作区，可以通过工作区默认值、组默认值和用户覆盖值设置月度使用限制，以支持分阶段发布。
+
+连接系统访问仍需独立管理。请使用工作区权限、连接器设置和来源系统控制，把连接器、共享凭据、仓库和具备写入能力的操作限制到所需的最小受众。对于高信任要求的环境，可使用托管策略进一步限制运行时能力。
+
+### 如何管理运行时与网络边界？
+
+ChatGPT Work 的安全边界取决于具体工作。聊天、连接工作流、计划任务和 Codex 聊天可能在不同环境中运行，并拥有不同权限、工具和网络访问。
+
+请通过各执行环境适用的控制进行治理。Web 与移动端的 ChatGPT Work 权限控制 ChatGPT Work 访问和受支持的浏览器或网络能力。搜索、连接器、plugins、Workspace Agents 和来源系统权限仍是独立控制。桌面端和 Codex 聊天遵循 Codex 权限、托管配置、MCP 策略、沙箱与审批控制。这些控制不能互相替代。
+
+对于 Codex 活动，ChatGPT 桌面 App、CLI 和 IDE 中的本地运行会在用户电脑上执行，并使用操作系统沙箱和审批策略；Codex 云端则在隔离的 OpenAI 托管环境中运行任务。Enterprise 管理员可以使用 managed requirements 约束权限配置档案、审批、文件系统与网络访问、MCP servers、hooks、命令规则和其他受支持的运行时行为。
+
+## 用量与成本
+
+<span id="how-does-work-usage-translate-into-spend-over-time"></span>
+
+### ChatGPT Work 用量如何随时间转化为支出？
+
+[ChatGPT Work 与 Codex 共享定价、credits 和使用限制](/docs/pricing)。消耗量取决于模型和能力、上下文大小、任务持续时间、工具使用和输出大小。Chat 用量单独计算。
+
+波动最大的模式通常是频繁运行、检索或处理大量信息、调用多个工具或 plugins、失败后重试，或者生成大型交付物的工作流。对成本敏感的示例包括计划或周期任务、高频触发、大型文件、跨企业来源的广泛检索、反复调用 plugins，以及处理仓库、运行命令或使用云端环境的 Codex 聊天。
+
+请使用支出控制、用量分析和报告长期监控这些模式。按照当前分析入口支持的维度评审用量，并根据业务价值调整限制或发布范围。不要把聚合分析当作精确的单工作流成本归因。
+
+Workspace analytics、合规日志和连接的监控工具可帮助管理员评审用量和调查受支持的活动。发现风险或异常行为的能力取决于计划、日志覆盖范围、归因、数据新鲜度和监控系统中配置的规则。
+
+### 可以使用哪些用量限制、提醒或上限？
+
+符合条件的 Enterprise 和 Edu 工作区可以针对基于 credit 的使用设置每位用户的月度限制和整个工作区的支出控制：
+
+-   **监控 credit 消耗：** 在 Global Admin Console 和工作区设置中查看受支持的 credit 用量报告。
+-   **设置默认月度限制：** 为工作区设置默认的每用户 credit 限制。
+-   **应用特定组限制：** 为各组设置符合其工作流、职责或发布阶段的每用户月度默认值。
+-   **创建用户覆盖值：** 为特定用户设置不同限制，而不更改整个组的默认值。
+-   **评审提高限制请求：** 如果已启用请求，用户可以申请更高月度限制；批准后会创建用户覆盖值。
+-   **控制整个工作区的风险敞口：** 在 Global Admin Console 中分别配置工作区 credit 提醒和超额上限。提醒会通知收件人；承诺的 credit 池耗尽后，超额上限会控制符合条件的后续用量。
+-   **导出用量数据：** 符合条件的 Enterprise 管理员可以通过统一 Cost API 获取 credit 用量数据，用于内部报告或监控。
+
+用户可以查看自己的用量，并在启用后请求更多 credits，但不能更改分配的限制。参见[管理 ChatGPT Enterprise 与 Edu 的使用限制和超额用量](https://help.openai.com/en/articles/20001001-manage-usage-limits-and-overages-in-chatgpt-enterprise-and-edu)和[支出控制操作演示](https://vimeo.com/1207484127/0f2029dd01?share=copy&fl=sv&fe=ci)。
+
+## 事件与撤销控制
+
+### 管理员如何停止访问或活动？
+
+在移除用户或评审事件期间，管理员可能需要停止用户、连接器、共享凭据、工作流、计划任务或 Codex 凭据。
+
+撤销路径包括：
+
+-   移除用户的工作区或组访问。对于通过 SCIM 管理的用户，请在身份提供商处移除访问；否则之后的同步可能再次预配该用户。
+-   禁用或限制相关连接器。
+-   通过共享连接、机器人或服务账号所属的控制面撤销它。工作区 Owner 和 Admin 还可以单独撤销 Codex 工作区 access token。
+-   由智能体所有者或工作区管理员取消发布或删除 Workspace Agent。
+-   禁用相关计划任务或触发器。
+-   对于 Codex 访问，分别撤销相关 access token、仓库连接和云端环境访问。托管配置不是访问撤销机制。
+
+## 面向团队的其他资源
+
+<div className="doc-table-wrap">
+
+| 主题 | 适合用于说明 | Learn ChatGPT 页面 |
+| --- | --- | --- |
+| 工作区设置与 RBAC | 谁可以使用和管理 Codex | [管理员发布指南](/docs/enterprise/admin-setup) |
+| 身份认证 | ChatGPT 登录、API key 登录与工作区策略有何差异 | [身份认证](/docs/auth) |
+| 审批与沙箱 | Codex 如何控制文件、命令、网络和产生副作用的工具操作 | [智能体审批与安全](/docs/agent-approvals-security) |
+| 托管策略 | 管理员如何强制执行用户无法覆盖的 Codex 设置 | [托管配置](/docs/enterprise/managed-configuration) |
+| 运行时环境 | Codex 云端设置、secrets、缓存和任务阶段如何工作 | [云端环境](/docs/environments/cloud-environment) |
+| 互联网访问 | Codex 云端域名 allowlists 和 HTTP methods 如何工作 | [智能体互联网访问](/docs/cloud/internet-access) |
+| 权限 | 文件系统、网络和 deny-read 控制如何工作 | [权限](/docs/permissions) |
+| 可观测性 | 分析、报告和合规导出如何工作 | [治理](/docs/enterprise/governance) |
+| 自动化凭据 | 如何创建、限制、撤销和审计 access tokens | [Access tokens](/docs/enterprise/access-tokens) |
+
+</div>
+
+## 建议的管理员行动
+
+-   **先确认谁应该获得访问权限。** 决定是限制 ChatGPT Work 的访问、进行试点，还是广泛发布。许多组织会从高级用户、推广负责人或拥有明确用例的团队开始。
+-   **评审角色与权限。** 在 **Permissions & roles** 中确认哪些用户或组可以访问 ChatGPT Work，使访问范围符合业务需求、准备程度和治理预期。
+-   **评审连接器与数据源。** ChatGPT Work 在获得经过批准的业务上下文时最有用，例如文件、电子邮件、日历、Slack 或 CRM。请评审已启用的连接器、目标受众，以及 plugin 策略是否仍符合用户应如何委派工作的要求。
+-   **明确适当用例。** 将 ChatGPT Work 用于研究、综合、分析、创建文件、更新工作流和生成可复用输出等多步骤、高价值任务；快速问题、轻量改写或头脑风暴则使用 Chat。
+-   **评审 credit 与用量控制。** ChatGPT Work 可以执行运行时间更长的任务，因此可能比 Chat 使用更多 credits。请评审默认值、组默认值、用户覆盖值，以及如何让投入与业务价值相匹配的内部指南。
+-   **确定首批高价值工作流。** 从结果清晰、便于评审的场景开始，例如客户简报、周期报告、研究综合、跟踪器更新，或精心制作的文档与幻灯片。
+-   **让推广负责人和支持团队做好准备。** 优先向推广负责人、培训负责人和支持团队提供发布资源，使他们能够回答问题、收集反馈，并示范有效委派。
+-   **传达评审与审批要求。** 提醒用户：人员仍需负责评审输出、验证重要主张，并在共享或使用前批准影响重大的操作。
+-   **监控采用情况并调整。** 发布后评审用量、反馈、credit 消耗和委派工作，据此调整访问、指南、培训和扩展计划。

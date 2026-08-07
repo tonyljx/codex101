@@ -1,0 +1,129 @@
+---
+title: "GitHub 中的 Codex 代码评审"
+navTitle: "GitHub"
+description: "让 Codex 为 GitHub pull request 再做一次高信号评审。"
+locale: "zh"
+translationKey: "third-party/github"
+section: "explore"
+order: 1054
+draft: false
+translationStatus: complete
+lastUpdated: 2026-08-06
+pageKind: article
+referenceHub: "developers"
+sourceUrl: "https://www.codex-docs.com/docs/third-party/github"
+outline:
+  - id: "开始之前"
+    label: "开始之前"
+  - id: "set-up-codex-code-review"
+    label: "设置 Codex 代码评审"
+  - id: "request-a-codex-review"
+    label: "请求一次 Codex 评审"
+  - id: "enable-automatic-reviews"
+    label: "启用自动评审"
+  - id: "customize-what-codex-reviews"
+    label: "自定义 Codex 的评审重点"
+  - id: "处理评审发现"
+    label: "处理评审发现"
+  - id: "give-codex-other-tasks"
+    label: "给 Codex 其他任务"
+  - id: "排查代码评审"
+    label: "排查代码评审"
+---
+
+Codex 代码评审会检查 pull request diff，遵循仓库中的指导，并发布一条标准 GitHub 代码评审，重点关注严重问题。
+
+概览视频：[Codex 代码评审演示](https://www.youtube.com/watch?v=HwbSWVg5Ln4)
+
+## 开始之前
+
+请先确认：
+
+-   目标仓库已经配置好 [Codex 云端](/docs/cloud)。
+-   你可以访问 [Codex code review settings](https://chatgpt.com/codex/settings/code-review)。
+-   如果希望 Codex 遵循仓库级评审指导，请准备好 `AGENTS.md`。
+
+<span id="set-up-codex-code-review"></span>
+
+## 设置 Codex 代码评审
+
+1.  先配置好 [Codex 云端](/docs/cloud)。
+2.  打开 [Codex 设置](https://chatgpt.com/codex/settings/code-review)。
+3.  为你的仓库启用 **Code review（代码评审）**。
+
+![显示 Code review（代码评审）开关的 Codex 设置页面](/images/openai/developers.openai.com/images/codex/code-review/code-review-settings.webp)
+
+<span id="request-a-codex-review"></span>
+
+## 请求一次 Codex 评审
+
+1.  在 pull request 评论中输入：
+    
+    <CodeBlock code={"@codex review"} language="text" />
+    
+2.  等待 Codex 先做出 👀 反应，然后发布评审结果。
+    
+
+![包含 @codex review 的 pull request 评论](/images/openai/developers.openai.com/images/codex/code-review/review-trigger.png)
+
+Codex 会像队友一样，直接在 pull request 上发布一条评审。在 GitHub 中，Codex 只标记 P0 和 P1 级问题，因此评审评论会聚焦高优先级风险。
+
+![Codex 在 pull request 上发布的评审示例](/images/openai/developers.openai.com/images/codex/code-review/review-example.png)
+
+<span id="enable-automatic-reviews"></span>
+
+## 启用自动评审
+
+如果你希望 Codex 自动评审每一个 pull request，请在 [Codex 设置](https://chatgpt.com/codex/settings/code-review) 中启用 **Automatic reviews（自动评审）**。这样每当有人打开新的 PR 供评审时，Codex 都会自动发布评审，而不需要额外的 `@codex review` 评论。
+
+<span id="customize-what-codex-reviews"></span>
+
+## 自定义 Codex 的评审重点
+
+Codex 会在仓库中搜索 `AGENTS.md`，并遵循适用的代码评审规则。请在最靠近规则所辖代码的文件中添加 `## Code Review Rules` 章节；需要时可用 `###` 标题为相关检查分组。
+
+例如，实验报告服务可以通过下面的规则，避免暴露后的行为改变对比队列：
+
+<CodeBlock code={"## Code Review Rules\n\n### Experiment cohorts\n\n- Do not filter treatment comparisons on post-exposure behavior, including conversion or retention.\n  Safe path: build cohorts from assignment or exposure; report conversion as an outcome."} language="markdown" />
+
+仓库级规则放在根目录 `AGENTS.md` 中，服务专属规则则放在嵌套文件中，例如 `services/experiment_reporting/AGENTS.md`。Codex 会对每个已改动文件应用根目录规则以及覆盖该文件的更具体规则，因此无关变更不必携带服务专属上下文。
+
+可以先写两三条简洁规则，固化评审者经常解释的检查。合适的规则包括：
+
+-   **聚焦会造成后果、且与仓库相关的行为。** 说明需要标记的兼容性约束、数据边界或不安全副作用，以及其影响。
+-   **给出安全做法或例外。** 提供足够上下文，让 Codex 区分真实问题与预期行为。
+-   **保持范围明确、规则耐久。** 优先描述结果，而不是可能变化的函数名；并把指导放在靠近所辖代码的位置。
+-   **把机械检查交给 CI。** 格式、lint 等确定性检查不应写进评审规则。
+
+打开一个有代表性的 pull request，通过 `@codex review` 请求评审。根据发现和反馈迭代规则，并收紧或删除会产生噪声的指导。
+
+代码评审规则用于指导 Codex，但不能替代测试、分支保护或必需审批。
+
+如果只是一次性的评审重点，可以直接写在 pull request 评论里：
+
+<CodeBlock code={"@codex review for security regressions"} language="text" />
+
+## 处理评审发现
+
+Codex 发布评审后，你可以继续在同一个 pull request 中留言，让它修复问题：
+
+<CodeBlock code={"@codex fix the P1 issue"} language="markdown" />
+
+Codex 会以该 pull request 为上下文启动一个云端聊天；如果它有权限，也可以把修复推回到当前分支。
+
+<span id="give-codex-other-tasks"></span>
+
+## 给 Codex 其他任务
+
+如果你在评论里提到 `@codex`，但后面跟的不是 `review`，Codex 就会使用当前 pull request 作为上下文，发起一个[云端聊天](/docs/cloud)。
+
+<CodeBlock code={"@codex fix the CI failures"} language="markdown" />
+
+## 排查代码评审
+
+如果 Codex 没有反应或没有发布评审：
+
+-   确认你已经在 [Codex 设置](https://chatgpt.com/codex/settings/code-review)中为该仓库启用 **Code review（代码评审）**。
+-   确认该 pull request 属于已经配置 [Codex 云端](/docs/cloud) 的仓库。
+-   在 pull request 评论中使用精确触发词 `@codex review`。
+-   对于自动评审，确认你已经启用 **Automatic reviews（自动评审）**，并且 pull request 事件匹配你的评审触发设置。

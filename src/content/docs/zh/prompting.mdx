@@ -1,0 +1,494 @@
+---
+title: "提示词"
+description: "为 Chat、ChatGPT Work 与 Codex 编写有效提示词。"
+locale: "zh"
+translationKey: "prompting"
+section: "foundations"
+order: 1
+draft: false
+translationStatus: complete
+lastUpdated: 2026-08-06
+---
+
+<h2 id="prompts">提示词概览</h2>
+
+<p>提示词是你告诉 ChatGPT 想知道、创建或修改什么的方式。它可以是问题、指令或目标，不需要技术语法或僵硬公式。先用自己的话描述需求，检查回复，再用后续消息逐步完善结果。</p>
+
+<p>简短提示词通常已经足够。对于更大或更重要的任务，可以加入真正影响结果的部分：</p>
+
+<ul>
+  <li><strong>目标：</strong> ChatGPT 应完成什么？</li>
+  <li><strong>上下文：</strong> 哪些信息或来源会有帮助？</li>
+  <li><strong>输出：</strong> 需要什么格式、长度或细节层次？</li>
+  <li><strong>边界：</strong> 哪些内容必须保持不变？ChatGPT 应避免什么，或执行前先向你确认什么？</li>
+</ul>
+
+<p>只使用有帮助的部分即可，不需要机械填满每一项，也没有强制格式。</p>
+
+<h2 id="描述所需结果">描述所需结果</h2>
+
+<p>先描述结果，而不是一开始就列出详细步骤。当受众或格式会改变输出方式时，把它们一并写清楚。</p>
+
+<CodeBlock code={"Turn these meeting notes into a short update for the project team.\nPut the decisions and next steps first."} />
+
+<p>这条提示词说明了要创建什么，以及谁会阅读。只有当过程本身很重要时才明确规定过程；否则，可以让 ChatGPT 自行搜索、比较信息并调整做法。</p>
+
+<h2 id="context">添加有用上下文</h2>
+
+<p>提供可能改变结果的信息。只加入重要来源，并说明 ChatGPT 应从每个来源中提取什么。</p>
+
+<ul>
+  <li>当需要总结、比较、转换内容或<a href="/docs/artifacts-viewer">创建可评审文件</a>时，附加文档、电子表格、演示文稿或 PDF。</li>
+  <li>任务依赖视觉上下文时，添加截图、流程图或其他<a href="/docs/image-inputs">图片输入</a>，并指出关键区域，不要只依赖图片本身。</li>
+  <li>答案依赖最新信息时，让 ChatGPT 使用 <a href="/docs/web-search">Web 搜索</a>；需要核对结果时，要求提供来源。</li>
+  <li>当相关聊天需要共享文件、来源或本地文件夹时，使用<a href="/docs/projects">项目</a>。</li>
+</ul>
+
+<h3 id="使用连接来源">使用连接来源</h3>
+
+<p>如果 ChatGPT 可以访问连接来源，请说明应去哪里查找，以及要找什么，不需要逐条规定每一次搜索。</p>
+
+<CodeBlock code={"Use the latest project plan in Drive and relevant decisions and updates from\nthe project's Slack channel to prepare a status update."} />
+
+<p>连接来源需要匹配的 plugin；是否可用可能取决于套餐和工作区设置。</p>
+
+<h3 id="使用-plugins">使用 plugins</h3>
+
+<p>plugins 为 ChatGPT 提供可复用指令，并连接 Google Drive、Gmail、Slack、GitHub 等工具。描述所需结果，让 ChatGPT 从可用工具中选择；如果要指定 plugin，请在输入框中输入 <code>@</code>。</p>
+
+<LinkCard href={"/docs/plugins"} title={"了解 plugins"} description={"查找、安装和使用 ChatGPT 中的 plugins。"} icon={"plugin"} />
+
+<h3 id="个性化-chatgpt">个性化 ChatGPT</h3>
+
+<p>希望在所有聊天中生效的偏好，可以作为自定义指令放到 <strong>Settings > Personalization（设置 > 个性化）</strong>。只与当前聊天有关的细节应保留在提示词中。</p>
+
+<LinkCard href={"/docs/reference/settings#personalization"} title={"查看个性化设置"} description={"设置默认性格、自定义指令和其他偏好。"} icon={"settings"} />
+
+<h3 id="对话线程与持续上下文">对话线程与持续上下文</h3>
+
+<p>一条对话线程包含你的提示词、模型回复和工具调用。后续消息会继续使用同一线程的上下文，因此适合在同一结果上补充来源、纠正方向、添加测试或要求修改。</p>
+
+<p>你可以并行运行多条线程，但不要让两条线程同时修改同一批文件。编码任务需要并行时，优先使用独立<a href="/docs/environments/git-worktrees">工作树</a>。</p>
+
+<p>所有上下文都必须放入模型的上下文窗口。长任务中，ChatGPT 或 Codex 可能通过总结相关信息、舍弃次要细节的方式压缩上下文。即使系统会自动压缩，也应主动减少无关文件、重复日志和已经失效的要求。</p>
+
+<h2 id="设置能够避免实际问题的边界">设置能够避免实际问题的边界</h2>
+
+<p>边界是少量但关键的指令，用来避免产生额外工作，或执行你没有打算批准的动作。当改错一个细节会让结果无法使用，或者操作影响他人前需要评审时，就应加入边界。</p>
+
+<ul>
+  <li>保持已批准的日期和预算数字不变。</li>
+  <li>只使用提供的来源；缺少信息时明确标记，不要猜测。</li>
+  <li>建议不得超出预算范围。</li>
+  <li>只把消息准备成草稿，不要发送。</li>
+</ul>
+
+<p>聚焦最重要的一两个边界，不需要控制 ChatGPT 的每一个步骤。</p>
+
+<h2 id="让结果可以直接使用">让结果可以直接使用</h2>
+
+<p>告诉 ChatGPT 结果将如何使用，这会帮助它选择合适的长度、细节和组织方式。</p>
+
+<ul>
+  <li>创建一页式摘要，让负责人可以在会前快速浏览，并把决策和下一步放在前面。</li>
+  <li>把笔记整理成跟进邮件，包含决策、负责人和截止日期。</li>
+  <li>创建计划支出与实际支出的清晰表格，并突出超过 10% 的差异。</li>
+</ul>
+
+<p>对于重要工作，应要求最终检查，例如确认每个行动项都有负责人和截止日期，或标明无法核实的信息。使用或分享前仍需由你亲自评审。</p>
+
+<h2 id="通过后续消息改善结果">通过后续消息改善结果</h2>
+
+<p>第一条提示词不必完美。检查结果后，直接描述希望改变的部分。</p>
+
+<CodeBlock code={"Make the opening more direct, keep the evidence, and move the recommendation\nabove the background section."} />
+
+<p>无需从头开始，就可以补充来源、纠正方向、要求另一种方案或改变细节层次。</p>
+
+<h3 id="steering-与-queuing">Steering 与 queuing</h3>
+
+<p>Codex 工作时，不必等待当前运行结束也可以发送消息：</p>
+
+<ul>
+  <li><strong>Steer（引导）</strong> 把消息加入当前运行，用于改变方向、补充遗漏细节或提供新信息。</li>
+  <li><strong>Queue（排队）</strong> 把消息留给下一次运行，适合需要等当前工作结束后再处理的后续事项。</li>
+</ul>
+
+<p>在 ChatGPT 桌面 App 中，可以通过 <a href="/docs/reference/settings#general"><strong>Settings > General > Follow-up behavior</strong></a>选择默认行为。排队消息会显示在输入框上方，可以编辑、排序、发送或删除。</p>
+
+<p>在 Codex CLI 中，Codex 工作时按 <kbd>Enter</kbd> 引导当前会话轮次，按 <kbd>Tab</kbd> 将消息排到下一轮。详情见<a href="/docs/developer-commands?surface=cli#cli-interactive-shortcuts">交互快捷键</a>。</p>
+
+<h2 id="把各部分组合起来">把各部分组合起来</h2>
+
+<p>下面是一条使用连接来源准备项目更新的完整提示词：</p>
+
+<CodeBlock code={"Prepare a one-page project status update for Monday's leadership meeting. Use\nthe latest project plan in Drive and relevant decisions and updates from the\nproject's Slack channel.\n\nLead with the decisions leadership needs to make and the next steps. Summarize\nprogress, risks, owners, and due dates. Keep approved dates and budget figures\nunchanged. Flag any conflicting or missing information, and don't send or\npublish anything.\n\nBefore you finish, check that every next step has an owner and due date."} />
+
+<p>这条提示词包含<strong>目标、上下文、输出和边界</strong>，并要求最终检查，但没有规定每个执行步骤。</p>
+
+<h2 id="use-voice-dictation">使用语音听写</h2>
+
+<p>在 ChatGPT 桌面 App 的输入框可见时，按住 <kbd>Ctrl</kbd>+<kbd>M</kbd> 并开始说话。ChatGPT 会把语音转写到输入框中，你可以先检查和编辑，再发送提示词。</p>
+
+<Screenshot src={"/images/codex/app/voice-dictation-light.webp"} darkSrc={"/images/codex/app/voice-dictation-dark.webp"} alt={"输入框中显示语音听写指示器和已转写的提示词"} maxHeight={400} picture />
+
+<span id="chats" className="doc-heading-anchor-alias"></span>
+
+<h2 id="threads">Chat 提示词示例</h2>
+
+<p>Chat 适合提问、发展想法、起草内容和处理日常决策。先说明结果，再加入真正会改变答案的细节。</p>
+
+<h3 id="理解一个主题">理解一个主题</h3>
+
+<CodeBlock code={"Explain how compound interest works for someone who has never invested.\nUse one concrete example and define any financial terms you introduce."} />
+
+<h3 id="起草并修改文字">起草并修改文字</h3>
+
+<CodeBlock code={"Draft a friendly email declining this invitation because I will be traveling.\nKeep it under 120 words and leave the door open for a future event."} />
+
+<h3 id="比较选项">比较选项</h3>
+
+<CodeBlock code={"Compare these two phone plans for one person who travels internationally twice\na year. Show the important differences in a table, then recommend one and explain\nthe tradeoff."} />
+
+<h3 id="制定实用计划">制定实用计划</h3>
+
+<CodeBlock code={"Plan five weekday dinners that take less than 30 minutes. Avoid peanuts, reuse\ningredients across meals, and finish with one consolidated shopping list."} />
+
+<span id="prompting-in-work-mode" className="doc-heading-anchor-alias"></span>
+
+<h2 id="prompting-for-work">ChatGPT Work 提示词</h2>
+
+<p>Chat 适合快速提问、简短改写、头脑风暴和轻量草稿。任务需要多个来源或工具、包含一系列步骤、会执行修改，或要产出更大的交付物时，使用 ChatGPT Work。</p>
+
+<p>在 ChatGPT Work 中描述所需结果，提供来源材料，说明受众和评审方式，并要求 ChatGPT 规划、收集信息、创建文件和完成检查。</p>
+
+<span id="use-work-mode-efficiently" className="doc-heading-anchor-alias"></span>
+
+<h3 id="use-work-efficiently">高效使用 ChatGPT Work</h3>
+
+<p>ChatGPT Work 适合耗时或重复任务，以及可复用的完整文件。即使任务消耗更多 credits，只要节省时间、提高质量或支持重要决策，也可能值得。</p>
+
+<p>先从一个可以评审的结果开始：</p>
+
+<ul>
+  <li>只加入相关来源，并在适用时限制日期范围。</li>
+  <li>定义受众、输出格式和期望长度。</li>
+  <li>区分必需工作与可选改进或润色。</li>
+  <li>当实现方式很重要时要求先给计划；ChatGPT 发送、发布或修改他人依赖的信息前，必须获得你的批准。</li>
+  <li>如果任务开始执行不再需要的工作，及时收窄范围或停止。</li>
+</ul>
+
+<p>评审第一版结果，改进指令，并在工作流稳定后复用。</p>
+
+<h3 id="把来源材料转换成完整文件">把来源材料转换成完整文件</h3>
+
+<CodeBlock code={"Use the attached quarterly reports to create a leadership brief and a six-slide\npresentation.\n\nThe audience is the executive team. Lead with the three decisions they need to\nmake, distinguish reported facts from your analysis, cite each number to its\nsource file, and check that the brief and slides agree before you finish."} />
+
+<h3 id="研究一项决策">研究一项决策</h3>
+
+<CodeBlock code={"Research three customer-support platforms for a 50-person company. Compare\npricing, security, integrations, and migration effort using current sources.\nDeliver a recommendation memo with links, assumptions, and the questions we\nshould answer before signing a contract."} />
+
+<h3 id="协调一次发布">协调一次发布</h3>
+
+<CodeBlock code={"Create a launch plan for the attached product brief. Include the timeline,\nowners, dependencies, risks, announcement draft, customer FAQ, and a checklist\nfor launch day. Flag any missing decisions before producing the final files."} />
+
+<p>对于重复工作，先在普通聊天中把提示词调整稳定，再在该聊天中<a href="/docs/automations#schedule-a-task-inside-a-chat">安排任务</a>。如果每次计划运行都应开始一个新聊天，则创建独立定时任务。</p>
+
+<h2 id="use-editor-context">Codex 提示词</h2>
+
+<p>需要 ChatGPT 处理代码、代码库或开发者工具时，使用 Codex。有效的 Codex 提示词应说明需要的行为，指向相关代码或复现步骤，保留重要约束，并明确如何验证改动。</p>
+
+<h3 id="goal-mode">计划模式与 Goal mode</h3>
+
+<p>对于多步骤任务，希望 Codex 在改动前调查并提出方案时，在 App 输入框中使用 <code>/plan</code>。当 <a href="/docs/long-running-work">Goal mode</a> 可用时，可以在计划明确后使用 <code>/goal</code> 设置持续目标。当前命令列表见 <a href="/docs/reference/slash-commands">App 斜杠命令</a>。</p>
+
+<p>目标文本会同时作为起始提示词和完成标准。一个好目标通常包含具体产出、必要约束，以及可衡量的测试或评审标准。</p>
+
+<CodeBlock code={"Migrate this codebase from JavaScript to TypeScript. Preserve existing behavior,\ncompile in strict mode without explicit `any` types, and make the full test suite pass."} />
+
+<p>目标启动后仍可继续引导 Codex，补充库、兼容性或禁止方案等约束。需要状态回顾但不想干扰主任务时，可以使用 <strong>Side conversation（侧边会话）</strong>。</p>
+
+<h3 id="如何阅读下面的示例">如何阅读下面的示例</h3>
+
+<p>每个工作流包含：</p>
+
+<ul>
+  <li><strong>适用场景</strong>以及更适合的 Codex 入口（IDE、CLI 或云端）。</li>
+  <li>带有用户提示词示例的<strong>步骤</strong>。</li>
+  <li><strong>上下文说明</strong>：Codex 会自动看到什么，哪些内容需要主动附加。</li>
+  <li><strong>验证方式</strong>：如何检查输出。</li>
+</ul>
+
+<p>Codex 会在<a href="/docs/sandboxing">沙箱</a>中运行本地命令，限制文件和网络访问。任务需要越过边界时，Codex 会按审批策略处理。</p>
+
+<h3 id="解释代码库">解释代码库</h3>
+
+<p>适合刚开始了解项目、接手服务，或需要理解协议、数据模型和请求流时使用。</p>
+
+<h4 id="ide-扩展工作流">IDE 扩展工作流</h4>
+
+<ol className="doc-workflow-steps">
+  <li>
+    <p>打开最相关的文件。</p>
+  </li>
+  <li>
+    <p>选中关心的代码（可选，但建议这样做）。</p>
+  </li>
+  <li>
+    <p>向 Codex 发送：</p>
+    <CodeBlock code={"Explain how the request flows through the selected code.\n\nInclude:\n- a short summary of the responsibilities of each module involved\n- what data is validated and where\n- one or two \"gotchas\" to watch for when changing this"} />
+  </li>
+</ol>
+
+<p>验证时，让 Codex 生成可以逐项核对的步骤和文件列表：</p>
+
+<CodeBlock code={"Summarize the request flow as a numbered list of steps. Then list the files involved."} />
+
+<h4 id="cli-工作流">CLI 工作流</h4>
+
+<ol className="doc-workflow-steps">
+  <li>
+    <p>启动交互式会话：</p>
+    <CodeBlock code={"codex"} language={"bash"} />
+  </li>
+  <li>
+    <p>附加文件并发送：</p>
+    <CodeBlock code={"I need to understand the protocol used by this service. Read @foo.ts @schema.ts and explain the schema and request/response flow. Focus on required vs optional fields and backward compatibility rules."} />
+  </li>
+</ol>
+
+<p>在输入框中使用 <code>@</code> 插入工作区路径，或用 <code>/mention</code> 附加特定文件。</p>
+
+<h3 id="修复-bug">修复 bug</h3>
+
+<p>当错误可以在本地复现时，向 Codex 提供复现步骤、相关文件、约束和验证方法。</p>
+
+<h4 id="cli-工作流-2">CLI 工作流</h4>
+
+<ol className="doc-workflow-steps">
+  <li>
+    <p>在仓库根目录启动 Codex：</p>
+    <CodeBlock code={"codex"} language={"bash"} />
+  </li>
+  <li>
+    <p>提供复现步骤：</p>
+    <CodeBlock code={"Bug: Clicking \"Save\" on the settings screen sometimes shows \"Saved\" but doesn't persist the change.\n\nRepro:\n1) Start the app: npm run dev\n2) Go to /settings\n3) Toggle \"Enable alerts\"\n4) Click Save\n5) Refresh the page: the toggle resets\n\nConstraints:\n- Do not change the API shape.\n- Keep the fix minimal and add a regression test if feasible.\n\nStart by reproducing the bug locally, then propose a patch and run checks."} />
+  </li>
+</ol>
+
+<p>你提供的复现步骤和约束通常比高层问题描述更重要；Codex 则会补充命令输出、调用点和它触发的堆栈信息。</p>
+
+<p>修复后要求重新执行复现步骤，并运行最小相关检查：</p>
+
+<CodeBlock code={"After the fix, run lint + the smallest relevant test suite. Report the commands and results."} />
+
+<h4 id="ide-扩展工作流-2">IDE 扩展工作流</h4>
+
+<ol className="doc-workflow-steps">
+  <li>
+    <p>打开可能包含 bug 的文件及其最近调用方。</p>
+  </li>
+  <li>
+    <p>向 Codex 发送：</p>
+    <CodeBlock code={"Find the bug causing \"Saved\" to show without persisting changes. After proposing the fix, tell me how to verify it in the UI."} />
+  </li>
+</ol>
+
+<h3 id="编写测试">编写测试</h3>
+
+<p>需要明确限定测试范围时，可以基于 IDE 选区或 CLI 中的函数名和路径提出请求。</p>
+
+<h4 id="ide-扩展工作流-3">IDE 扩展工作流</h4>
+
+<ol className="doc-workflow-steps">
+  <li>
+    <p>打开包含目标函数的文件。</p>
+  </li>
+  <li>
+    <p>选中函数定义，并从命令面板选择 <strong>Add to Codex Thread</strong>。</p>
+  </li>
+  <li>
+    <p>发送：</p>
+    <CodeBlock code={"Write a unit test for this function. Follow conventions used in other tests."} />
+  </li>
+</ol>
+
+<h4 id="cli-工作流-3">CLI 工作流</h4>
+
+<ol className="doc-workflow-steps">
+  <li>
+    <p>启动 Codex：</p>
+    <CodeBlock code={"codex"} language={"bash"} />
+  </li>
+  <li>
+    <p>按函数名给出提示词：</p>
+    <CodeBlock code={"Add a test for the invert_list function in @transform.ts. Cover the happy path plus edge cases."} />
+  </li>
+</ol>
+
+<h3 id="根据截图制作原型">根据截图制作原型</h3>
+
+<p>当你有设计稿、截图或 UI 参考，需要转换成可运行原型时使用。</p>
+
+<h4 id="cli-工作流-4">CLI 工作流</h4>
+
+<ol className="doc-workflow-steps">
+  <li>
+    <p>把截图保存到本地，例如 <code>./specs/ui.png</code>。</p>
+  </li>
+  <li>
+    <p>运行 Codex：</p>
+    <CodeBlock code={"codex"} language={"bash"} />
+  </li>
+  <li>
+    <p>把图片拖入终端附加到提示词。</p>
+  </li>
+  <li>
+    <p>补充实现约束和交付物：</p>
+    <CodeBlock code={"Create a new dashboard based on this image.\n\nConstraints:\n- Use react, vite, and tailwind. Write the code in typescript.\n- Match spacing, typography, and layout as closely as possible.\n\nOutputs:\n- A new route/page that renders the UI\n- Any small components needed\n- README.md with instructions to run it locally"} />
+  </li>
+</ol>
+
+<p>截图提供视觉要求，但框架、路由、组件方式，以及 hover、校验和键盘交互等不可见行为仍应通过文字说明。</p>
+
+<p>验证时，让 Codex 启动开发服务器并给出准确地址：</p>
+
+<CodeBlock code={"Start the dev server and tell me the local URL/route to view the prototype."} />
+
+<h4 id="ide-扩展工作流-4">IDE 扩展工作流</h4>
+
+<ol className="doc-workflow-steps">
+  <li>
+    <p>在 Codex 聊天中附加图片（拖放或粘贴）。</p>
+  </li>
+  <li>
+    <p>向 Codex 发送：</p>
+    <CodeBlock code={"Create a new settings page. Use the attached screenshot as the target UI.\nFollow design and visual patterns from other files in this project."} />
+  </li>
+</ol>
+
+<h3 id="通过实时更新迭代-ui">通过实时更新迭代 UI</h3>
+
+<p>需要保持“设计、微调、刷新、继续微调”的循环时，可以在另一个终端中运行开发服务器，再让 Codex 进行小而聚焦的改动。</p>
+
+<h4 id="cli-工作流运行-vite并用小提示词迭代">CLI 工作流（运行 Vite，并用小提示词迭代）</h4>
+
+<ol className="doc-workflow-steps">
+  <li>
+    <p>启动 Codex：</p>
+    <CodeBlock code={"codex"} language={"bash"} />
+  </li>
+  <li>
+    <p>在另一个终端窗口中启动开发服务器：</p>
+    <CodeBlock code={"npm run dev"} language={"bash"} />
+  </li>
+  <li>
+    <p>让 Codex 提出改动方向：</p>
+    <CodeBlock code={"Propose 2-3 styling improvements for the landing page."} />
+  </li>
+  <li>
+    <p>选定一个方向后，用小而具体的提示词迭代：</p>
+    <CodeBlock code={"Go with option 2.\n\nChange only the header:\n- make the typography more editorial\n- increase whitespace\n- ensure it still looks good on mobile"} />
+  </li>
+  <li>
+    <p>继续提出聚焦请求：</p>
+    <CodeBlock code={"Next iteration: reduce visual noise.\nKeep the layout, but simplify colors and remove any redundant borders."} />
+  </li>
+</ol>
+
+<p>每轮都在浏览器中检查结果。保留喜欢的改动，撤销不需要的改动；手动撤销或修改后应告诉 Codex，避免后续覆盖。</p>
+
+<h3 id="把重构委派到云端">把重构委派到云端</h3>
+
+<p>当你希望先结合本地上下文设计方案，再把长时间实现委派给并行云端聊天时使用。</p>
+
+<h4 id="本地规划ide">本地规划（IDE）</h4>
+
+<ol className="doc-workflow-steps">
+  <li>
+    <p>提交或暂存当前工作，保证后续可以清晰比较。</p>
+  </li>
+  <li>
+    <p>让 Codex 先制定重构计划：</p>
+    <CodeBlock code={"$plan\n\nWe need to refactor the auth subsystem to:\n- split responsibilities (token parsing vs session loading vs permissions)\n- reduce circular imports\n- improve testability\n\nConstraints:\n- No user-visible behavior changes\n- Keep public APIs stable\n- Include a step-by-step migration plan"} />
+  </li>
+  <li>
+    <p>评审并修改计划：</p>
+    <CodeBlock code={"Revise the plan to:\n- specify exactly which files move in each milestone\n- include a rollback strategy"} />
+  </li>
+</ol>
+
+<h4 id="云端委派ide-cloud">云端委派（IDE → Cloud）</h4>
+
+<ol className="doc-workflow-steps">
+  <li>
+    <p>设置 <a href="/docs/environments/cloud-environment">Codex 云端环境</a>，在 IDE 中选择云端环境，然后发送：</p>
+    <CodeBlock code={"Implement Milestone 1 from the plan."} />
+  </li>
+  <li>
+    <p>评审云端 diff，在本地运行测试，再创建 PR 或继续下一里程碑。</p>
+  </li>
+</ol>
+
+<p>云端任务运行在隔离环境中；除非为环境启用，否则智能体阶段没有互联网访问。详情见<a href="/docs/cloud/internet-access">云端网络访问</a>。</p>
+
+<h3 id="do-a-local-code-review">执行本地代码评审</h3>
+
+<h4 id="cli-工作流评审当前工作树">CLI 工作流（评审当前工作树）</h4>
+
+<ol className="doc-workflow-steps">
+  <li>
+    <p>启动 Codex：</p>
+    <CodeBlock code={"codex"} language={"bash"} />
+  </li>
+  <li>
+    <p>运行评审命令：</p>
+    <CodeBlock code={"/review"} />
+  </li>
+  <li>
+    <p>（可选）提供自定义关注点：</p>
+    <CodeBlock code={"/review Focus on edge cases and security issues"} />
+  </li>
+</ol>
+
+<p>根据反馈修复后，再次运行 <code>/review</code> 验证问题是否已经解决。</p>
+
+<h3 id="评审-github-pr">评审 GitHub PR</h3>
+
+<h4 id="github-工作流评论驱动">GitHub 工作流（评论驱动）</h4>
+
+<p>如果希望在不把分支拉到本地的情况下获得反馈，先为仓库启用 Codex <strong>Code review（代码评审）</strong>，详情见<a href="/docs/third-party/github">代码评审</a>。</p>
+
+<ol className="doc-workflow-steps">
+  <li>
+    <p>在 GitHub 中打开 PR。</p>
+  </li>
+  <li>
+    <p>留言并明确标记 Codex 与关注范围：</p>
+    <CodeBlock code={"@codex review"} />
+  </li>
+  <li>
+    <p>（可选）补充更明确的指令：</p>
+    <CodeBlock code={"@codex review for security vulnerabilities and security concerns"} />
+  </li>
+</ol>
+
+<h3 id="更新文档">更新文档</h3>
+
+<h4 id="ide-或-cli-工作流本地编辑与验证">IDE 或 CLI 工作流（本地编辑与验证）</h4>
+
+<ol className="doc-workflow-steps">
+  <li>
+    <p>明确要修改的文档文件，并在 IDE 中打开或通过 <code>@</code> 提及（IDE 或 CLI）。</p>
+  </li>
+  <li>
+    <p>向 Codex 说明范围和验证要求：</p>
+    <CodeBlock code={"Update the \"advanced features\" documentation to provide authentication troubleshooting guidance. Verify that all links are valid."} />
+  </li>
+  <li>
+    <p>Codex 起草后，评审文档并按需要继续迭代。</p>
+  </li>
+</ol>
+
+<p>验证时，应阅读渲染页面，检查标题结构、代码块、链接和示例，而不只是查看原始 Markdown diff。</p>
+

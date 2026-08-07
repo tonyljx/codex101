@@ -1,0 +1,234 @@
+---
+title: "非交互模式"
+description: "用 codex exec 在脚本、CI 和自动化流水线中运行 Codex"
+locale: "zh"
+translationKey: "non-interactive-mode"
+section: "explore"
+order: 1053
+draft: false
+translationStatus: complete
+lastUpdated: 2026-08-06
+pageKind: article
+referenceHub: "developers"
+sourceUrl: "https://www.codex-docs.com/docs/non-interactive-mode"
+outline:
+  - id: "何时使用-codex-exec"
+    label: "何时使用 codex exec"
+  - id: "基本用法"
+    label: "基本用法"
+  - id: "权限与安全"
+    label: "权限与安全"
+  - id: "让输出可供机器读取"
+    label: "让输出可供机器读取"
+  - id: "通过-schema-生成结构化输出"
+    label: "通过 Schema 生成结构化输出"
+  - id: "在自动化中认证"
+    label: "在自动化中认证"
+  - id: "恢复非交互会话"
+    label: "恢复非交互会话"
+  - id: "需要-git-仓库"
+    label: "需要 Git 仓库"
+  - id: "常见自动化模式"
+    label: "常见自动化模式"
+  - id: "高级-stdin-管道模式"
+    label: "高级 stdin 管道模式"
+---
+
+非交互模式允许你在脚本里直接调用 Codex，例如 CI 任务，而不必打开交互式 TUI。入口命令是 `codex exec`。
+
+如果你需要查看更细的 flag 说明，请参阅 [`codex exec`](/docs/developer-commands?surface=cli#cli-codex-exec)。
+
+## 何时使用 `codex exec`
+
+当你希望 Codex：
+
+-   作为流水线的一部分运行，例如 CI、预合并检查或定时任务
+-   输出可继续传给其他工具处理的结果，例如 release notes 或摘要
+-   自然嵌入 CLI 工作流，把命令输出传给 Codex，再把 Codex 输出交给其他命令
+-   在一开始就显式固定沙箱和审批设置
+
+就适合使用 `codex exec`。
+
+## 基本用法
+
+最简单的方式是把任务提示词作为单个参数传入：
+
+<CodeBlock code={"codex exec \"summarize the repository structure and list the top 5 risky areas\""} language="bash" />
+
+执行期间，Codex 会把进度写到 `stderr`，只把最终智能体消息写到 `stdout`。这让你很容易把结果重定向或接到管道里：
+
+<CodeBlock code={"codex exec \"generate release notes for the last 10 commits\" | tee release-notes.md"} language="bash" />
+
+如果你不想把会话运行记录文件持久化到磁盘，可以加 `--ephemeral`：
+
+<CodeBlock code={"codex exec --ephemeral \"triage this repository and suggest next steps\""} language="bash" />
+
+如果同时提供了提示词参数，并且 stdin 里也有输入，Codex 会把命令行提示词当作指令，把 stdin 内容当作额外上下文。
+
+这很适合“一个命令生成数据，直接交给 Codex 处理”的场景：
+
+<CodeBlock code={"curl -s https://jsonplaceholder.typicode.com/comments \\\n  | codex exec \"format the top 20 items into a markdown table\" \\\n  > table.md"} language="bash" />
+
+更复杂的 stdin 用法见下文的[高级 stdin 管道模式](#%E9%AB%98%E7%BA%A7-stdin-%E7%AE%A1%E9%81%93%E6%A8%A1%E5%BC%8F)。
+
+## 权限与安全
+
+默认情况下，`codex exec` 运行在只读沙箱中。
+
+在自动化环境里，应始终只授予工作流所需的最小权限：
+
+-   允许编辑：`codex exec --sandbox workspace-write "<task>"`
+-   允许更广访问：`codex exec --sandbox danger-full-access "<task>"`
+
+`danger-full-access` 只适合在受控环境中使用，例如隔离的 CI runner 或单用途容器。
+
+Codex 仍保留 `codex exec --full-auto` 作为已弃用的兼容 flag，并会打印警告。新脚本请优先使用显式的 `--sandbox workspace-write` flag。
+
+如果需要一次不加载 `$CODEX_HOME/config.toml` 的运行，请使用 `--ignore-user-config`；如果需要在受控自动化环境中跳过用户和项目 execpolicy `.rules` 文件，请使用 `--ignore-rules`。
+
+如果你把某个 MCP server 配置成 `required = true`，并且它初始化失败，`codex exec` 会直接报错退出，而不会在缺少这个 MCP server 的情况下继续执行。
+
+## 让输出可供机器读取
+
+如果你要在脚本里消费 Codex 输出，推荐启用 JSON Lines：
+
+<CodeBlock code={"codex exec --json \"summarize the repo structure\" | jq"} language="bash" />
+
+启用 `--json` 后，`stdout` 会变成 JSONL 事件流，因此你可以捕获 Codex 运行期间发出的每个事件。常见事件类型包括 `thread.started`、`turn.started`、`turn.completed`、`turn.failed`、`item.*` 和 `error`。
+
+常见内容项（item）类型包括智能体消息、推理、命令执行、文件改动、MCP 工具调用、网页搜索和计划更新。
+
+示例 JSONL 输出如下：
+
+<CodeBlock code={"{\"type\":\"thread.started\",\"thread_id\":\"0199a213-81c0-7800-8aa1-bbab2a035a53\"}\n{\"type\":\"turn.started\"}\n{\"type\":\"item.started\",\"item\":{\"id\":\"item_1\",\"type\":\"command_execution\",\"command\":\"bash -lc ls\",\"status\":\"in_progress\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_3\",\"type\":\"agent_message\",\"text\":\"Repo contains docs, sdk, and examples directories.\"}}\n{\"type\":\"turn.completed\",\"usage\":{\"input_tokens\":24763,\"cached_input_tokens\":24448,\"output_tokens\":122,\"reasoning_output_tokens\":0}}"} language="jsonl" />
+
+如果你只需要最终消息，可以使用 `-o <path>` / `--output-last-message <path>` 把它写入文件。Codex 会把最终消息写入文件，同时仍然打印到 `stdout`（详见 [`codex exec`](/docs/developer-commands?surface=cli#cli-codex-exec)）。
+
+## 通过 Schema 生成结构化输出
+
+如果你的下游步骤需要稳定的结构化数据，可以用 `--output-schema` 传入 JSON Schema，要求最终响应符合该结构。这很适合需要稳定字段的自动化工作流，例如任务摘要、风险报告或发布元数据。
+
+`schema.json`
+
+<CodeBlock code={"{\n  \"type\": \"object\",\n  \"properties\": {\n    \"project_name\": { \"type\": \"string\" },\n    \"programming_languages\": {\n      \"type\": \"array\",\n      \"items\": { \"type\": \"string\" }\n    }\n  },\n  \"required\": [\"project_name\", \"programming_languages\"],\n  \"additionalProperties\": false\n}"} language="json" />
+
+运行方式：
+
+<CodeBlock code={"codex exec \"Extract project metadata\" \\\n  --output-schema ./schema.json \\\n  -o ./project-metadata.json"} language="bash" />
+
+最终输出示例：
+
+<CodeBlock code={"{\n  \"project_name\": \"Codex CLI\",\n  \"programming_languages\": [\"Rust\", \"TypeScript\", \"Shell\"]\n}"} language="json" />
+
+## 在自动化中认证
+
+默认情况下，`codex exec` 会复用 CLI 已保存的认证状态。在自动化中，更常见的做法是显式提供凭据。
+
+### 使用 API key 认证
+
+对于 GitHub Actions，请优先使用 [Codex GitHub Action](/docs/github-action)，而不是自行安装并认证 CLI。该 action 会安装 Codex、启动 Responses API 代理，并用可配置的安全策略运行 Codex，从而减少 API key 暴露面。
+
+不要在会检出或运行仓库受控代码的工作流中，把 `OPENAI_API_KEY` 或 `CODEX_API_KEY` 设置为 job 级环境变量。同一个 job 里的构建脚本、测试、依赖生命周期 hooks，或被攻陷的 action 都可能读取这些环境变量。
+
+在其他自动化环境中，只把 `CODEX_API_KEY` 设置给单次 `codex exec` 调用，并确保同一个进程环境中不会运行不受信任的代码。
+
+<CodeBlock code={"CODEX_API_KEY=<api-key> codex exec --json \"triage open bug reports\""} language="bash" />
+
+`CODEX_API_KEY` 只在 `codex exec` 中受支持。
+
+在 CI/CD 中使用 ChatGPT 管理的认证（高级）
+
+如果你需要在 CI/CD 作业中使用 Codex 用户账号而不是 API key 来运行，请阅读本节。例如，企业团队在受信任的 runner 上使用由 ChatGPT 管理的 Codex 访问，或需要使用 ChatGPT / Codex 的速率限制而不是 API key 配额的用户，都适合这种方式。
+
+API key 仍然是自动化场景的默认首选，因为它更容易发放和轮换。只有在你明确需要以自己的 Codex 账号身份运行时，才应选择这条路径。
+
+<Callout kind="note">
+
+请把 `~/.codex/auth.json` 当作密码对待：它包含访问令牌。不要把它提交到仓库、粘贴到工单中，或在聊天工具里分享。
+
+</Callout>
+
+不要在公开仓库或开源仓库中使用这套流程。如果 runner 上无法执行 `codex login`，应通过安全存储预先注入 `auth.json`，再在 runner 上运行 Codex，让 Codex 就地刷新该文件，并在多次运行之间持久化更新后的文件。
+
+详见[在 CI/CD 中维护 Codex 账号认证（高级）](/docs/auth/ci-cd-auth)。
+
+## 恢复非交互会话
+
+如果你要在一个多阶段流水线中继续上一次运行，可以使用 `resume` 子命令：
+
+<CodeBlock code={"codex exec \"review the change for race conditions\"\ncodex exec resume --last \"fix the race conditions you found\""} language="bash" />
+
+你也可以直接指定某个 session ID：
+
+<CodeBlock code={"codex exec resume <SESSION_ID>"} language="bash" />
+
+## 需要 Git 仓库
+
+Codex 默认要求命令在 Git 仓库中执行，以减少破坏性改动的风险。如果你确认当前环境安全，可以使用 `codex exec --skip-git-repo-check` 跳过这项检查。
+
+## 常见自动化模式
+
+### 示例：在 GitHub Actions 中自动修复 CI 失败
+
+对于 GitHub Actions 工作流，请使用 [`openai/codex-action`](https://github.com/openai/codex-action)，而不是安装 Codex 并把 API key 传给 shell step。该 action 会为 OpenAI API key 启动安全代理。
+
+你可以用 Codex 在 CI 失败后自动提出修复建议。一个典型模式如下：
+
+1.  在主 CI 工作流失败后触发后续工作流。
+2.  以只读仓库权限检出失败的 commit。
+3.  在运行 Codex 之前执行 setup 命令，不把 OpenAI API key 暴露给这些步骤。
+4.  运行 Codex GitHub Action。
+5.  把 Codex 的本地改动保存为 patch 产物。
+6.  在另一个 job 中应用 patch 并创建 PR。
+
+Codex job 只有 `contents: read` 权限。Codex 运行结束后，它只把 diff 序列化为产物。`open_pr` job 拥有仓库写权限，但不会收到 `OPENAI_API_KEY`。
+
+下面的示例假定是 Node.js 项目。请按你的技术栈调整 setup 和 test 命令。
+
+更深入的安全检查清单见 [Codex GitHub Action security guidance](https://github.com/openai/codex-action/blob/main/docs/security.md)。
+
+<CodeBlock code={"name: Codex auto-fix on CI failure\n\non:\n  workflow_run:\n    workflows: [\"CI\"]\n    types: [completed]\n\njobs:\n  generate_fix:\n    if: ${{ github.event.workflow_run.conclusion == 'failure' }}\n    runs-on: ubuntu-latest\n    permissions:\n      contents: read\n    outputs:\n      has_patch: ${{ steps.diff.outputs.has_patch }}\n    steps:\n      - uses: actions/checkout@v5\n        with:\n          ref: ${{ github.event.workflow_run.head_sha }}\n          fetch-depth: 0\n          persist-credentials: false\n\n      - uses: actions/setup-node@v4\n        with:\n          node-version: \"20\"\n\n      - name: Install dependencies\n        run: |\n          if [ -f package-lock.json ]; then npm ci; fi\n\n      - name: Run Codex\n        uses: openai/codex-action@v1\n        with:\n          openai-api-key: ${{ secrets.OPENAI_API_KEY }}\n          prompt: |\n            The CI workflow \"${{ github.event.workflow_run.name }}\" failed for commit\n            ${{ github.event.workflow_run.head_sha }}.\n\n            Run `npm test --silent` to reproduce the failure. Identify the minimal\n            change needed to make the tests pass, implement only that change, and\n            run `npm test --silent` again.\n\n            Do not refactor unrelated files.\n\n      - name: Create patch artifact\n        id: diff\n        run: |\n          git add -N .\n          git diff --binary HEAD > codex.patch\n          if [ -s codex.patch ]; then\n            echo \"has_patch=true\" >> \"$GITHUB_OUTPUT\"\n          else\n            echo \"has_patch=false\" >> \"$GITHUB_OUTPUT\"\n          fi\n\n      - name: Upload patch artifact\n        if: steps.diff.outputs.has_patch == 'true'\n        uses: actions/upload-artifact@v4\n        with:\n          name: codex-fix-patch\n          path: codex.patch\n          if-no-files-found: error\n\n  open_pr:\n    runs-on: ubuntu-latest\n    needs: generate_fix\n    if: needs.generate_fix.outputs.has_patch == 'true'\n    permissions:\n      contents: write\n      pull-requests: write\n    steps:\n      - uses: actions/checkout@v5\n        with:\n          ref: ${{ github.event.workflow_run.head_sha }}\n          fetch-depth: 0\n\n      - uses: actions/download-artifact@v4\n        with:\n          name: codex-fix-patch\n\n      - name: Apply Codex patch\n        run: git apply --index codex.patch\n\n      - name: Open pull request\n        env:\n          GH_TOKEN: ${{ github.token }}\n          FAILED_HEAD_BRANCH: ${{ github.event.workflow_run.head_branch }}\n          FAILED_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}\n          RUN_ID: ${{ github.event.workflow_run.run_id }}\n        run: |\n          branch=\"codex/auto-fix-$RUN_ID\"\n\n          git config user.name \"github-actions[bot]\"\n          git config user.email \"41898282+github-actions[bot]@users.noreply.github.com\"\n          git switch -c \"$branch\"\n          git commit -m \"Auto-fix failing CI via Codex\"\n          git push origin \"$branch\"\n\n          {\n            echo \"Codex generated this patch after CI failed for \\`$FAILED_HEAD_SHA\\`.\"\n            echo\n            echo \"Review the changes before merging.\"\n          } > pr-body.md\n\n          gh pr create \\\n            --base \"$FAILED_HEAD_BRANCH\" \\\n            --head \"$branch\" \\\n            --title \"Auto-fix failing CI via Codex\" \\\n            --body-file pr-body.md"} language="yaml" />
+
+## 高级 stdin 管道模式
+
+当另一个命令要把结果交给 Codex 时，应根据“指令来自哪里”来选择 stdin 模式。如果你已经知道指令，只是想把命令输出作为上下文传给 Codex，就用“提示词 + stdin”；如果 stdin 本身就是完整提示词，就用 `codex exec -`。
+
+<span id="使用提示词-stdin"></span>
+
+### 使用提示词 + stdin
+
+这种模式适合上游命令已经生成了你想让 Codex 检查的数据，而你只需自己补充解释任务目标：
+
+<CodeBlock code={"npm test 2>&1 \\\n  | codex exec \"summarize the failing tests and propose the smallest likely fix\" \\\n  | tee test-summary.md"} language="bash" />
+
+更多提示词 + stdin 示例
+
+#### 汇总日志
+
+<CodeBlock code={"tail -n 200 app.log \\\n  | codex exec \"identify the likely root cause, cite the most important errors, and suggest the next three debugging steps\" \\\n  > log-triage.md"} language="bash" />
+
+#### 分析 TLS 或 HTTP 故障
+
+<CodeBlock code={"curl -vv https://api.example.com/health 2>&1 \\\n  | codex exec \"explain the TLS or HTTP failure and suggest the most likely fix\" \\\n  > tls-debug.md"} language="bash" />
+
+#### 生成可直接发到 Slack 的更新
+
+<CodeBlock code={"gh run view 123456 --log \\\n  | codex exec \"write a concise Slack-ready update on the CI failure, including the likely cause and next step\" \\\n  | pbcopy"} language="bash" />
+
+#### 根据 CI 日志起草 PR 评论
+
+<CodeBlock code={"gh run view 123456 --log \\\n  | codex exec \"summarize the failure in 5 bullets for the pull request thread\" \\\n  | gh pr comment 789 --body-file -"} language="bash" />
+
+<span id="当-stdin-本身就是完整提示词时使用-codex-exec"></span>
+
+### 当 stdin 本身就是完整提示词时使用 `codex exec -`
+
+如果你不提供提示词参数，Codex 会从 stdin 读取完整提示词。显式写成 `codex exec -` 可以强制采用这种行为。
+
+这很适合把提示词存在文件里、用 shell 脚本拼装提示词，或者把实时命令输出和说明拼接后整体交给 Codex：
+
+<CodeBlock code={"cat prompt.txt | codex exec -"} language="bash" />
+
+<CodeBlock code={"printf \"Summarize this error log in 3 bullets:\\n\\n%s\\n\" \"$(tail -n 200 app.log)\" \\\n  | codex exec -"} language="bash" />
+
+<CodeBlock code={"generate_prompt.sh | codex exec - --json > result.jsonl"} language="bash" />

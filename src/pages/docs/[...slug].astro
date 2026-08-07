@@ -1,0 +1,19 @@
+---
+import { getCollection, type CollectionEntry } from 'astro:content';
+import ArticlePage from '../../components/ArticlePage.astro';
+import { getDocsNavigation } from '../../lib/docs';
+
+export async function getStaticPaths() {
+  const entries = await getCollection('docs', ({ data }) => data.locale === 'zh' && !data.draft);
+  return entries.map((entry) => ({
+    params: { slug: entry.data.translationKey },
+    props: { entry },
+  }));
+}
+
+type Props = { entry: CollectionEntry<'docs'> };
+const { entry } = Astro.props;
+const navigation = await getDocsNavigation('zh');
+---
+
+<ArticlePage currentPath={Astro.url.pathname} entry={entry} navigation={navigation} />

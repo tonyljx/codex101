@@ -1,0 +1,353 @@
+---
+title: "托管配置"
+description: "在受支持的本地客户端中强制执行运行时要求，并分发受管默认设置"
+locale: "zh"
+translationKey: "enterprise/managed-configuration"
+section: "explore"
+order: 1093
+draft: false
+translationStatus: complete
+lastUpdated: 2026-08-06
+pageKind: article
+referenceHub: "administration"
+sourceUrl: "https://www.codex-docs.com/docs/enterprise/managed-configuration"
+outline:
+  - id: "admin-enforced-requirements-requirementstoml"
+    label: "管理员强制规则（requirements.toml）"
+  - id: "托管默认值managedconfigtoml"
+    label: "托管默认值（managed_config.toml）"
+---
+
+托管配置用于控制 ChatGPT 桌面 App、Codex CLI 和 IDE 扩展中受支持能力的本地运行时行为。不同客户端和版本支持的强制规则可能不同。托管配置不会授予 ChatGPT 工作区访问权限、分配席位，也不会取代工作区基于角色的访问控制（RBAC）。工作区功能访问参见[角色和工作区权限](/docs/enterprise/roles-and-workspace-permissions)；本页面只说明本地运行时策略。
+
+企业管理员可以通过两种方式控制受支持的本地客户端行为：
+
+-   **强制规则（Requirements）：** 管理员强制执行的约束，用户不能覆盖。
+-   **托管默认值（Managed defaults）：** 受支持客户端启动时应用的初始值。用户在当前运行中仍可修改，但客户端下次启动时会重新应用托管默认值。
+
+<span id="admin-enforced-requirements-requirementstoml"></span>
+
+## 管理员强制规则（`requirements.toml`）
+
+`requirements.toml` 用来限制安全相关设置，例如审批策略、审批评审者、自动评审策略、沙箱模式、权限配置档案、Web 搜索模式、托管钩子、允许用户启用哪些 MCP servers，以及允许用户添加、安装或刷新的自定义插件市场来源。本地客户端汇总配置时，例如读取 `config.toml`、[配置档案文件](/docs/config-file/config-advanced#profiles)或 CLI 配置覆盖项，如果某个值与强制规则冲突，会回退到兼容值并通知用户。
+
+如果为 `mcp_servers` 配置允许列表，只有 MCP server 的名称与身份都匹配获准条目时，本地客户端才会启用；否则会将其禁用。
+
+还可以通过 `requirements.toml` 的 `[features]` 表限制[功能开关](/docs/config-file/config-basic#feature-flags)。功能不一定都与安全相关，但企业可以按需固定值；省略的键不受约束。
+
+对于 Codex `0.138.0` 或更新版本，优先使用[权限配置档案](/docs/permissions)，也就是通过 `allowed_permission_profiles` 搭配托管的 `default_permissions`。只有仍配置 `sandbox_mode` 的旧部署，才使用 `allowed_sandbox_modes`。
+
+完整键列表参见[配置参考中的 `requirements.toml`](/docs/config-file/config-reference#requirementstoml)。
+
+<span id="locations-and-precedence"></span>
+
+### 位置与优先级
+
+每个受支持的本地客户端从低到高组合以下强制规则来源：
+
+1.  系统 `requirements.toml`：Unix（包括 Linux 和 macOS）上的 `/etc/codex/requirements.toml`，或 Windows 上的 `%ProgramData%\OpenAI\Codex\requirements.toml`。
+2.  通过云端配置包下发的企业托管强制规则。
+3.  本地客户端重新解释为强制规则的旧 `managed_config.toml` 字段。
+4.  通过 `com.openai.codex:requirements_toml_base64` 下发的 macOS 托管偏好设置（MDM）。
+
+高优先级层会覆盖低优先级层中的普通标量和列表值。表按键合并；规则、钩子和文件系统限制等强制规则则使用各字段特定的组合方式。当前结构定义应以 [`requirements.toml` 参考](/docs/config-file/config-reference#requirementstoml)为准，不要假设所有字段采用同一种合并方式。
+
+为保持向后兼容，受支持的本地客户端会把旧 `approval_policy`、`approvals_reviewer` 和 `sandbox_mode` 字段重新解释为强制规则，并在需要时补充兼容选项。需要显式允许列表时，应改用 `requirements.toml`。
+
+### 云端托管强制规则
+
+用户通过受支持套餐的 ChatGPT 账号登录后，受支持的本地客户端可以接收与该工作区关联的管理员强制规则。这是一种与 `requirements.toml` 兼容的策略下发渠道，不会授予工作区访问权限，也不会替代工作区 RBAC。
+
+打开 [Managed configuration（托管配置）](https://chatgpt.com/codex/settings/managed-configs)，创建并分配云端托管强制规则。例如，以下策略要求受支持客户端使用美国数据驻留，限制审批与沙箱选择，并在受支持的 shell 入口运行前请求确认：
+
+<CodeBlock code={"enforce_residency = \"us\"\nallowed_approval_policies = [\"on-request\"]\nallowed_sandbox_modes = [\"read-only\", \"workspace-write\"]\n\n[rules]\nprefix_rules = [\n  { pattern = [{ any_of = [\"bash\", \"sh\", \"zsh\"] }], decision = \"prompt\", justification = \"Require explicit approval for shell entry points\" },\n]"} language="toml" />
+
+请确认每个托管客户端版本都支持所选键，并先在小范围群组中测试，再分配给整个组织。当前结构定义以配置参考为准；工作区端创建与分配行为则以管理界面为准。
+
+服务会选择适用于当前登录身份的企业托管强制规则层。本地客户端再按照[位置与优先级](#locations-and-precedence)与其他强制规则来源组合。工作区端创建与分配行为由管理服务负责，可能独立于本地强制规则格式变化，因此不要依赖复制出来的群组匹配算法。
+
+支持的键和示例参见 [`requirements.toml` 示例](#example-requirementstoml)和 [`requirements.toml` 参考](/docs/config-file/config-reference#requirementstoml)。
+
+#### 本地客户端如何应用云端托管强制规则
+
+用户启动受支持的本地客户端并通过受支持套餐的 ChatGPT 账号登录时，客户端会先检查与当前身份匹配且仍有效的缓存条目。若不存在，则通过重试从服务拉取适用的配置包，并在成功后写入签名缓存。如果请求失败或超时，同时没有有效缓存，云端配置包加载会返回错误，而不是在缺少云端托管强制规则层的情况下静默启动。
+
+解析缓存后，客户端会按上面的规则把云端强制规则与其他强制规则层组合。后台刷新可以更新下次启动使用的缓存，但不会替换当前进程已经加载的强制规则。
+
+<span id="example-requirementstoml"></span>
+
+### `requirements.toml` 示例
+
+下面这个示例会阻止使用 `--ask-for-approval never` 和 `--sandbox danger-full-access`，其中也包括 `--yolo`：
+
+<CodeBlock code={"allowed_approval_policies = [\"untrusted\", \"on-request\"]\nallowed_sandbox_modes = [\"read-only\", \"workspace-write\"]"} language="toml" />
+
+### 禁用 Appshots
+
+如果要为受管理用户禁用 Appshots，请设置顶层 `allow_appshots` 强制规则：
+
+<CodeBlock code={"allow_appshots = false"} language="toml" />
+
+在 Appshots 可用的产品中，`allow_appshots = false` 会将其禁用。如果省略该键，强制规则不会约束 Appshots，仍按正常产品可用性检查决定。通过 `configRequirements/read` 读取实际生效强制规则的 app-server 客户端会收到同样的 `allowAppshots` 限制；省略或设为 `null` 不会禁用 Appshots。
+
+### 禁用设备远程控制
+
+如果要为受管理用户禁用[设备远程控制](/docs/remote-connections#pick-up-work-from-another-device)，请设置顶层 `allow_remote_control` 强制规则：
+
+<CodeBlock code={"allow_remote_control = false"} language="toml" />
+
+在支持设备远程控制的产品中，`allow_remote_control = false` 会将其禁用。如果省略该键，强制规则不会约束设备远程控制，仍按正常产品可用性检查决定。该强制规则不会禁用 SSH 远程连接。
+
+<span id="control-available-permission-profiles"></span>
+
+### 控制可用权限配置档案
+
+使用 `allowed_permission_profiles` 可以控制用户能选择哪些内建和自定义[权限配置档案](/docs/permissions)。它是 `allowed_sandbox_modes` 对应的权限配置档案允许列表；请根据用户实际选择权限的方式使用对应允许列表。
+
+权限配置档案允许列表要求 Codex `0.138.0` 或更新版本。Codex `0.137.0` 及更早版本会忽略 `allowed_permission_profiles` 和托管的 `default_permissions`。
+
+只有在所有受管理客户端都运行支持版本后，才使用下面的权限配置档案示例。不要在客户端群升级完成前部署托管自定义配置档案。
+
+当 `[allowed_permission_profiles]` 表存在时，它就是完整的允许列表。设为 `true` 的配置档案会被允许；省略或设为 `false` 的配置档案会被拒绝，包括未来 Codex 版本新增的内建配置档案。
+
+#### 允许标准配置档案
+
+下面的策略允许只读和工作区访问，但不允许完全访问：
+
+<CodeBlock code={"default_permissions = \":workspace\"\n\n[allowed_permission_profiles]\n\":read-only\" = true\n\":workspace\" = true\n# 省略 \":danger-full-access\"，因此它会被拒绝。"} language="toml" />
+
+#### 添加托管的最小权限默认值
+
+管理员可以在同一个强制规则来源中定义自定义配置档案。请使用不会和用户已加载配置里的名称冲突的组织专属名称。自定义名称不能以 `:` 开头，也不能使用保留名称 `filesystem`。
+
+不要把托管自定义配置档案部署到运行 Codex `0.137.0` 或更早版本的客户端。那些客户端能识别配置档案表，但不能识别选择它的托管默认值。
+
+例如：
+
+<CodeBlock code={"default_permissions = \"acme_review_only\"\n\n[allowed_permission_profiles]\n\":read-only\" = true\n\":workspace\" = true\nacme_review_only = true\n# 有意省略 \":danger-full-access\"，因此它会被拒绝。\n\n[permissions.acme_review_only]\ndescription = \"Review code without modifying the workspace.\"\nextends = \":read-only\""} language="toml" />
+
+#### 只允许企业定义的配置档案
+
+如果用户只能选择管理员定义的配置档案，请省略所有内建项：
+
+<CodeBlock code={"default_permissions = \"acme_workspace\"\n\n[allowed_permission_profiles]\nacme_workspace = true\n\n[permissions.acme_workspace]\ndescription = \"Workspace access with sensitive files denied.\"\nextends = \":workspace\"\n\n[permissions.acme_workspace.filesystem]\nglob_scan_max_depth = 3\n\n[permissions.acme_workspace.filesystem.\":workspace_roots\"]\n\"**/*.env\" = \"deny\""} language="toml" />
+
+这个自定义配置档案可以扩展 `:workspace`，即使用户不能直接选择内建的 `:workspace` 配置档案。
+
+#### 关闭另一个来源允许的配置档案
+
+权限允许列表按配置档案名称合并。由于云端强制规则的优先级高于系统强制规则，云端强制规则可以用 `false` 关闭系统文件允许的配置档案。
+
+云端强制规则：
+
+<CodeBlock code={"default_permissions = \":read-only\"\n\n[allowed_permission_profiles]\n\":read-only\" = true\n\":workspace\" = false"} language="toml" />
+
+系统强制规则：
+
+<CodeBlock code={"[allowed_permission_profiles]\n\":read-only\" = true\n\":workspace\" = true  # 不会生效，因为云端强制规则将它设为了 false。"} language="toml" />
+
+请显式把 `default_permissions` 设为一个允许的配置档案。如果省略它，只有当 `:workspace` 和 `:read-only` 都被显式允许时，本地运行时才会默认使用 `:workspace`。当 `allowed_permission_profiles` 不存在时，托管强制规则不会限制用户可选择的配置档案名称。每个条目都必须指向内建配置档案，或指向已加载配置或强制规则来源中定义的自定义配置档案。如果希望集中控制自定义配置档案行为，请在托管强制规则中定义。
+
+### 按主机覆盖沙箱强制规则
+
+当同一份托管策略需要在不同主机上应用不同的沙箱要求时，可以使用 `[[remote_sandbox_config]]`。例如，你可以为笔记本保留更严格的默认值，同时允许匹配的 dev box 或 CI runner 使用 `workspace-write`。主机级条目当前只会覆盖 `allowed_sandbox_modes`：
+
+<CodeBlock code={"allowed_sandbox_modes = [\"read-only\"]\n\n[[remote_sandbox_config]]\nhostname_patterns = [\"*.devbox.example.com\", \"runner-??.ci.example.com\"]\nallowed_sandbox_modes = [\"read-only\", \"workspace-write\"]"} language="toml" />
+
+本地运行时会把每个 `hostname_patterns` 条目与尽力解析出的主机名比较。可用时优先使用完整限定域名，否则回退到本地主机名。匹配不区分大小写；`*` 匹配任意字符序列，`?` 匹配单个字符。
+
+在同一个强制规则来源中，第一个命中的 `[[remote_sandbox_config]]` 条目生效。如果没有条目命中，本地运行时会保留顶层的 `allowed_sandbox_modes`。主机名匹配只用于策略选择，不应把它当作已认证的设备证明。
+
+你也可以限制 Web 搜索模式：
+
+<CodeBlock code={"allowed_web_search_modes = [\"cached\"] # \"disabled\" remains implicitly allowed"} language="toml" />
+
+`allowed_web_search_modes = []` 表示只允许 `"disabled"`。
+
+例如，`allowed_web_search_modes = ["cached"]` 会禁止实时 Web 搜索，即使用户当前会话运行在 `danger-full-access` 模式下也一样。
+
+<span id="configure-network-access-requirements"></span>
+
+### 配置网络访问要求
+
+<Callout kind="warning">
+
+`[experimental_network]` 仍是实验性能力，之后可能变化。不要在企业部署中广泛启用这些强制规则，除非你已经在用户实际运行的本地客户端版本和操作系统上验证过。Windows 支持仍然有限；除非已经在你的环境中测试过，否则不要把这项策略应用到 Windows 用户。
+
+</Callout>
+
+当管理员需要集中定义网络访问要求时，可以在 `requirements.toml` 中使用 `[experimental_network]`。这些要求独立于用户侧的 `features.network_proxy` 开关：它们可以在不启用该功能开关的情况下配置沙箱网络，但如果当前激活的沙箱本身关闭了命令联网，它们不会授予命令网络访问。
+
+<CodeBlock code={"experimental_network.enabled = true\nexperimental_network.allowed_domains = [\n  \"api.openai.com\",\n  \"*.example.com\",\n]\nexperimental_network.denied_domains = [\n  \"blocked.example.com\",\n  \"*.exfil.example.com\",\n]"} language="toml" />
+
+只有在同时定义了管理员管理的 `allowed_domains`，并且希望这个允许列表成为唯一有效列表时，才使用 `experimental_network.managed_allowed_domains_only = true`。如果它为 `true` 但没有托管的 `allow` 规则，用户新增的域名 `allow` 规则也不会继续生效。
+
+域名语法、本地或私有目的地规则、`deny` 优先于 `allow` 的行为，以及 DNS rebinding 限制，都与[智能体审批与安全](/docs/agent-approvals-security#network-isolation)中描述的沙箱网络行为一致。
+
+<span id="pin-feature-flags"></span>
+
+### 固定功能开关
+
+你也可以为接收托管 `requirements.toml` 的用户固定[功能开关](/docs/config-file/config-basic#feature-flags)的取值：
+
+<CodeBlock code={"[features]\npersonality = true\nunified_exec = false\n\n# 需要时禁用特定产品形态的功能。\nbrowser_use = false\nbrowser_use_full_cdp_access = false\nbrowser_use_external = false\nin_app_browser = false\nin_app_updates = false\ncomputer_use = false"} language="toml" />
+
+运行时功能应使用 `config.toml` 的 `[features]` 表中定义的权威键名。本地运行时会规范化已识别功能以满足固定值，并拒绝把冲突设置写入 `config.toml` 或配置档案文件中的功能设置。
+
+-   `in_app_browser = false` 会禁用内置浏览器面板。
+-   `in_app_updates = false` 会在支持的环境中禁用 ChatGPT 桌面 App 重启时运行的内置更新程序。它不会影响外部软件包部署，也不会延长旧版 App 的支持周期。设置与发布指导请参见[管理 App 更新](/docs/enterprise/manage-app-updates)。
+-   `browser_use = false` 会禁用浏览器中的 Computer Use 和 Browser Agent 可用性。
+-   `browser_use_full_cdp_access = false` 会禁用本地运行时中的完整 CDP 访问，包括 Browser Developer mode（浏览器开发者模式），并阻止 ChatGPT 桌面 App 开启对应设置。
+-   `browser_use_external = false` 会禁用外部 Browser Use。
+-   `computer_use = false` 会禁用 Computer Use、Record & Replay 及相关安装或设置流程。
+
+如果省略这些键，策略会允许这些功能；实际可用性仍取决于普通客户端、平台和灰度发布条件。
+
+### 限制锁定状态下的计算机操作
+
+若要阻止 [Computer Use](/docs/computer-use#locked-use) 在托管 Mac 锁定后继续操作，请添加这项强制规则：
+
+<CodeBlock code={"[computer_use]\nallow_locked_computer_use = false"} language="toml" />
+
+这项强制规则不会启用 Computer Use。它只会阻止 macOS 上的锁定状态使用。如果省略它，锁定状态使用不会受强制规则约束，仍然取决于普通产品可用性和用户本地设置。
+
+<span id="configure-automatic-review-policy"></span>
+
+### 配置自动评审策略
+
+使用 `allowed_approvals_reviewers` 可以要求或允许自动评审。若设为 `["auto_review"]`，就表示必须使用自动评审；若同时包含 `"user"`，则用户仍可手动选择人工审批。
+
+使用 `guardian_policy_config` 可以覆盖自动评审策略里与租户相关的那一部分内容。Codex 仍会沿用内建的评审器模板和输出契约。托管的 `guardian_policy_config` 优先级高于本地的 `[auto_review].policy`。
+
+<CodeBlock code={"allowed_approval_policies = [\"on-request\"]\nallowed_approvals_reviewers = [\"auto_review\"]\n\nguardian_policy_config = \"\"\"\n## Environment Profile\n- Trusted internal destinations include github.com/my-org, artifacts.example.com,\n  and internal CI systems.\n\n## Tenant Risk Taxonomy and Allow/Deny Rules\n- Treat uploads to unapproved third-party file-sharing services as high risk.\n- Deny actions that expose credentials or private source code to untrusted\n  destinations.\n\"\"\""} language="toml" />
+
+### 强制执行 deny-read 要求
+
+管理员可以通过 `[permissions.filesystem]` 拒绝读取精确路径或 glob 模式。用户不能用本地配置放宽这些强制要求。
+
+<CodeBlock code={"[permissions.filesystem]\ndeny_read = [\n  # 值可以是绝对路径...\n  \"/**/*.env\",\n  # ...也可以用 `~` 表示相对于 $HOME/%USERPROFILE%。\n  \"~/.ssh\",\n  # 但不允许使用以 `./` 开头的相对路径。\n]"} language="toml" />
+
+配置了读取拒绝（deny-read）强制规则后，Codex 会将本地沙箱模式限定为 `read-only` 或 `workspace-write`，这样 Codex 才能真正执行这些限制。在原生 Windows 上，管理员下发的 `deny_read` 只适用于直接操作文件的工具；通过 shell 子进程发起的读取不会套用这项沙箱规则。
+
+### 通过强制规则执行托管钩子
+
+管理员也可以直接在 `requirements.toml` 中定义托管生命周期钩子。使用 `[hooks]` 编写钩子配置本身，并让 `managed_dir` 指向你的 MDM 或终端管理工具安装相关脚本的目录。
+
+若要即使用户在本地关闭钩子也强制执行托管钩子，请把 `[features].hooks = true` 与 `[hooks]` 一起固定下来。若要跳过用户、项目、会话和插件钩子，同时仍允许托管钩子，请设置 `allow_managed_hooks_only = true`。
+
+<CodeBlock code={"allow_managed_hooks_only = true\n\n[features]\nhooks = true\n\n[hooks]\nmanaged_dir = \"/enterprise/hooks\"\nwindows_managed_dir = 'C:\\enterprise\\hooks'\n\n[[hooks.PreToolUse]]\nmatcher = \"^Bash$\"\n\n[[hooks.PreToolUse.hooks]]\ntype = \"command\"\ncommand = \"python3 /enterprise/hooks/pre_tool_use_policy.py\"\ncommand_windows = 'py -3 C:\\enterprise\\hooks\\pre_tool_use_policy.py'\ntimeout = 30\nstatusMessage = \"Checking managed Bash command\""} language="toml" />
+
+注意事项：
+
+-   Codex 会强制执行 `requirements.toml` 中的钩子配置，但不会分发 `managed_dir` 中的脚本。
+-   请用 MDM 或设备管理方案单独分发这些脚本。
+-   托管钩子命令应引用配置的托管目录下的绝对脚本路径。
+-   `allow_managed_hooks_only = true` 会跳过来自用户、项目、会话和插件来源的钩子，但仍会加载 `requirements.toml` 和其他托管配置层里的托管钩子。
+
+### 通过强制规则执行命令规则
+
+管理员还可以在 `requirements.toml` 的 `[rules]` 表里写入更严格的命令规则。这些规则会和普通 `.rules` 文件一起生效，最后仍以限制更严格的结果为准。
+
+和 `.rules` 不同，这里的每条规则都必须显式写出 `decision`，而且只能是 `"prompt"` 或 `"forbidden"`，不能写 `"allow"`。
+
+<CodeBlock code={"[rules]\nprefix_rules = [\n  { pattern = [{ token = \"rm\" }], decision = \"forbidden\", justification = \"Use git clean -fd instead.\" },\n  { pattern = [{ token = \"git\" }, { any_of = [\"push\", \"commit\"] }], decision = \"prompt\", justification = \"Require review before mutating history.\" },\n]"} language="toml" />
+
+如果你要限制用户可以启用哪些 MCP servers，可以为 `mcp_servers` 配置允许列表。对于 stdio server，要匹配 `command`；对于 streamable HTTP server，要匹配 `url`：
+
+<CodeBlock code={"[mcp_servers.docs]\nidentity = { command = \"codex-mcp\" }\n\n[mcp_servers.remote]\nidentity = { url = \"https://example.com/mcp\" }"} language="toml" />
+
+`identity.command` 的字符串形式只匹配配置里的 `command`，不会检查 `args`、`cwd`、`env` 或 `env_vars`。
+
+如果要约束完整的 stdio 调用，需要同时匹配可执行文件和每个位置参数：
+
+<CodeBlock code={"[mcp_servers.internal.identity]\ncommand = { executable = \"/usr/local/bin/codex-mcp\", args = [\n  { match = \"exact\", value = \"serve\" },\n  { match = \"prefix\", value = \"--workspace=\" },\n] }"} language="toml" />
+
+可执行文件、参数数量和参数顺序都必须匹配。参数规则和 URL 规则支持 `exact`、`prefix` 以及匹配完整值的 `regex`。结构化 command 规则仍不会检查 `cwd`、`env` 或 `env_vars`。插件打包的 MCP server 在 `plugins.<plugin>.mcp_servers.<server>` 下使用同样的身份规则形态。
+
+如果 `mcp_servers` 存在但为空，Codex 会禁用所有 MCP servers。
+
+### 控制 plugin 可用性
+
+如需在受支持的本地客户端中关闭 plugins，请在 `requirements.toml` 中把 `features.plugins` 设为 `false`：
+
+<CodeBlock code={"features.plugins = false"} language="toml" />
+
+用户使用 API key 登录 Codex 时，此设置同样生效。支持的配置见 [`features.plugins` 参考](/docs/config-file/config-reference#requirementstoml)。
+
+### 限制插件市场来源
+
+如果要限制针对用户自定义插件市场来源的操作，请设置 `restrict_to_allowed_sources = true`，并定义一个或多个来源规则：
+
+<CodeBlock code={"[marketplaces]\nrestrict_to_allowed_sources = true\n\n[marketplaces.allowed_sources.company_plugins]\nsource = \"git\"\nurl = \"https://github.com/example/company-plugins.git\"\nref = \"main\"\n\n[marketplaces.allowed_sources.internal_git]\nsource = \"host_pattern\"\nhost_pattern = '^git\\.example\\.com$'\n\n[marketplaces.allowed_sources.local_plugins]\nsource = \"local\"\npath = \"/opt/company/codex-plugins\""} language="toml" />
+
+Git 规则会匹配规范化后的仓库 URL；如果写了 `ref`，还会要求精确匹配该 `ref`。`host_pattern` 是针对小写 Git 主机名的正则表达式；如果要匹配完整主机名，请使用 `^` 和 `$`。`local` 规则要求绝对且规范化后的路径。完整结构定义与合并行为参见 [`requirements.toml` 参考](/docs/config-file/config-reference#requirementstoml)。
+
+这些强制规则会拒绝添加不匹配的插件市场、安装插件，以及刷新已配置的 Git 插件市场，但只作用于用户自定义来源。只要来源和保留名称匹配，Codex 管理的 OpenAI 插件市场仍然可用。这些强制规则不会在运行时过滤已经配置好的用户插件市场或其中的插件。
+
+这些来源限制只应用于支持插件市场操作的本地客户端：桌面 App 中的 ChatGPT Work 与 Codex，以及 Codex CLI。它们不会把插件添加到 Chat、IDE 扩展或移动端。
+
+<span id="托管默认值managedconfigtoml"></span>
+
+## 托管默认值（`managed_config.toml`）
+
+`managed_config.toml` 会合并到用户本地 `config.toml` 之上，也会压过 CLI 的 `--config` 覆盖项，为受支持的本地客户端提供启动初始值。用户在当前运行中仍可修改，但客户端下次启动时会重新应用托管默认值。
+
+如果托管默认值、macOS MDM 配置档案或已保存配置为使用 ChatGPT 登录的用户固定了 `gpt-5.4` 或 `gpt-5.4-mini`，请在 2026 年 8 月 31 日前完成更新：将 `gpt-5.4` 替换为 `gpt-5.6-terra`，并将 `gpt-5.4-mini` 替换为 `gpt-5.6-luna`。OpenAI API 和使用自有 API key 认证的 Codex 不受影响。详情见[工作区模型可用性](/docs/enterprise/workspace-model-availability#prepare-for-the-gpt-54-retirement)。
+
+请确保托管默认值符合强制规则；不允许的值会被本地运行时拒绝。
+
+### 优先级与叠加关系
+
+本地运行时按以下顺序生成实际生效配置，越靠上的层优先级越高：
+
+-   macOS 托管偏好设置（MDM，最高优先级）
+-   `managed_config.toml`（系统级或托管文件）
+-   `config.toml`（用户基础配置）
+
+CLI `--config key=value` 只作用在基础层，但仍会被托管层覆盖。这意味着即使用户本地传了参数，每次启动仍会先回到托管默认值。
+
+云端托管强制规则影响的是强制规则层，不属于托管默认值层。它的优先级请参见上面的“管理员强制规则”。
+
+### 位置
+
+-   Linux / macOS（Unix）：`/etc/codex/managed_config.toml`
+-   Windows / 非 Unix：`~/.codex/managed_config.toml`
+
+如果文件不存在，本地运行时会跳过这一层托管配置。
+
+### macOS 托管偏好设置（MDM）
+
+在 macOS 上，管理员可以通过设备配置描述文件下发 base64 编码的 TOML 内容：
+
+-   偏好设置域：`com.openai.codex`
+-   键：
+    -   `config_toml_base64`（托管默认值）
+    -   `requirements_toml_base64`（强制规则）
+
+本地运行时会把这些托管偏好设置载荷按 TOML 解析。对于托管默认值 `config_toml_base64`，托管偏好设置拥有最高优先级；对于强制规则 `requirements_toml_base64`，优先级遵循上文云端托管强制规则的顺序。
+
+在 `requirements_toml_base64` 里同样可以使用 `[features]` 表，这里也要使用标准键名。
+
+### MDM 设置流程
+
+本地运行时兼容标准 macOS MDM payload，因此可以用 `Jamf Pro`、`Fleet` 或 `Kandji` 等工具下发设置。一个简洁的部署流程如下：
+
+1.  写好要下发的 TOML，再用 `base64` 编码，编码结果不要换行。
+2.  把编码后的字符串放进 MDM 配置描述文件的 `com.openai.codex` 域，写到 `config_toml_base64`（托管默认值）或 `requirements_toml_base64`（强制规则）。
+3.  下发配置描述文件后，让用户重启受支持的本地客户端，并确认启动配置摘要已经反映托管值。
+4.  如果需要撤销或调整策略，请更新托管载荷；客户端会在下次启动时读取新的偏好设置。
+
+不要在这份内容里写入密钥或频繁变动的动态值。应把这份托管 TOML 当作正式受控配置来管理，和其他需要走变更流程的 MDM 设置保持同样的管理方式。
+
+<span id="managedconfigtoml-示例"></span>
+
+### `managed_config.toml` 示例
+
+<CodeBlock code={"# 使用较保守的默认值\napproval_policy = \"on-request\"\nsandbox_mode    = \"workspace-write\"\n\n[sandbox_workspace_write]\nnetwork_access = false             # 默认关闭网络，除非明确允许\n\n[otel]\nenvironment = \"prod\"\nexporter = \"otlp-http\"            # 指向你的日志采集端\nlog_user_prompt = false            # 不记录用户提示词内容\n# exporter 的详细配置写在对应的 exporter 表中；参见上方监控与遥测说明"} language="toml" />
+
+### 推荐防护栏
+
+-   对大多数用户，优先使用需要审批的 `workspace-write`；只有在受控容器环境中，才考虑开放完全访问。
+-   除非你的安全评估已经允许访问 OTel 采集端或工作流所需域名，否则应保持 `network_access = false`。
+-   可以用托管配置固定 OTel 的 `exporter`、`environment` 等设置，但除非策略明确允许保存提示词内容，否则应保持 `log_user_prompt = false`。
+-   应定期检查本地 `config.toml` 与托管策略之间的差异，及时发现配置漂移；最终应始终以托管层覆盖本地文件和命令行参数。

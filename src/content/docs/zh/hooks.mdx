@@ -1,0 +1,623 @@
+---
+title: "挂钩"
+navTitle: "钩子"
+description: "在 Codex 生命周期中运行确定性脚本"
+locale: "zh"
+translationKey: "hooks"
+section: "explore"
+order: 1044
+draft: false
+translationStatus: complete
+lastUpdated: 2026-08-06
+pageKind: article
+referenceHub: "developers"
+sourceUrl: "https://www.codex-docs.com/docs/hooks"
+outline:
+  - id: "codex-在哪里寻找钩子"
+    label: "Codex 在哪里寻找钩子"
+  - id: "评审和信任挂钩"
+    label: "评审和信任挂钩"
+  - id: "配置形状"
+    label: "配置形状"
+  - id: "关闭挂钩"
+    label: "关闭挂钩"
+  - id: "来自-requirementstoml-的托管挂钩"
+    label: "来自 requirements.toml 的托管挂钩"
+  - id: "插件捆绑钩子"
+    label: "插件捆绑钩子"
+  - id: "匹配器模式"
+    label: "匹配器模式"
+  - id: "常用输入字段"
+    label: "常用输入字段"
+  - id: "公共输出字段"
+    label: "公共输出字段"
+  - id: "挂钩"
+    label: "挂钩"
+  - id: "模式"
+    label: "模式"
+---
+
+Hooks 是 Codex 的可扩展框架。他们允许 你可以将自己的脚本注入智能体循环中，从而启用以下功能：
+
+-   将聊天发送到自定义日志记录/分析引擎
+-   扫描团队的提示以阻止意外粘贴 API 密钥
+-   总结聊天记录，自动创建持久记忆
+-   当聊天 turn 停止时运行自定义验证检查，执行标准
+-   自定义在某个目录时的提示
+
+要记住的运行时行为：
+
+-   来自多个文件的匹配钩子全部运行。
+-   同时启动同一事件的多个匹配命令挂钩， 所以一个钩子不能阻止另一个匹配钩子的启动。
+-   非托管命令挂钩在运行之前必须经过评审和信任。
+
+钩子在对话中的不同点运行：
+
+<div className="doc-table-wrap">
+
+| 当 | 挂钩 |
+| --- | --- |
+| 在 turn | 期间`PreToolUse`、`PermissionRequest`、`PostToolUse`、`PreCompact`、`PostCompact`、`UserPromptSubmit`、`SubagentStop`、`Stop` |
+| 当会话或子智能体启动时 | `SessionStart`，`SubagentStart` |
+| 当主thread结束时 | `SessionEnd`（不为子智能体运行） |
+
+</div>
+
+## Codex 在哪里寻找钩子
+
+Codex 以以下任一形式发现活动配置层旁边的钩子：
+
+-   `hooks.json`
+-   `config.toml` 内的内联 `[hooks]` 表
+
+安装的插件还可以通过其插件捆绑生命周期配置 清单或默认的 `hooks/hooks.json` 文件。请参阅[构建 插件](https://developers.openai.com/plugins/build/plugins#bundled-mcp-servers-and-lifecycle-hooks) 插件打包规则。
+
+实际上，四个最有用的位置是：
+
+-   `~/.codex/hooks.json`
+-   `~/.codex/config.toml`
+-   `<repo>/.codex/hooks.json`
+-   `<repo>/.codex/config.toml`
+
+如果存在多个钩子源，则 Codex 加载所有匹配的钩子。 较高优先级的配置层不会取代较低优先级的挂钩。 如果单层同时包含 `hooks.json` 和内联 `[hooks]`、Codex 合并它们并在启动时发出警告。更喜欢每层一个表示。
+
+Codex 还可以发现与启用的插件捆绑在一起的钩子。插件捆绑 钩子与其他钩子源一起加载，并使用与 其他非托管挂钩。
+
+仅当项目 `.codex/` 层受信任时，项目本地挂钩才会加载。在 不受信任的项目，Codex 仍然从自己的加载用户和系统钩子 活动配置层。
+
+## 评审和信任挂钩
+
+Codex 在决定哪些可以运行之前列出已配置的挂钩。之前 非托管命令挂钩可以运行，Codex 要求你检查并信任 准确的钩子定义。 Codex 记录对钩子当前哈希的信任，因此 新的或更改的挂钩将被标记以供评审并跳过，直到可信为止。
+
+使用 CLI 中的 `/hooks` 检查钩子源，查看新的或更改的钩子， 信任挂钩，或禁用单个非托管挂钩。如果钩子需要评审 启动时，Codex 打印一条警告，告诉你打开 `/hooks`。
+
+来自系统、MDM、云或 `requirements.toml` 源的托管挂钩已标记 由策略管理、信任，并且无法从用户挂钩浏览器禁用。
+
+对于已经评审 Codex 之外的源的一次性自动化，请通过 `--dangerously-bypass-hook-trust` 运行已启用的挂钩，无需 该调用的持久钩子信任。
+
+## 配置形状
+
+钩子分为三个级别：
+
+-   `PreToolUse`、`PostToolUse`、`PreCompact`等钩子事件， `SubagentStart` 或 `Stop`
+-   决定事件何时匹配的匹配器组
+-   当匹配器组匹配时运行的一个或多个钩子处理程序
+
+<CodeBlock code={"{\n  \"description\": \"Optional lifecycle hooks for this workspace.\",\n  \"hooks\": {\n    \"SessionStart\": [\n      {\n        \"matcher\": \"startup|resume\",\n        \"hooks\": [\n          {\n            \"type\": \"command\",\n            \"command\": \"python3 ~/.codex/hooks/session_start.py\",\n            \"statusMessage\": \"Loading session notes\",\n            \"additionalContextLimit\": 5000\n          }\n        ]\n      }\n    ],\n    \"SessionEnd\": [\n      {\n        \"hooks\": [\n          {\n            \"type\": \"command\",\n            \"command\": \"python3 ~/.codex/hooks/session_end.py\",\n            \"timeout\": 3\n          }\n        ]\n      }\n    ],\n    \"PreToolUse\": [\n      {\n        \"matcher\": \"Bash\",\n        \"hooks\": [\n          {\n            \"type\": \"command\",\n            \"command\": \"/usr/bin/python3 \\\"$(git rev-parse --show-toplevel)/.codex/hooks/pre_tool_use_policy.py\\\"\",\n            \"statusMessage\": \"Checking Bash command\"\n          }\n        ]\n      }\n    ],\n    \"PermissionRequest\": [\n      {\n        \"matcher\": \"Bash\",\n        \"hooks\": [\n          {\n            \"type\": \"command\",\n            \"command\": \"/usr/bin/python3 \\\"$(git rev-parse --show-toplevel)/.codex/hooks/permission_request.py\\\"\",\n            \"statusMessage\": \"Checking approval request\"\n          }\n        ]\n      }\n    ],\n    \"PostToolUse\": [\n      {\n        \"matcher\": \"Bash\",\n        \"hooks\": [\n          {\n            \"type\": \"command\",\n            \"command\": \"/usr/bin/python3 \\\"$(git rev-parse --show-toplevel)/.codex/hooks/post_tool_use_review.py\\\"\",\n            \"statusMessage\": \"Reviewing Bash output\"\n          }\n        ]\n      }\n    ],\n    \"UserPromptSubmit\": [\n      {\n        \"hooks\": [\n          {\n            \"type\": \"command\",\n            \"command\": \"/usr/bin/python3 \\\"$(git rev-parse --show-toplevel)/.codex/hooks/user_prompt_submit_data_flywheel.py\\\"\"\n          }\n        ]\n      }\n    ],\n    \"Stop\": [\n      {\n        \"hooks\": [\n          {\n            \"type\": \"command\",\n            \"command\": \"/usr/bin/python3 \\\"$(git rev-parse --show-toplevel)/.codex/hooks/stop_continue.py\\\"\",\n            \"timeout\": 30\n          }\n        ]\n      }\n    ]\n  }\n}"} language="json" />
+
+笔记：
+
+-   `description` 是 `hooks.json` 文件的可选顶级元数据。它 不会改变运行的钩子。
+-   `timeout` 以秒为单位。
+-   如果省略 `timeout`，则 Codex 对大多数挂钩使用 `600` 秒。
+    -   `SessionEnd` 默认使用 `1` 秒，最多支持 `3` 秒。
+-   `statusMessage` 是可选的。
+-   `additionalContextLimit` 设置命令钩子可以多少 `additionalContext` 在 Codex 将全文保存到磁盘并发送较短的文本之前发送到模型 而是预览。请参阅[大钩子输出](#large-hook-output)。
+-   `commandWindows` 是可选的仅 Windows 命令覆盖。在 TOML 中，使用 `command_windows` 或 `commandWindows`。
+-   解析 `async` 选项，但不支持异步命令挂钩 然而。
+-   今天仅运行 `type: "command"` 处理程序。 `prompt` 和 `agent` 处理程序是 已解析但被跳过。
+-   命令以会话 `cwd` 作为工作目录运行。
+-   对于 repo-local 挂钩，更喜欢从 git root 解析，而不是使用 相对路径，例如 `.codex/hooks/...`。 Codex 可以从 子目录，基于 git-root 的路径使钩子位置保持稳定。
+
+`config.toml` 中的等效内联 TOML：
+
+<CodeBlock code={"[[hooks.SessionStart]]\nmatcher = \"^compact$\"\n\n[[hooks.SessionStart.hooks]]\ntype = \"command\"\ncommand = '/usr/bin/python3 \"$(git rev-parse --show-toplevel)/.codex/hooks/session_start.py\"'\nadditionalContextLimit = 5000\n\n[[hooks.PreToolUse]]\nmatcher = \"^Bash$\"\n\n[[hooks.PreToolUse.hooks]]\ntype = \"command\"\ncommand = '/usr/bin/python3 \"$(git rev-parse --show-toplevel)/.codex/hooks/pre_tool_use_policy.py\"'\ntimeout = 30\nstatusMessage = \"Checking Bash command\"\n\n[[hooks.PostToolUse]]\nmatcher = \"^Bash$\"\n\n[[hooks.PostToolUse.hooks]]\ntype = \"command\"\ncommand = '/usr/bin/python3 \"$(git rev-parse --show-toplevel)/.codex/hooks/post_tool_use_review.py\"'\ntimeout = 30\nstatusMessage = \"Reviewing Bash output\""} language="toml" />
+
+## 关闭挂钩
+
+默认情况下启用挂钩。要在 `config.toml` 中关闭 turn，请设置：
+
+<CodeBlock code={"[features]\nhooks = false"} language="toml" />
+
+使用 `hooks` 作为规范功能密钥。 `codex_hooks` 仍然可以作为 已弃用的别名。管理员可以用同样的方式强制挂钩 `requirements.toml` 与 `[features].hooks = false`。
+
+## 来自 `requirements.toml` 的托管挂钩
+
+企业管理的需求还可以在 `[hooks]` 下定义内联挂钩。 当管理员想要强制执行挂钩配置时，这非常有用 通过 MDM 或其他设备管理系统交付实际脚本。 要强制执行托管挂钩，甚至对于本地禁用挂钩的用户，请固定 `[features].hooks = true` 与 `[hooks]` 一起位于 `requirements.toml` 中。忽略 用户、项目、会话和插件挂钩，同时仍允许管理员 托管挂钩，设置 `allow_managed_hooks_only = true`。
+
+<CodeBlock code={"allow_managed_hooks_only = true\n\n[features]\nhooks = true\n\n[hooks]\nmanaged_dir = \"/enterprise/hooks\"\nwindows_managed_dir = 'C:\\enterprise\\hooks'\n\n[[hooks.PreToolUse]]\nmatcher = \"^Bash$\"\n\n[[hooks.PreToolUse.hooks]]\ntype = \"command\"\ncommand = \"python3 /enterprise/hooks/pre_tool_use_policy.py\"\ncommand_windows = 'py -3 C:\\enterprise\\hooks\\pre_tool_use_policy.py'\ntimeout = 30\nstatusMessage = \"Checking managed Bash command\""} language="toml" />
+
+托管钩子的注意事项：
+
+-   `managed_dir` 用于 macOS 和 Linux。
+-   `windows_managed_dir` 用于 Windows 上。
+-   Codex不分发`managed_dir`中的脚本；你的企业 工具必须单独安装和更新。
+-   托管挂钩命令应使用配置下的绝对脚本路径 托管目录。
+-   `allow_managed_hooks_only = true` 跳过用户、项目、会话和 插件源，但仍然从 `requirements.toml` 加载托管挂钩 其他托管配置层。
+
+## 插件捆绑钩子
+
+启用插件后，Codex 可以从该插件加载生命周期钩子 与用户、项目和托管挂钩一起。
+
+默认情况下，Codex 在插件根目录中查找 `hooks/hooks.json`。一个插件 清单可以使用 `hooks` 条目覆盖该默认值 `.codex-plugin/plugin.json`。清单条目可以是 `./` 前缀的路径、 `./` 前缀路径数组、内联钩子对象或内联数组 钩住物体。
+
+<CodeBlock code={"{\n  \"name\": \"repo-policy\",\n  \"hooks\": \"./hooks/hooks.json\"\n}"} language="json" />
+
+清单挂钩路径是相对于插件根解析的，并且必须保留 在那根里面。如果清单定义了 `hooks`，则 Codex 使用这些清单 条目而不是默认的 `hooks/hooks.json`。
+
+插件挂钩命令接收这些环境变量：
+
+-   `PLUGIN_ROOT` 是 Codex 特定的扩展，指向已安装的 插件根。
+-   `PLUGIN_DATA` 是 Codex 特定的扩展，指向插件的 可写数据目录。
+-   Codex 还设置 `CLAUDE_PLUGIN_ROOT` 和 `CLAUDE_PLUGIN_DATA` 与现有插件挂钩的兼容性。
+
+插件挂钩使用与其他挂钩相同的事件模式。安装或启用 插件不会自动信任它的钩子； Codex 跳过插件捆绑的钩子 直到你查看并信任当前的钩子定义。
+
+## 匹配器模式
+
+`matcher` 字段是一个正则表达式字符串，用于在钩子触发时进行过滤。使用`"*"`， `""`，或完全省略 `matcher` 以匹配受支持的每次出现 事件。
+
+目前只有一些 Codex 事件支持 `matcher`：
+
+<div className="doc-table-wrap">
+
+| 活动 | `matcher` 过滤什么 | 笔记 |
+| --- | --- | --- |
+| `PermissionRequest` | 工具名称 | 支持包括 `Bash`、`apply_patch`\* 和 MCP 工具名称 |
+| `PostToolUse` | 工具名称 | 请参阅[工具覆盖率](#tool-coverage) |
+| `PostCompact` | 压实触发器 | 值为 `manual` 或 `auto` |
+| `PreCompact` | 压实触发器 | 值为 `manual` 或 `auto` |
+| `PreToolUse` | 工具名称 | 请参阅[工具覆盖率](#tool-coverage) |
+| `SessionEnd` | 结束原因 | 目前只有`other` |
+| `SessionStart` | 启动源码 | 值为 `startup`、`resume`、`clear` 和 `compact` |
+| `SubagentStart` | 子智能体类型 | 值取决于启动的子智能体 |
+| `SubagentStop` | 子智能体类型 | 值取决于停止的子智能体 |
+| `UserPromptSubmit` | 不支持 | 此事件将忽略任何已配置的 `matcher` |
+| `Stop` | 不支持 | 此事件将忽略任何已配置的 `matcher` |
+
+</div>
+
+\*对于`apply_patch`，`matcher`值也可以使用`Edit`或`Write`。
+
+示例：
+
+-   `Bash`
+-   `^apply_patch$`
+-   `Edit|Write`
+-   `mcp__filesystem__read_file`
+-   `mcp__filesystem__.*`
+-   `startup|resume|clear|compact`
+-   `manual|auto`
+
+### 工具覆盖范围
+
+`PreToolUse`和`PostToolUse`可以观察到比shell和MCP更多的调用。最多 本地函数工具使用相同的钩子路径，因此你可以匹配它们的工具名称， 检查它们的 JSON 参数，对于 `PreToolUse`，阻止或重写调用。
+
+<div className="doc-table-wrap">
+
+| 刀具路径 | `PreToolUse` | `PostToolUse` | 笔记 |
+| --- | --- | --- | --- |
+| 外壳命令 | 是的 | 是的 | 匹配为 `Bash`。 |
+| 统一执行（`exec_command`） | 是的 | 是的 | 匹配为 `Bash`。当该命令完成时，稍后的 `write_stdin` 轮询可以传递原始命令的 `PostToolUse`。 |
+| `apply_patch` | 是的 | 是的 | 匹配为 `apply_patch`、`Edit` 或 `Write`。 |
+| MCP 工具 | 是的 | 是的 | 匹配MCP工具名称，例如`mcp__filesystem__read_file`。 |
+| 其他本地功能工具 | 是的 | 是的 | 匹配功能工具名称，例如`update_plan`。 `spawn_agent` 也匹配 `Agent`。 |
+| 托管工具，如`WebSearch` | 没有 | 没有 | 这些不使用本地函数工具挂钩路径。 |
+
+</div>
+
+`write_stdin` 是现有统一执行会话的传输。它不运行 当它发送输入或轮询已经通过的命令时再次 `PreToolUse` `PreToolUse`。
+
+一些专用工具路径可以选择退出默认挂钩路径。治疗工具 钩子作为有用的护栏，而不是完整的强制边界。
+
+## 常用输入字段
+
+每个命令钩子都会在 `stdin` 上接收一个 JSON 对象。
+
+这些是你通常会使用的共享字段：
+
+<div className="doc-table-wrap">
+
+| 领域 | 类型 | 意义 |
+| --- | --- | --- |
+| `session_id` | `string` | 当前 Codex 会话 ID。子智能体挂钩使用父会话 ID。 |
+| `transcript_path` | `string \| null` | 会话记录文件的路径（如果有） |
+| `cwd` | `string` | 会话的工作目录 |
+| `hook_event_name` | `string` | 当前挂钩事件名称 |
+| `model` | `string` | Codex 特定扩展。活动模型蛞蝓 |
+
+</div>
+
+回合范围挂钩将 `turn_id` 列为其中的 Codex 特定扩展 特定于事件的表。
+
+`SessionStart`、`PreToolUse`、`PermissionRequest`、`PostToolUse`、 `UserPromptSubmit`、`SubagentStart`、`SubagentStop` 和 `Stop` 还包括 `permission_mode`，描述当前权限模式为`default`， `acceptEdits`、`plan`、`dontAsk` 或 `bypassPermissions`。
+
+为了方便起见，`transcript_path` 指向聊天记录，但是 转录格式不是钩子的稳定接口，可能会随着时间的推移而改变。
+
+如果你需要完整的有线格式，请参阅[Schemas](#schemas)。
+
+## 公共输出字段
+
+`SessionStart`、`PreCompact`、`PostCompact`、`UserPromptSubmit`、 `SubagentStop` 和 `Stop` 支持这些共享的 JSON 字段。 `SubagentStart` 接受 `systemMessage` 和特定于钩子的上下文的相同形状，但是 `continue: false` 不会停止子智能体：
+
+<CodeBlock code={"{\n  \"continue\": true,\n  \"stopReason\": \"optional\",\n  \"systemMessage\": \"optional\",\n  \"suppressOutput\": false\n}"} language="json" />
+
+<div className="doc-table-wrap">
+
+| 领域 | 效果 |
+| --- | --- |
+| `continue` | 如果为 `false`，则将该钩子运行标记为已停止 |
+| `stopReason` | 记录为停止原因 |
+| `systemMessage` | 在 UI 或事件流中作为警告出现 |
+| `suppressOutput` | 今天解析但尚未实现 |
+
+</div>
+
+退出 `0` 且无输出视为成功，Codex 继续。
+
+`PreToolUse`和`PermissionRequest`支持`systemMessage`，但`continue`， 这些事件当前不支持 `stopReason` 和 `suppressOutput`。 如果 `PreToolUse` 挂钩返回这些不支持的字段之一，则 Codex 标记 该挂钩运行失败，报告错误，并继续工具调用。
+
+`PostToolUse` 支持 `systemMessage`、`continue: false` 和 `stopReason`。 `suppressOutput` 已解析，但当前不支持该事件。
+
+### 大钩输出
+
+默认情况下，Codex 将每个模型可见的钩子输出消息大致限制为 2,500 个代币。如果挂钩返回更多内容，则 Codex 将全文保存在 `<temp_dir>/hook_outputs/<session_id>/<uuid>.txt` 并给模型一个 带有保存文件路径的头尾预览。这种行为称为 **溢出**：Codex 将超大输出存储在磁盘上并将其替换为 更短的模型可见预览。如果文件无法写入，模型仍然存在 收到截断的预览。
+
+<Callout kind="warning">
+
+请保持 hook 与 plugin 上下文简洁。多个 hook 和 plugin 的上下文会不断累积，并可能降低模型性能。提高 `additionalContextLimit` 会增加这种风险。除非 hook 会强制执行严格的输出上限，否则不要把限制设为 `0`；否则单个 hook 就可能占满整个上下文窗口。
+
+</Callout>
+
+对于任何返回 `additionalContext` 的命令挂钩，设置 处理程序上的 `additionalContextLimit` 自定义近似令牌 临界点：
+
+<CodeBlock code={"{\n  \"type\": \"command\",\n  \"command\": \"python3 ~/.codex/hooks/session_start.py\",\n  \"additionalContextLimit\": 5000\n}"} language="json" />
+
+省略 `additionalContextLimit` 以使用默认的 `2500` 令牌阈值。使用一个 正整数来选择不同的阈值，或 `0` 来传递处理程序的 直接为模型完成附加上下文。 Codex 评估每个 独立匹配处理程序。对于无法产生额外费用的事件 上下文，Codex 忽略 `additionalContextLimit` 并报告配置 警告。
+
+该设置仅适用于`additionalContext`。工具反馈和延续 提示保留默认限制。
+
+由于过大的输出可以写入磁盘，因此避免返回机密或 钩子输出中的其他敏感数据。
+
+## 挂钩
+
+### 会话开始
+
+对于此事件，`matcher` 应用于 `source`。
+
+[通用输入字段](#common-input-fields)之外的字段：
+
+<div className="doc-table-wrap">
+
+| 领域 | 类型 | 意义 |
+| --- | --- | --- |
+| `source` | `string` | 会话如何开始：`startup`、`resume`、`clear` 或 `compact` |
+
+</div>
+
+`stdout` 上的纯文本被添加为额外的开发人员上下文。
+
+`stdout` 上的 JSON 支持 [通用输出字段](#common-output-fields) 并且这个 钩子具体形状：
+
+<CodeBlock code={"{\n  \"hookSpecificOutput\": {\n    \"hookEventName\": \"SessionStart\",\n    \"additionalContext\": \"Load the workspace conventions before editing.\"\n  }\n}"} language="json" />
+
+该 `additionalContext` 文本被添加为额外的开发人员上下文。
+
+Codex 压缩根会话后，`SessionStart` 挂钩匹配 `source: "compact"` 在下一个模型 request 之前运行。这也适用于当 自动压缩发生在 turn 的中间：Codex 传递钩子的 立即继续的附加上下文而不是等待 后来的用户是turn。如果钩子返回`continue: false`，则Codex结束turn 无需发送另一个模型request。
+
+### 会话结束
+
+`SessionEnd` 允许你在会话结束时运行命令，例如保存最终的 笔记或清理文件。当你归档或 当 Codex 正常关闭时或在 对话已空闲且未在任何连接的客户端中打开 30 分钟。它不会为子智能体运行。
+
+退出对话或呼叫 `thread/unsubscribe` 不会结束 会话立即，因此它不会立即运行 `SessionEnd`。你的钩子可以 在运行时仍然读取会话记录。
+
+`matcher` 过滤此事件的 `reason`。目前，`reason` 始终是 `other`。 你可以省略 `matcher` 或使用 `other` 在每个 `SessionEnd` 事件上运行。
+
+[通用输入字段](#common-input-fields)之外的字段：
+
+<div className="doc-table-wrap">
+
+| 领域 | 类型 | 意义 |
+| --- | --- | --- |
+| `reason` | `string` | 会议为何结束：`other` |
+
+</div>
+
+例如，`SessionEnd` 命令接收：
+
+<CodeBlock code={"{\n  \"session_id\": \"thr_123\",\n  \"transcript_path\": \"/workspace/.codex/rollout.jsonl\",\n  \"cwd\": \"/workspace\",\n  \"hook_event_name\": \"SessionEnd\",\n  \"reason\": \"other\"\n}"} language="json" />
+
+`SessionEnd` 挂钩是建议性的。他们的输出不会引导 Codex 或保持 thread 打开。如果命令超时或因错误退出，Codex 会将其报告为 钩子故障。
+
+### 子智能体启动
+
+对于此事件，`matcher` 应用于 `agent_type`。
+
+[通用输入字段](#common-input-fields)之外的字段：
+
+<div className="doc-table-wrap">
+
+| 领域 | 类型 | 意义 |
+| --- | --- | --- |
+| `turn_id` | `string` | Codex 特定扩展。活动 Codex turn id |
+| `agent_id` | `string` | 子智能体的标识符 |
+| `agent_type` | `string` | 子智能体类型或配置文件 |
+| `permission_mode` | `string` | 当前权限模式 |
+
+</div>
+
+`stdout` 上的纯文本被添加为子智能体的额外开发人员上下文。
+
+`stdout` 上的 JSON 支持 `systemMessage` 和此钩子特定形状：
+
+<CodeBlock code={"{\n  \"hookSpecificOutput\": {\n    \"hookEventName\": \"SubagentStart\",\n    \"additionalContext\": \"Review the repository test conventions first.\"\n  }\n}"} language="json" />
+
+`additionalContext` 文本被添加为额外的开发人员上下文 子智能体。 `continue: false` 被解析为兼容性，但它不会阻止 子智能体从一开始。
+
+### 预工具使用
+
+`PreToolUse`可以拦截Bash，通过`apply_patch`执行的文件编辑， MCP工具调用，以及其他本地功能工具。请参阅[工具 coverage](#tool-coverage) 了解受支持的路径和例外情况。
+
+`matcher` 适用于 `tool_name` 和匹配器别名。对于文件编辑，通过 `apply_patch`、`matcher` 值可以使用 `apply_patch`、`Edit` 或 `Write`；挂钩输入 仍然报告 `tool_name: "apply_patch"`。
+
+[通用输入字段](#common-input-fields)之外的字段：
+
+<div className="doc-table-wrap">
+
+| 领域 | 类型 | 意义 |
+| --- | --- | --- |
+| `turn_id` | `string` | Codex 特定扩展。活跃 Codex turn id |
+| `tool_name` | `string` | 规范挂钩工具名称，例如 `Bash`、`apply_patch` 或 MCP 名称，例如 `mcp__fs__read` |
+| `tool_use_id` | `string` | 此调用的工具调用 ID |
+| `tool_input` | `JSON value` | 特定于工具的输入。 `Bash`和`apply_patch`使用`tool_input.command`。 MCP 和其他本地函数工具发送它们的参数。 |
+
+</div>
+
+`stdout` 上的纯文本将被忽略。
+
+JSON在`stdout`上可以使用`systemMessage`。要拒绝支持的工具调用，请返回 此钩子特定形状：
+
+<CodeBlock code={"{\n  \"hookSpecificOutput\": {\n    \"hookEventName\": \"PreToolUse\",\n    \"permissionDecision\": \"deny\",\n    \"permissionDecisionReason\": \"Destructive command blocked by hook.\"\n  }\n}"} language="json" />
+
+Codex 也接受这种旧的块形状：
+
+<CodeBlock code={"{\n  \"decision\": \"block\",\n  \"reason\": \"Destructive command blocked by hook.\"\n}"} language="json" />
+
+你还可以使用退出代码 `2` 并将阻止原因写入 `stderr`。
+
+要添加模型可见上下文而不阻塞，请返回 `hookSpecificOutput.additionalContext`：
+
+<CodeBlock code={"{\n  \"hookSpecificOutput\": {\n    \"hookEventName\": \"PreToolUse\",\n    \"additionalContext\": \"The pending command touches generated files.\"\n  }\n}"} language="json" />
+
+要重写支持的工具调用而不阻塞，请返回 `permissionDecision: "allow"` 与 `updatedInput`：
+
+<CodeBlock code={"{\n  \"hookSpecificOutput\": {\n    \"hookEventName\": \"PreToolUse\",\n    \"permissionDecision\": \"allow\",\n    \"updatedInput\": {\n      \"command\": \"echo rewritten\"\n    }\n  }\n}"} language="json" />
+
+对于 Bash 命令和 `apply_patch`，`updatedInput` 必须包含一个字符串 `command` 字段。对于MCP等本地功能工具，`updatedInput`是 替换参数对象。仅返回 `updatedInput` `permissionDecision: "allow"`；其他 `updatedInput` 形状报告为 错误。
+
+`permissionDecision: "ask"`、旧版 `decision: "approve"`、`continue: false`、 `stopReason` 和 `suppressOutput` 已解析，但尚不支持。 Codex 标记 挂钩运行失败，报告错误，并继续工具调用。
+
+### 许可请求
+
+`PermissionRequest` 在 Codex 即将请求批准时运行，例如 shell 升级或托管网络批准。可以允许request，拒绝 request，或拒绝决定并让正常的批准提示继续。 它不会针对不需要批准的命令运行。
+
+`matcher` 适用于 `tool_name` 和匹配器别名。当前规范 值包括 `Bash`、`apply_patch` 和 MCP 工具名称，例如 `mcp__server__tool`； `apply_patch` 还匹配 `Edit` 和 `Write`。
+
+[通用输入字段](#common-input-fields)之外的字段：
+
+<div className="doc-table-wrap">
+
+| 领域 | 类型 | 意义 |
+| --- | --- | --- |
+| `turn_id` | `string` | Codex 特定扩展。活跃 Codex turn id |
+| `tool_name` | `string` | 规范挂钩工具名称，例如 `Bash`、`apply_patch` 或 MCP 名称，例如 `mcp__fs__read` |
+| `tool_input` | `JSON value` | 特定于工具的输入。 `Bash` 和 `apply_patch` 使用 `tool_input.command`，而 MCP 工具发送所有参数。 |
+| `tool_input.description` | `string \| null` | 当 Codex 有一个时，人类可读的批准原因 |
+
+</div>
+
+`stdout` 上的纯文本将被忽略。
+
+一些工具输入可能包括人类可读的描述，但不依赖于 每个工具的 `tool_input.description` 字段。
+
+要批准 request，请返回：
+
+<CodeBlock code={"{\n  \"hookSpecificOutput\": {\n    \"hookEventName\": \"PermissionRequest\",\n    \"decision\": {\n      \"behavior\": \"allow\"\n    }\n  }\n}"} language="json" />
+
+要拒绝 request，请返回：
+
+<CodeBlock code={"{\n  \"hookSpecificOutput\": {\n    \"hookEventName\": \"PermissionRequest\",\n    \"decision\": {\n      \"behavior\": \"deny\",\n      \"message\": \"Blocked by repository policy.\"\n    }\n  }\n}"} language="json" />
+
+如果多个匹配的钩子返回决策，则任何 `deny` 获胜。否则，一个 `allow` 让 request 继续进行，而不显示批准提示。如果没有 匹配钩子决定，Codex使用正常的审批流程。
+
+不要返回 `updatedInput`、`updatedPermissions` 或 `interrupt` `PermissionRequest`；这些字段是为将来的行为保留的并且会失败 今天关闭。
+
+### 后期工具使用
+
+`PostToolUse` 在支持的工具产生输出后运行，包括 Bash、 `apply_patch`、MCP工具调用，以及其他本地功能工具。对于 Bash 来说，它 也在以非零状态退出的命令之后运行。它无法撤消侧面 已经运行的工具的效果。请参阅[工具覆盖率](#tool-coverage) 支持的路径和例外。
+
+`matcher` 适用于 `tool_name` 和匹配器别名。对于文件编辑，通过 `apply_patch`、`matcher` 值可以使用 `apply_patch`、`Edit` 或 `Write`；挂钩输入 仍然报告 `tool_name: "apply_patch"`。
+
+[通用输入字段](#common-input-fields)之外的字段：
+
+<div className="doc-table-wrap">
+
+| 领域 | 类型 | 意义 |
+| --- | --- | --- |
+| `turn_id` | `string` | Codex 特定扩展。活跃 Codex turn id |
+| `tool_name` | `string` | 规范挂钩工具名称，例如 `Bash`、`apply_patch` 或 MCP 名称，例如 `mcp__fs__read` |
+| `tool_use_id` | `string` | 此调用的工具调用 ID |
+| `tool_input` | `JSON value` | 特定于工具的输入。 `Bash`和`apply_patch`使用`tool_input.command`。 MCP 和其他本地函数工具发送它们的参数。 |
+| `tool_response` | `JSON value` | 特定于工具的输出。 MCP工具发送MCP调用结果。其他本地函数工具通常发送其面向模型的输出。 |
+
+</div>
+
+`stdout` 上的纯文本将被忽略。
+
+JSON在`stdout`上可以使用`systemMessage`和这个钩子特定的形状：
+
+<CodeBlock code={"{\n  \"decision\": \"block\",\n  \"reason\": \"The Bash output needs review before continuing.\",\n  \"hookSpecificOutput\": {\n    \"hookEventName\": \"PostToolUse\",\n    \"additionalContext\": \"The command updated generated files.\"\n  }\n}"} language="json" />
+
+该 `additionalContext` 文本被添加为额外的开发人员上下文。
+
+对于此事件，`decision: "block"` 不会撤消已完成的 Bash 命令。 相反，Codex 记录反馈，并用该结果替换工具结果 反馈，并从钩子提供的消息继续模型。
+
+你还可以使用退出代码 `2` 并将反馈原因写入 `stderr`。
+
+命令执行后停止对原始工具结果的正常处理 已经运行，返回`continue: false`。 Codex 将用工具结果替换 你的反馈或停止发短信并从那里继续。
+
+`updatedMCPToolOutput` 和 `suppressOutput` 已解析，但尚不支持。 Codex 将钩子运行标记为失败，报告错误，并继续正常 工具结果的处理。
+
+#### 从代码模式调用工具
+
+当模型使用代码模式从 JavaScript 调用工具时，将应用挂钩决策 到那个嵌套调用。 `PreToolUse` 可以在工具运行或重写之前停止该工具 它的输入。阻止 `PostToolUse` 无法消除该工具的副作用，但它 可以阻止原始结果到达正在运行的脚本。
+
+|挂钩结果 | | 代码模式看什么 | ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ | | `PreToolUse` 块 |工具承诺在工具运行之前被拒绝。 | | `PreToolUse` 返回 `updatedInput` |该工具使用重写的输入运行，并且承诺以该结果解决。 | | `PostToolUse` 返回 `decision: "block"` 或退出并返回代码 `2` |该工具运行，然后承诺因钩子原因而拒绝。 | | `PostToolUse` 返回 `continue: false` | Codex 使用钩子反馈来获得模型可见的结果，但不拒绝嵌套工具承诺。 |
+
+### 预紧凑型
+
+`PreCompact` 在 Codex 压缩聊天之前运行。适用`matcher` 为`trigger`，其值为`manual`和`auto`。
+
+[通用输入字段](#common-input-fields)之外的字段：
+
+<div className="doc-table-wrap">
+
+| 领域 | 类型 | 意义 |
+| --- | --- | --- |
+| `turn_id` | `string` | Codex 特定扩展。活动 Codex turn id |
+| `trigger` | `string` | 是什么触发了压缩：`manual` 或 `auto` |
+
+</div>
+
+`stdout` 上的纯文本将被忽略。
+
+`stdout`上的JSON支持[公共输出字段](#common-output-fields)。如果一个 匹配的 `PreCompact` 钩子返回 `continue: false`，Codex 在之前停止 压实。
+
+### 后紧凑型
+
+`PostCompact` 在 Codex 压缩聊天后运行。适用`matcher` 为`trigger`，其值为`manual`和`auto`。
+
+[通用输入字段](#common-input-fields)之外的字段：
+
+<div className="doc-table-wrap">
+
+| 领域 | 类型 | 意义 |
+| --- | --- | --- |
+| `turn_id` | `string` | Codex 特定扩展。活动 Codex turn id |
+| `trigger` | `string` | 是什么触发了压缩：`manual` 或 `auto` |
+
+</div>
+
+`stdout` 上的纯文本将被忽略。
+
+`stdout`上的JSON支持[公共输出字段](#common-output-fields)。如果一个 匹配的 `PostCompact` 钩子返回 `continue: false`，Codex 之后停止 压实。
+
+### 用户提示提交
+
+`matcher` 当前未用于此事件。
+
+[通用输入字段](#common-input-fields)之外的字段：
+
+<div className="doc-table-wrap">
+
+| 领域 | 类型 | 意义 |
+| --- | --- | --- |
+| `turn_id` | `string` | Codex 特定扩展。活动 Codex turn id |
+| `prompt` | `string` | 即将发送的用户提示 |
+
+</div>
+
+`stdout` 上的纯文本被添加为额外的开发人员上下文。
+
+`stdout` 上的 JSON 支持 [通用输出字段](#common-output-fields) 和 此钩子特定形状：
+
+<CodeBlock code={"{\n  \"hookSpecificOutput\": {\n    \"hookEventName\": \"UserPromptSubmit\",\n    \"additionalContext\": \"Ask for a clearer reproduction before editing files.\"\n  }\n}"} language="json" />
+
+该 `additionalContext` 文本被添加为额外的开发人员上下文。
+
+要阻止提示，请返回：
+
+<CodeBlock code={"{\n  \"decision\": \"block\",\n  \"reason\": \"Ask for confirmation before doing that.\"\n}"} language="json" />
+
+你还可以使用退出代码 `2` 并将阻止原因写入 `stderr`。
+
+### 子智能体停止
+
+对于此事件，`matcher` 应用于 `agent_type`。
+
+[通用输入字段](#common-input-fields)之外的字段：
+
+<div className="doc-table-wrap">
+
+| 领域 | 类型 | 意义 |
+| --- | --- | --- |
+| `turn_id` | `string` | Codex 特定扩展。 Active Codex turn id |
+| `agent_id` | `string` | 子智能体的标识符 |
+| `agent_type` | `string` | 子智能体类型或配置文件 |
+| `agent_transcript_path` | `string \| null` | 子智能体转录文件的路径（如果有） |
+| `stop_hook_active` | `boolean` | 该子智能体是否已继续 |
+| `last_assistant_message` | `string \| null` | 最新的子智能体助理消息（如果有） |
+
+</div>
+
+当 `SubagentStop` 退出 `0` 时，`stdout` 上期望 JSON。纯文本输出是 对于本次活动无效。
+
+`stdout`上的JSON支持[公共输出字段](#common-output-fields)。去问 Codex 继续子智能体流程，返回：
+
+<CodeBlock code={"{\n  \"decision\": \"block\",\n  \"reason\": \"Run one more focused pass inside the subagent.\"\n}"} language="json" />
+
+你还可以使用退出代码 `2` 并将继续原因写入 `stderr`。
+
+如果任何匹配的 `SubagentStop` 钩子返回 `continue: false`，则需要 优先于其他匹配 `SubagentStop` 的继续决策 钩子。
+
+### 停止
+
+`matcher` 当前未用于此事件。
+
+[通用输入字段](#common-input-fields)之外的字段：
+
+<div className="doc-table-wrap">
+
+| 领域 | 类型 | 意义 |
+| --- | --- | --- |
+| `turn_id` | `string` | Codex 特定扩展。活动 Codex turn id |
+| `stop_hook_active` | `boolean` | 这个turn是否已经被`Stop`继续了 |
+| `last_assistant_message` | `string \| null` | 最新的助理消息文本（如果有） |
+
+</div>
+
+当 `Stop` 退出 `0` 时，`stdout` 上期望 JSON。纯文本输出无效 为了这次活动。
+
+`stdout`上的JSON支持[公共输出字段](#common-output-fields)。为了保留 Codex 前进，返回：
+
+<CodeBlock code={"{\n  \"decision\": \"block\",\n  \"reason\": \"Run one more pass over the failing tests.\"\n}"} language="json" />
+
+你还可以使用退出代码 `2` 并将继续原因写入 `stderr`。
+
+对于该事件，`decision: "block"` 不会拒绝 turn。相反，它告诉 Codex 继续并自动创建一个新的继续提示符 作为新用户提示，使用 `reason` 作为提示文本。
+
+如果任何匹配的 `Stop` 挂钩返回 `continue: false`，则优先 超过其他匹配的 `Stop` 钩子的继续决策。
+
+## 模式
+
+<Callout kind="warning">
+
+链接到的 `main` 分支 schema 可能包含当前版本尚未提供的 hook 字段。请以本页描述的行为作为当前发布版本的参考。
+
+</Callout>
+
+如果你需要确切的当前线路格式，请参阅中生成的模式 [Codex GitHub 仓库](https://github.com/openai/codex/tree/main/codex-rs/hooks/schema/generated)。
+
+### 纯文本别名
+
+-   字符串|无效的

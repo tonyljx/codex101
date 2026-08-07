@@ -1,0 +1,149 @@
+---
+title: "Plugins"
+navTitle: "插件"
+description: "在 ChatGPT 和 Codex 客户端中浏览、安装和使用 plugins"
+locale: "zh"
+translationKey: "plugins"
+section: "explore"
+order: 1012
+draft: false
+translationStatus: complete
+lastUpdated: 2026-08-06
+pageKind: article
+referenceHub: "features"
+sourceUrl: "https://www.codex-docs.com/docs/plugins"
+outline:
+  - id: "概览"
+    label: "概览"
+  - id: "使用和安装-plugins"
+    label: "使用和安装 plugins"
+  - id: "构建自己的-plugin"
+    label: "构建自己的 plugin"
+  - id: "plugin-指南"
+    label: "Plugin 指南"
+---
+
+## 概览
+
+Plugins 把能力打包为 ChatGPT 和 Codex 中可复用的工作流。一个 plugin 可以包含 skills、连接器，或同时包含两者。两款产品共用同一个通用 plugin directory，因此可以从各自支持的界面发现相同的公开 plugins。
+
+Plugins 可用于 Web 端 ChatGPT Work，以及 ChatGPT 桌面 App 中的 ChatGPT Work 或 Codex。Codex CLI 也提供面向 Codex 环境的 plugin browser。Chat、IDE 扩展和移动端暂不支持 plugins。
+
+### 在哪里使用 plugins
+
+-   **ChatGPT 桌面 App：** 选择 ChatGPT 并在切换器中开启 Work，或选择 Codex，然后打开 **Plugins**。已安装的 plugins 可以为新聊天添加 skills、连接器和 MCP 工具。
+-   **ChatGPT Web：** 在切换器中开启 Work，然后打开 **Plugins**。在工具可用前，plugin 可能会提示你连接外部服务。
+-   **Codex CLI：** 输入 `/plugins` 打开 plugin browser。从已配置的 marketplace 安装 plugin，然后开始新会话，再使用其中的 skills 或工具。
+-   **IDE 扩展：** IDE 扩展暂不支持 plugins。请使用 ChatGPT 桌面 App 或 Codex CLI 为 Codex 浏览和安装 plugins。
+
+例如，plugins 可以扩展 ChatGPT 和 Codex 的以下能力：
+
+-   安装 Codex Security plugin，扫描已获授权的代码，并确认看起来可信的漏洞发现。
+-   安装 Gmail plugin，让 ChatGPT 读取和管理 Gmail。
+-   安装 Google Drive plugin，在 Drive、Docs、Sheets 和 Slides 中开展工作。
+-   安装 Slack plugin，总结频道内容或起草回复。
+
+一个 plugin 可以包含以下一个或多个部分：
+
+-   **Skills：** 针对特定工作类型的可复用指令。ChatGPT 和 Codex 可以在需要时加载，使任务遵循正确步骤，并使用合适的参考资料或辅助脚本。
+-   **连接器：** 与 GitHub、Slack 或 Google Drive 等工具的连接，让 ChatGPT 和 Codex 能够读取这些工具中的信息并执行操作。连接器会公开工具，也可以选择包含自定义 UI。
+-   **MCP servers：** 为 ChatGPT 和 Codex 提供更多工具或共享信息的服务，通常来自本地项目之外的系统，也是连接器背后的服务层。它们定义工具、执行认证、返回结构化数据，并对外部系统执行操作。
+-   **Browser extensions：** plugin 工作流所需的浏览器能力。
+-   **Hooks：** 在配置的生命周期节点运行的命令。启用 plugin hook 前，应先评审并确认它可信。
+-   **定时任务模板：** 在支持定时任务的环境中，为重复任务提供可复用起点。
+
+你可以通过 marketplace 来源发布和分享 plugins，例如面向项目或团队的仓库 marketplace。marketplace 设置、打包和分发说明参见[构建 plugins](https://developers.openai.com/plugins/build/plugins)。
+
+如果要构建集成，请从[构建 MCP server](https://developers.openai.com/plugins/build/mcp-server)开始。如果 plugin 需要自定义 UI，请参阅[可选 UI 指南](https://developers.openai.com/plugins/build/chatgpt-ui)。
+
+## 使用和安装 plugins
+
+<span id="plugin-directory-in-the-codex-app"></span>
+
+### 通用 plugin directory
+
+ChatGPT 和 Codex 使用同一个公开 plugin catalog。要从受支持的图形界面浏览和安装 plugins：
+
+-   在 Web 端通过切换器开启 Work，然后打开 **Plugins**。
+-   在 ChatGPT 桌面 App 中，选择 ChatGPT 并在切换器中开启 Work，或选择 Codex，然后打开 **Plugins**。
+
+<Screenshot src="/images/codex/plugins/directory.webp" darkSrc="/images/codex/plugins/directory-dark.webp" alt="ChatGPT 界面截图：ChatGPT 桌面应用中的 Plugins Directory" />
+
+Plugins Directory 使用以下 tabs 组织内容：
+
+-   **OpenAI：** 由 OpenAI 构建的 plugins。
+-   **你的工作区名称：** 由工作区提供的 plugins。
+-   **Personal（个人）：** 来自个人 marketplace 的 plugins；在相关 plugins 可用时，还会包含 **Created by me（由我创建）** 和 **Shared with me（与我共享）**。
+
+通过单独的 **Installed（已安装）** 行，可以查看已经安装的 plugins。
+
+### 安装并使用 plugin
+
+打开 Plugins Directory 后：
+
+1.  搜索或浏览 plugin，再打开详情页。
+2.  选择加号按钮安装 plugin。
+3.  如果 plugin 需要连接器，请按提示完成连接。有些 plugins 会在安装时要求认证，另一些则会等到首次使用时再要求认证。
+4.  安装后，开始一个新聊天，并要求 ChatGPT 或 Codex 使用该 plugin。
+
+### 使用 Sign in with ChatGPT 连接受支持的合作伙伴
+
+**Sign in with ChatGPT** 正在面向受支持的 plugins 和合作伙伴网站逐步推出 beta 版，其中包括 Airtable、GitLab、HubSpot、Notion、Supabase 和 Vercel。该选项可用时，在连接 plugin 的过程中选择 **Sign in with ChatGPT**，即可创建该服务的账号或关联现有账号。
+
+登录只会在相关信息可用时，向合作伙伴共享你的姓名、电子邮件地址和头像。它不会授予 plugin 访问你的数据的权限，也不会自动批准操作。使用连接前，仍需单独检查并批准 plugin 请求的权限。
+
+安装 plugin 后，可以直接在提示词输入框中使用：
+
+<Screenshot src="/images/codex/plugins/plugin-github-invoke.png" darkSrc="/images/codex/plugins/plugin-github-invoke-dark.png" alt="ChatGPT 界面截图：Plugins 页面上已安装的 plugin" />
+
+**直接描述任务：** 说明想要的结果，例如 “Summarize unread Gmail threads from today” 或 “Pull the latest launch notes from Google Drive.” 当你希望 ChatGPT 自行选择适合任务的已安装工具时，使用这种方式。
+
+**选择特定 plugin：** 输入 `@`，明确调用 plugin 或其中的某个 skill。当你希望明确指定 ChatGPT 应使用哪个 plugin 或 skill 时，使用这种方式。另请参阅 [Skills & Plugins](/docs/skills-and-plugins)。
+
+<span id="plugin-directory-in-codex-cli"></span>
+
+### Codex CLI 中的 plugin browser
+
+在 Codex CLI 中运行以下命令，打开 plugin browser：
+
+<CodeBlock code={"codex\n/plugins"} language="text" />
+
+<Screenshot src="/images/codex/plugins/cli_light.png" darkSrc="/images/codex/plugins/codex-plugin-cli.png" alt="Codex CLI 中的 plugin 列表" />
+
+CLI plugin browser 会按 marketplace 对 plugins 分组。使用 marketplace tabs 切换来源、打开 plugin 查看详情、安装或卸载 marketplace 条目；在已安装的 plugin 上按 <kbd>Space</kbd>，可以启用或停用它。
+
+<span id="api-key-availability"></span>
+
+### API key 可用性
+
+如果你[使用 OpenAI API key 登录 Codex](/docs/auth#sign-in-with-an-api-key)，可以在 Codex CLI 和 ChatGPT 桌面 App 的 Codex 中浏览、安装和管理受支持的 OpenAI 精选 plugins。部分 plugins 的连接流程需要当前 API key 认证不支持的 OAuth 能力，因此不可用。你可以在 [Platform Usage 页面](https://platform.openai.com/usage)查看 plugin 用量。
+
+### 权限与数据共享的工作方式
+
+在 ChatGPT Web 上，ChatGPT Work 聊天使用该聊天可用的工作区权限和工具；连接器仍需独立登录并获得相应访问权限。
+
+当 plugin 能力通过 Codex 宿主运行时，会应用宿主的[沙箱与审批策略](/docs/agent-approvals-security)。与外部服务的连接则使用该服务自身的认证与访问控制。
+
+-   安装后开始新聊天或 CLI 会话时，内置 skills 才会变为可用。
+-   如果 plugin 包含连接器，当前产品可能会在设置期间或首次使用时提示你安装或登录这些连接器。
+-   如果 plugin 包含 MCP servers，使用前可能需要额外设置或认证。
+-   ChatGPT 通过内置连接器发送数据时，适用对应服务的条款和隐私政策。
+
+### 移除 plugin
+
+要移除 plugin，请从受支持的 plugin browser 中打开它，并在该操作可用时选择 **Uninstall plugin（卸载 plugin）**。由工作区安装或默认提供的 plugins 可能没有此操作，而是由工作区管理员控制。
+
+卸载 plugin 会从对应 ChatGPT 或 Codex 环境移除 plugin 组合包，但其中的连接器会保持已连接，直到你在 ChatGPT 中另行管理。
+
+## 构建自己的 plugin
+
+要创建、测试或分发自己的 plugin，请参阅[构建 plugins](https://developers.openai.com/plugins/build/plugins)。该页面涵盖本地脚手架、手动 marketplace 设置、工作区共享、plugin manifests 和打包指南。
+
+如果 plugin 包含 server-backed 能力，请参阅[构建 MCP server](https://developers.openai.com/plugins/build/mcp-server)。MCP 工具可以在没有自定义 UI 的情况下工作，也可以在可视化界面有助于工作流时返回 UI。
+
+plugin 准备接受评审后，请参阅[提交 plugins](https://developers.openai.com/plugins/deploy/submission)，了解 OpenAI Platform 提交流程、必要权限、评审材料、MCP 检查和测试用例要求。
+
+## Plugin 指南
+
+-   [Record & Replay](/docs/extend/record-and-replay)：向 ChatGPT 演示一次工作流，并将其转化为可复用 skill。
+-   [Codex Security plugin](/docs/security/plugin)：扫描已获授权的代码、确认发现，并准备经过评审的修复。

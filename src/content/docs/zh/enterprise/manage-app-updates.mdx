@@ -1,0 +1,144 @@
+---
+title: "管理 App 更新"
+description: "控制组织如何更新 macOS 与 Windows 上的 ChatGPT 桌面 App。"
+locale: "zh"
+translationKey: "enterprise/manage-app-updates"
+section: "explore"
+order: 1102
+draft: false
+translationStatus: complete
+lastUpdated: 2026-08-06
+pageKind: article
+referenceHub: "administration"
+sourceUrl: "https://www.codex-docs.com/docs/enterprise/manage-app-updates"
+outline:
+  - id: "开始之前"
+    label: "开始之前"
+  - id: "关闭-app-内更新"
+    label: "关闭 App 内更新"
+  - id: "验证托管设置"
+    label: "验证托管设置"
+  - id: "部署已批准的-app-版本"
+    label: "部署已批准的 App 版本"
+  - id: "重新开启-app-内更新"
+    label: "重新开启 App 内更新"
+  - id: "了解安全与支持责任"
+    label: "了解安全与支持责任"
+  - id: "排查常见问题"
+    label: "排查常见问题"
+  - id: "相关文档"
+    label: "相关文档"
+---
+
+ChatGPT 桌面 App 通常会自行检查并安装更新。如果组织需要在用户收到新版本前先完成审核，可以关闭 App 的内置更新程序，再通过设备管理平台部署已批准的版本。
+
+App 更新程序默认保持启用。关闭它并不会阻止 Microsoft Store、Microsoft Intune、移动设备管理（MDM）、包管理器或其它外部部署工具安装更新。
+
+## 开始之前
+
+请确认已具备：
+
+-   工作区的 Codex 管理员权限，并可访问[托管配置](https://chatgpt.com/codex/settings/managed-configs)。
+-   支持组织托管更新的 macOS 或 Windows 版 ChatGPT 桌面 App。
+-   能够在受管设备上安装已批准 App 软件包的 MDM 或软件部署平台。
+-   用于测试新版本、部署安全更新并跟踪已安装 App 版本的流程。
+
+如果尚未在 Windows 上部署 App，请先阅读[部署 Windows App](/docs/enterprise/windows-deployment)。
+
+## 关闭 App 内更新
+
+<Callout kind="warning">
+
+关闭 App 内更新后，组织需要负责及时部署 App 新版本和安全修复。延迟更新可能使 App 及其捆绑组件暴露于已知安全漏洞。旧版 App 不会获得单独的安全补丁或延长支持。
+
+</Callout>
+
+创建一项托管策略，关闭桌面 App 自带的更新程序：
+
+1.  打开[托管配置](https://chatgpt.com/codex/settings/managed-configs)。
+2.  选择 **Add policy（添加策略）**，或打开一项面向待管理用户、组或平台的现有策略。
+3.  在 **Targets（目标）** 下选择 **Add target（添加目标）**，将策略分配给特定的 **Groups（组）**、**Users（用户）** 或 **Platforms（平台）**。如果可行，请先从小范围试点组开始。
+4.  打开 **Raw TOML**，找到 **requirements.toml** 编辑器。
+5.  添加以下策略：
+
+<CodeBlock code={"   [features]\n   in_app_updates = false"} language="toml" />
+
+如果策略已经包含 `[features]` 表，请将 `in_app_updates = false` 添加到该表。不要再添加第二个 `[features]` 表，也不要把该设置写入 **config.toml**。
+
+6.  选择 **Save changes（保存更改）**。
+7.  让受影响的用户完全退出并重新打开 ChatGPT 桌面 App。仅关闭 App 窗口不一定会重启应用。
+
+部分工作区显示的是策略列表编辑器，而不是 **Raw TOML** 标签页。在该界面中，请将同一段 TOML 直接添加到适用策略；如果支持 **Groups（组）**，可用它完成分配，然后选择 **Save（保存）**。
+
+有关托管策略交付和优先级的详细信息，请参阅[托管配置](/docs/enterprise/managed-configuration)。
+
+## 验证托管设置
+
+App 重启后，请在受影响用户的设备上验证策略：
+
+1.  使用策略覆盖的账户登录 ChatGPT 桌面 App。
+2.  打开 **Settings（设置）** > **General（常规）**。
+3.  找到 **In-app updates（App 内更新）**，确认它显示 **Managed（已托管）** 以及消息“Your organization has turned off in-app updates.”
+4.  确认设备管理平台仍能部署已批准的 App 版本。
+
+即使策略阻止 App 内更新，**Check for Updates（检查更新）** 菜单项也可能继续显示。应通过 **Managed（已托管）** 指示器验证策略，不要只检查该菜单项是否出现。
+
+如果首次重启后未显示指示器，App 可能仍在使用缓存的策略。等待策略刷新，然后再次完全退出并重新打开 App。在 **Managed（已托管）** 出现前，不要假定更新限制已经生效。
+
+## 部署已批准的 App 版本
+
+关闭 App 内更新后，使用现有设备管理流程交付新版本：
+
+1.  选择组织计划部署的 App 版本。
+2.  获取设备群中各操作系统与设备架构对应的受支持安装软件包。
+3.  使用一小组具有代表性的用户测试该版本。
+4.  通过 Microsoft Intune、MDM 平台或其它软件部署工具部署已批准的软件包。
+5.  检查设备清单，确认平台已安装预期版本，再将发布范围扩展到其它组。
+
+如何分阶段发布、选择版本，以及部署未完成时如何恢复，均由管理平台决定。如果平台支持回滚，回到旧版本也不会延长支持期限或保证服务兼容性。
+
+对于 macOS，请下载 [ChatGPT 桌面 App 安装器](https://persistent.oaistatic.com/codex-app-prod/ChatGPT.dmg)。有关 Windows 安装方式和针对不同架构的软件包，请参阅[部署 Windows App](/docs/enterprise/windows-deployment)。
+
+## 重新开启 App 内更新
+
+如需恢复 App 的正常更新行为：
+
+1.  找出为受影响用户关闭更新的托管策略、系统 `requirements.toml` 文件和 MDM 配置档案。
+2.  从每个适用的 `[features]` 表中删除 `in_app_updates = false`。
+3.  保存策略更改，并重新部署所有已更新且由设备管理的 requirements。
+4.  让受影响的用户完全退出并重新打开 ChatGPT 桌面 App。
+5.  检查 **Settings（设置）** > **General（常规）**，确认由托管控制的 **In-app updates（App 内更新）** 行不再显示。
+
+当没有任何适用策略设置 `in_app_updates = false` 时，App 内置更新程序会恢复正常行为。如果 **Managed（已托管）** 指示器仍然显示，请检查其它工作区策略、MDM 配置档案和系统 `requirements.toml` 文件。有关托管来源的应用顺序，请参阅[位置与优先级](/docs/enterprise/managed-configuration#locations-and-precedence)。
+
+## 了解安全与支持责任
+
+App 收到并应用托管更新策略后，该策略会：
+
+-   阻止桌面 App 通过自带更新程序检查、下载或安装更新。
+-   不提供由 OpenAI 管理的版本固定、单独发布渠道，也不保证旧版本的服务兼容性。
+-   适用于受支持的 macOS 与 Windows 版 ChatGPT 桌面 App，但不会管理移动 App、Codex CLI 或 IDE 扩展的更新。
+
+## 排查常见问题
+
+如果认证、连接或超时问题导致 App 无法获取或应用托管策略，其内置更新程序可能仍处于启用状态。除非显示 **Managed（已托管）**，否则不要假定 App 已阻止更新。
+
+如果未显示 **Managed（已托管）** 指示器，请确认：
+
+-   受影响用户选择了预期工作区。
+-   策略以该用户、组或平台为目标。
+-   设备运行受支持的 App 版本。
+-   App 可以连接到交付托管策略的服务。
+-   设置位于 **requirements.toml**，而不是 **config.toml**。
+-   用户在策略保存后完全退出并重新打开了 App。
+
+如果无法打开托管配置或保存策略，请确认自己拥有工作区的 Codex 管理员权限。
+
+如果关闭 App 内更新后 App 版本仍发生变化，请检查更新是否由 Microsoft Store、Intune、MDM、包管理器或其它部署系统安装。该策略只控制 App 内置更新程序。
+
+## 相关文档
+
+-   [托管配置](/docs/enterprise/managed-configuration)
+-   [部署 Windows App](/docs/enterprise/windows-deployment)
+-   [`requirements.toml` 配置参考](/docs/config-file/config-reference#requirementstoml)
+-   [管理员上线指南](/docs/enterprise/admin-setup)

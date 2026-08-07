@@ -1,0 +1,104 @@
+---
+title: "运行深度安全扫描"
+navTitle: "运行深度扫描"
+description: "当你希望降低波动、做更全面搜索时，使用深度扫描。"
+locale: "zh"
+translationKey: "security/plugin/deep-scans"
+section: "explore"
+order: 1069
+draft: false
+translationStatus: complete
+lastUpdated: 2026-08-06
+pageKind: article
+referenceHub: "security-administration"
+sourceUrl: "https://www.codex-docs.com/docs/security/plugin/deep-scans"
+outline:
+  - id: "在标准扫描和深度扫描之间选择"
+    label: "在标准扫描和深度扫描之间选择"
+  - id: "配置深度扫描运行参数"
+    label: "配置深度扫描运行参数"
+  - id: "启动深度扫描"
+    label: "启动深度扫描"
+  - id: "确认设置和预检"
+    label: "确认设置和预检"
+  - id: "评审结果"
+    label: "评审结果"
+---
+
+当你需要更彻底的评审，并能接受更长运行时间时，请运行深度扫描。深度扫描会更广泛地搜索仓库，也能降低不同运行之间的结果波动。
+
+先用[标准扫描](/docs/security/plugin/scans)检查范围和结果；需要更彻底的评估时再运行深度扫描。
+
+## 在标准扫描和深度扫描之间选择
+
+<div className="doc-table-wrap">
+
+|  | 标准扫描 | 深度扫描 |
+| --- | --- | --- |
+| 最适合 | 首次运行，以及常规仓库或文件夹评审 | 标准扫描后的更彻底评审 |
+| 波动性 | 标准 | 更低 |
+| 范围 | 仓库或明确文件夹 | 仓库或明确文件夹 |
+| 运行时间和资源 | 更低 | 更高 |
+| Pull requests 和 diff | 使用变更评审工作流 | 不支持；改用变更评审工作流 |
+
+</div>
+
+## 配置深度扫描运行参数
+
+要控制深度扫描的并发数和持续时间，请创建或编辑 `~/.codex/codex-security/config.toml`。如果设置了 `CODEX_HOME`，请改用 `$CODEX_HOME/codex-security/config.toml`。
+
+例如，下面的配置档案会以受限并发运行更短的扫描：
+
+<CodeBlock code={"[deep_scan]\nworkers = 2\nsubagents = 0\nstop_after_no_new = 3\nmax_discovery_runs = 10"} language="toml" />
+
+<div className="doc-table-wrap">
+
+| 设置 | 默认值 | 说明 |
+| --- | --- | --- |
+| `workers` | `auto` | 允许同时运行的发现 worker 数量。可设置为正整数或 `"auto"`。 |
+| `subagents` | `3` | 每个发现 worker 可以启动的子智能体数量。设为 `0` 可禁用。 |
+| `stop_after_no_new` | `6` | 连续多少次运行没有产生新候选项后停止发现。 |
+| `max_discovery_runs` | `60` | 扫描进入验证阶段前允许的最大发现运行次数。 |
+
+</div>
+
+较低的值可以减少扫描时间和 token 用量，但也可能遗漏发现。配置变更只应用于新的深度扫描，不影响正在运行的扫描。
+
+## 启动深度扫描
+
+在桌面 App 中打开 **Security（安全）**，选择 **Scans（扫描）**，再选择 **\+ Scan（新建扫描）**。选择仓库或其它文件夹，选择 **Codebase（代码库）**，并开启 **Deep scan（深度扫描）**。扫描会覆盖整个选定仓库或文件夹。
+
+你也可以从 Codex 对话开始仓库级深度扫描：
+
+<CodeBlock code={"Use $codex-security:deep-security-scan to run a deep security scan of this repository."} language="text" />
+
+如果只评审单仓多项目仓库（monorepo）中的一个组件，请显式指出文件夹：
+
+<CodeBlock code={"Use $codex-security:deep-security-scan to run a deep security scan of /absolute/path/to/repository/services/payments."} language="text" />
+
+要在桌面 App 中运行限定范围的深度扫描，请把该文件夹选为代码库。扫描会覆盖整个选定文件夹。
+
+## 确认设置和预检
+
+为获得最佳扫描质量，请使用 `gpt-5.6-sol` 和 `xhigh` 推理强度。
+
+1.  选择 **Codebase（代码库）** 并开启 **Deep scan（深度扫描）**。
+2.  确认选定仓库或文件夹就是你准备扫描的代码。
+3.  选择模型和推理强度。
+4.  只有在需要说明具体攻击向量、敏感应用区域，或代码本身无法揭示的仓库上下文时，才打开 **Additional context（附加上下文）**。
+5.  选择 **Start scan（开始扫描）**。
+6.  批准配置变更前，先评审任何设置或能力警告。
+
+深度扫描需要委派的 workers。如果当前 runtime 不满足能力要求，请改用标准扫描，或在有足够容量时重试。
+
+发现 workers 会继承你选择的模型和推理设置。你可以从 **Scans（扫描）** 跟踪已保存的扫描，或选择 **View activity（查看活动）** 检查其 Codex 任务。更新插件或开始长时间扫描前，请查看[插件更新日志](/docs/security/plugin/changelog)。
+
+<Screenshot src="/images/openai/learn.chatgpt.com/_astro/deep-scan-progress.BlxbOwvb.webp" darkSrc="/images/openai/learn.chatgpt.com/_astro/deep-scan-progress-dark.Dn5ccGFf.webp" alt="Codex Security 深度扫描，显示当前阶段和进度" maxHeight={520} />
+
+## 评审结果
+
+深度扫描使用与标准扫描相同的已保存扫描详情和完整扫描目录。请在 **Scans（扫描）** 中打开已完成的扫描，或在 **Findings（安全发现）** 中查看其结果。如果可用，`report.md` 会链接到每项需报告发现的详细报告，并在仍有发现时链接结构性加固方案集。共享或归档结果时，请把关联的 `findings/` 和 `hardening/` 目录与报告保存在一起。
+
+先评审覆盖范围摘要，再看发现结果。深度扫描会更广泛地搜索代码，但任何延后评审的代码区域或证据缺口仍然会限制结论。对于你接受的发现，继续阅读[修复并验证发现](/docs/security/plugin/fix-findings)。
+
+若要评审 pull request、commit、branch range 或本地 patch，请使用[评审代码变更](/docs/security/plugin/code-changes)。深度扫描不能替代面向 diff 的工作流。

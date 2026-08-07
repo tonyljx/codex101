@@ -1,0 +1,100 @@
+---
+title: "插件控制"
+description: "了解 plugin 可用性、连接器能力、操作和已连接系统的访问边界"
+locale: "zh"
+translationKey: "enterprise/apps-and-connectors"
+section: "explore"
+order: 1096
+draft: false
+translationStatus: complete
+lastUpdated: 2026-08-06
+pageKind: article
+referenceHub: "administration"
+sourceUrl: "https://www.codex-docs.com/docs/enterprise/apps-and-connectors"
+outline:
+  - id: "了解能力链"
+    label: "了解能力链"
+  - id: "插件可用性控制"
+    label: "插件可用性控制"
+  - id: "管理连接器提供的能力"
+    label: "管理连接器提供的能力"
+  - id: "choose-a-starting-set-of-apps"
+    label: "选择首批 plugins"
+  - id: "了解数据流与安全"
+    label: "了解数据流与安全"
+  - id: "使用当前流程"
+    label: "使用当前流程"
+---
+
+插件通过打包 skills 和可选连接器扩展 ChatGPT 与 Codex，让团队能够分发工作流与知识。两个产品共用同一个公共插件目录，管理员则控制插件在工作区中的可用性与安装。进一步了解[插件](/docs/plugins)、[skills](/docs/skills-and-plugins)以及 [Apps 与连接器](https://help.openai.com/en/articles/11487775)。
+
+当插件包含连接器时，工作区管理员必须先通过 plugin 控制开放该插件，并配置连接器访问权限，成员才能使用由连接器支持的能力。
+
+插件可用于 Web 端 ChatGPT Work、ChatGPT 桌面 App 中的 ChatGPT Work 与 Codex，以及 Codex CLI 插件浏览器。能在这些入口使用，并不意味着插件也能用于 Chat、IDE 扩展或移动端。
+
+完整管理模型请参见[角色与工作区权限](/docs/enterprise/roles-and-workspace-permissions)。
+
+## 了解能力链
+
+每一层都有独立的作用域和控制面：
+
+<div className="doc-table-wrap">
+
+| 层级 | 决定的内容 | 管理位置 |
+| --- | --- | --- |
+| 插件可用性与安装 | 插件包是否向用户开放 | 受支持 Web 和桌面入口使用[工作区设置](https://chatgpt.com/admin/settings)；CLI 使用 CLI 插件浏览器 |
+| 内置 skills | 已安装插件提供哪些可复用指令 | 插件包与 [Skill 控制](/docs/enterprise/skills) |
+| 连接器访问 | 用户能否使用由连接器支持的能力 | [Workspace apps](https://chatgpt.com/admin/ca) 和 [Permissions & roles](https://chatgpt.com/admin/settings) |
+| 连接器操作与权限 | 用户可以执行哪些操作，以及 ChatGPT 何时在使用连接器前询问 | [Workspace apps](https://chatgpt.com/admin/ca) 中连接器的 Action control 和 App permissions |
+| 来源系统授权 | 已认证身份可以访问哪些外部数据和操作 | 连接服务及其身份提供商 |
+| 运行时权限 | 智能体在收到数据或工具后可以执行什么 | 当前入口的运行时、沙箱与审批控制 |
+
+</div>
+
+根据工作流需要，管理员可以独立管理插件可用性、连接器访问、连接器操作与权限、提供商授权和运行时策略。
+
+## 插件可用性控制
+
+工作区插件控制决定插件是否向受支持的工作区角色开放或安装。Codex CLI 插件浏览器通过自己的流程控制 CLI 安装。打包和分发方式请参见[构建插件](https://developers.openai.com/plugins/build/plugins)。
+
+## 管理连接器提供的能力
+
+ChatGPT 与 Codex 中的 plugins 可以包含能够搜索、检索、同步外部系统或对其执行操作的连接器。工作区管理员需要分别配置 plugin 可用性，以及每个连接器被授予的访问权限和操作。
+
+请在 [Workspace apps](https://chatgpt.com/admin/ca) 和 [Permissions & roles](https://chatgpt.com/admin/settings) 中管理由连接器支持的能力。可用控制允许管理员：
+
+-   启用经过审核的连接器，并按工作区角色分配访问权限。
+-   对支持 Action control 的连接器允许只读操作或经过批准的自定义操作集，并设置工作区如何处理新增操作。
+-   设置 App permissions，决定 ChatGPT 何时应在使用连接器前询问。
+-   把访问限制在各连接服务和已认证用户获授的作用域与权限内。
+
+当前可用性和操作流程请参见 [Apps 中的管理员控制、安全与合规](https://help.openai.com/en/articles/11509118)。
+
+<span id="choose-a-starting-set-of-apps"></span>
+
+## 选择首批 plugins
+
+进行广泛的初始发布时，可以优先考虑团队日常使用的 plugin 类别：电子邮件、日历，以及 Google Drive 或 Notion 等文件与文档系统。请通过 [Plugins Directory](https://chatgpt.com/apps) 确认这些插件在受支持的 ChatGPT 与 Codex 入口中的当前可用性和能力。
+
+先从读取操作开始。只有在评审 plugin 所有者、每个连接器请求的作用域、数据访问、外部影响和恢复路径后，才启用写入操作。
+
+## 了解数据流与安全
+
+ChatGPT 使用由连接器支持的 plugin 时，连接器会向连接服务发送请求，并返回已认证用户的提供商权限所允许的数据或操作结果。自定义 MCP servers 通过 Model Context Protocol（MCP）把这些操作暴露为工具。
+
+对于未同步的连接器使用，ChatGPT 会临时处理 Chat 和 deep research 数据，不会建立索引。带同步能力的连接器会预先索引选定的连接内容。这一区别不会取代常规聊天保留控制；使用 plugins 的聊天仍可通过 Compliance API 获取。
+
+OpenAI 当前的连接器指南还记录了传输中与静态加密、按用户授权、角色与操作控制、plugin 聊天的受限网络访问，以及 Business、Enterprise 和 Edu 客户通过 plugins 访问的信息不会用于模型训练。请求到达连接服务后，该服务自己的作用域、保留和数据驻留策略仍然适用，因此也需要评审。
+
+当前数据处理细节请参见 [App 安全与合规](https://help.openai.com/en/articles/11509118)和[带同步能力的 Apps](https://help.openai.com/en/articles/10847137)。对于在 ChatGPT 桌面 App、Codex CLI 或 IDE 扩展中本地配置的 MCP servers，请参见 [Codex MCP 配置](/docs/extend/mcp)。
+
+## 使用当前流程
+
+-   [Apps 中的管理员控制、安全与合规](https://help.openai.com/en/articles/11509118)
+-   [ChatGPT 中的 Apps](https://help.openai.com/en/articles/11487775)
+-   [带同步能力的 Apps](https://help.openai.com/en/articles/10847137)
+-   [管理工作区设置](https://help.openai.com/en/articles/8411955)
+-   [插件](/docs/plugins)
+-   [Skills 与插件](/docs/skills-and-plugins)
+-   [构建插件](https://developers.openai.com/plugins/build/plugins)
+-   [管理员发布指南](/docs/enterprise/admin-setup)

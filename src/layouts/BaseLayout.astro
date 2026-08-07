@@ -1,0 +1,47 @@
+---
+import '../styles/global.css';
+import '../styles/reference-product-pages.css';
+import '../styles/reference-deferred-video.css';
+import '../styles/reference-code-copy.css';
+import '../styles/reference-product-previews.css';
+import '../styles/reference-glossary-utilities.css';
+import '../styles/reference-special-prose.css';
+import '../styles/reference-special-docs-pages.css';
+import '../styles/reference-special-layout.css';
+import '../styles/special-pages.css';
+import { ClientRouter } from 'astro:transitions';
+import type { Locale } from '../lib/site';
+
+type Props = {
+  locale: Locale;
+  title: string;
+  description: string;
+};
+
+const { locale, title, description } = Astro.props;
+---
+
+<!doctype html>
+<html lang={locale} transition:animate="none">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <meta name="generator" content={Astro.generator} />
+    <link rel="icon" href="/images/openai-mark.svg" />
+    <title>{title}</title>
+    <ClientRouter />
+    <script is:inline data-astro-rerun>
+      (() => {
+        const saved = localStorage.getItem('codex101-theme');
+        const dark = saved === 'dark';
+        document.documentElement.classList.toggle('dark', dark);
+        document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+        document.documentElement.dataset.themePreference = dark ? 'dark' : 'light';
+      })();
+    </script>
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>

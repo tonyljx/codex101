@@ -1,0 +1,81 @@
+---
+title: "部署 Windows App"
+navTitle: "Windows App 部署"
+description: "为 Windows 版 ChatGPT 桌面 App 选择适合企业的安装与更新路径。"
+locale: "zh"
+translationKey: "enterprise/windows-deployment"
+section: "explore"
+order: 1103
+draft: false
+translationStatus: complete
+lastUpdated: 2026-08-06
+pageKind: article
+referenceHub: "administration"
+sourceUrl: "https://www.codex-docs.com/docs/enterprise/windows-deployment"
+outline:
+  - id: "让用户自行安装和更新-app"
+    label: "让用户自行安装和更新 App"
+  - id: "使用企业管理工具部署-app"
+    label: "使用企业管理工具部署 App"
+  - id: "不使用-microsoft-分发服务完成安装"
+    label: "不使用 Microsoft 分发服务完成安装"
+  - id: "相关资源"
+    label: "相关资源"
+---
+
+用户可以自行安装 ChatGPT 桌面 App，IT 团队也可以通过企业管理工具部署。该 App 使用 Microsoft Store 签名，但用户无需打开 Microsoft Store 即可安装或更新。
+
+## 让用户自行安装和更新 App
+
+如果用户可以管理自己的应用，请让他们使用[网页安装器](https://get.microsoft.com/installer/download/9PLM9XGG6VKS?cid=website_cta_psi)。安装器会提供标准安装和自动更新体验。安装或更新过程中可能会出现 Microsoft Store 组件，但用户不需要亲自浏览 Store。
+
+也可以从命令行安装：
+
+<CodeBlock code={"winget install --id 9PLM9XGG6VKS -s msstore"} language="powershell" />
+
+## 使用企业管理工具部署 App
+
+如果组织集中管理软件，请使用 Microsoft Intune 或其它兼容的移动设备管理（MDM）或软件部署平台。如果平台支持部署 Microsoft Store App，请在 Store App 流程中搜索 OpenAI 的 ChatGPT，或使用以下 Store 产品 ID：
+
+<CodeBlock code={"9PLM9XGG6VKS"} language="text" />
+
+设置方法参见以下 Microsoft 文档：
+
+-   [Enterprise deployment guide](https://1drv.ms/b/c/123ec1ed6c72a14a/IQDVdo5pE5P3QKg5r0eieSvfAeE7cW0yy58ncBFW7OYajwU?e=dGH94F)
+-   [Intune deployment guide](https://1drv.ms/b/c/123ec1ed6c72a14a/IQDh_5o31T6XT7bUn5RPldEJAZX58gEuRr8YnJD7d2IMpec?e=nByKw6)
+-   [MECM deployment guide](https://1drv.ms/b/c/123ec1ed6c72a14a/IQB829f_TSbkR7-H9qA4Q9ntAa9D2He3qMjXksWi2ozdeg8?e=GTKgAl)
+-   [Add Microsoft Store apps to Microsoft Intune](https://learn.microsoft.com/en-us/intune/app-management/deployment/add-microsoft-store)
+
+<span id="manage-in-app-updates"></span>
+
+### 管理 App 更新
+
+有关设置步骤和分阶段发布指南，请参阅[管理 App 更新](/docs/enterprise/manage-app-updates)。
+
+## 不使用 Microsoft 分发服务完成安装
+
+如果环境在首次安装时无法使用 Microsoft App 分发服务，请为每种设备架构下载 Store 签名的 MSIX 包：
+
+<div className="doc-table-wrap">
+
+| 设备架构 | 软件包 |
+| --- | --- |
+| x64 | [ChatGPT-x64.msix](https://persistent.oaistatic.com/codex-app-prod/ChatGPT-x64.msix) |
+| Arm64 | [ChatGPT-arm64.msix](https://persistent.oaistatic.com/codex-app-prod/ChatGPT-arm64.msix) |
+
+</div>
+
+这些固定链接始终指向各架构最新发布的 Store 签名软件包。如果离线部署流程需要许可证文件，还请下载[离线许可证（`ChatGPT-License.xml`）](https://persistent.oaistatic.com/codex-app-prod/ChatGPT-License.xml)。将对应的 MSIX 以及所需的许可证文件导入 MDM 或软件部署平台。
+
+首次安装后，只要设备能够访问 `persistent.oaistatic.com`，且托管配置没有关闭 App 内置更新程序，就可以自动安装更新。如果关闭了 App 内更新，请通过 MDM 或软件部署工具部署新版软件包。
+
+此部署路径：
+
+-   支持受限环境中的首次安装。
+-   支持 x64 和 Arm64 设备。
+-   不提供独立 MSI 或非 Store EXE。
+
+## 相关资源
+
+-   [管理 App 更新](/docs/enterprise/manage-app-updates)
+-   [Windows 版 ChatGPT 桌面 App](/docs/windows/windows-app)

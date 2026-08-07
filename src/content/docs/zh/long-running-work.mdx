@@ -1,0 +1,85 @@
+---
+title: "长时间运行的工作"
+description: "长时间运行的工作 文档。"
+locale: "zh"
+translationKey: "long-running-work"
+section: "explore"
+order: 1005
+draft: false
+translationStatus: complete
+lastUpdated: 2026-08-06
+pageKind: article
+referenceHub: "features"
+sourceUrl: "https://www.codex-docs.com/docs/long-running-work"
+outline:
+  - id: "start-a-goal"
+    label: "启动目标"
+  - id: "define-what-done-means"
+    label: "定义什么才算完成"
+  - id: "steer-a-running-goal"
+    label: "引导运行中的目标"
+  - id: "run-goals-in-parallel"
+    label: "并行运行目标"
+  - id: "相关文档"
+    label: "相关文档"
+---
+
+<Screenshot src="/images/codex/app/goal-dialog-light.webp" darkSrc="/images/codex/app/goal-dialog-dark.webp" alt="ChatGPT 界面截图：ChatGPT desktop app goal progress controls above the composer" />
+
+> 用清晰的成果与完成标准让多步骤工作保持聚焦
+
+对于可能包含许多步骤的工作，应向 ChatGPT 提供清晰结果、约束和完成定义。把相关工作放在同一个聊天中，让 ChatGPT 可以利用相同上下文选择下一步，并判断工作何时真正完成。
+
+在 ChatGPT 桌面 App 中输入 `/goal` 即可启动 Goal mode。ChatGPT 工作时，进度栏可以用来暂停、恢复、编辑或清除目标。
+
+<span id="start-a-goal"></span>
+
+## 启动目标
+
+在 ChatGPT 桌面 App、Codex CLI 或 IDE 扩展中输入 `/goal`。目标文本会同时成为任务的第一条提示词和完成标准。
+
+如果结果还不清晰，可以先使用 `/plan`。让 ChatGPT 通过提问明确约束，并把结论整理成带有可衡量成功标准的目标，再用 `/goal` 启动完善后的目标。
+
+<span id="define-what-done-means"></span>
+
+## 定义什么才算完成
+
+目标应写到 ChatGPT 可以自行验证进度。适用时包括以下三类信息：
+
+<div className="doc-table-wrap">
+
+| 目标要素 | 应包含的内容 |
+| --- | --- |
+| **结果** | 描述你需要的结果，而不只是让 ChatGPT 执行的活动。 |
+| **约束** | 指明必须使用的工具、边界、兼容性要求或需要避免的方案。 |
+| **验证** | 加入能够证明工作完成的测试、指标或评审标准。 |
+
+</div>
+
+例如：
+
+<CodeBlock code={"Migrate this codebase from JavaScript to TypeScript. Preserve existing behavior,\ncompile in strict mode without explicit `any` types, and make the full test suite pass."} language="text" />
+
+<span id="steer-a-running-goal"></span>
+
+## 引导运行中的目标
+
+在 ChatGPT 桌面 App 中，目标进度栏会显示在输入框上方。你可以暂停或恢复工作、编辑目标，或者清除目标。目标运行时也可以发送后续消息，补充上下文或调整约束。
+
+如果只想获取状态回顾或解释，而不希望打断主聊天，可以使用 **Side chat（侧边聊天）**。预计即将断网时先暂停目标，准备好后再恢复。
+
+启动目标不会扩大 ChatGPT 的访问权限。它仍然遵循相同的[沙箱和审批策略](/docs/sandboxing)，需要你做决定时也会暂停。启用[自动审批评审](/docs/sandboxing/auto-review)后，独立评审器可以检查符合条件的请求，但不会扩大权限边界。
+
+<span id="run-goals-in-parallel"></span>
+
+## 并行运行目标
+
+每个聊天都有独立的上下文、消息、结果和目标。你可以并行运行多个聊天，但应避免让两个聊天修改相同文件。对于并行编码聊天，请使用[工作树](/docs/environments/git-worktrees)提供独立 checkout。
+
+处理本地工作时，可以在设置中启用 **Prevent sleep while running（运行时阻止睡眠）**，让 Mac 保持唤醒。通过 [Pets](/docs/pets?surface=app) 或[系统通知](/docs/notifications?surface=app)，可以看到聊天何时需要输入或已经可以评审。
+
+## 相关文档
+
+-   [项目与聊天](/docs/projects)
+-   [Goal mode 与提示词](/docs/prompting#goal-mode)
+-   [Git 工作树](/docs/environments/git-worktrees)

@@ -1,0 +1,84 @@
+---
+title: "Appshots（应用截图）"
+navTitle: "应用截图"
+description: "从任意 Mac App 向 ChatGPT 提供上下文"
+locale: "zh"
+translationKey: "appshots"
+section: "explore"
+order: 1016
+draft: false
+translationStatus: complete
+lastUpdated: 2026-08-06
+pageKind: article
+referenceHub: "features"
+sourceUrl: "https://www.codex-docs.com/docs/appshots"
+outline:
+  - id: "appshots-会捕获什么"
+    label: "Appshots 会捕获什么"
+  - id: "何时使用-appshots"
+    label: "何时使用 Appshots"
+  - id: "拍摄-appshot"
+    label: "拍摄 Appshot"
+  - id: "权限与安全"
+    label: "权限与安全"
+  - id: "限制与故障排查"
+    label: "限制与故障排查"
+---
+
+Appshots 可以把最前方的应用窗口发送到 ChatGPT 中的聊天。当你正在电脑上的其他应用中工作，并希望向 ChatGPT 提供当前上下文时，可以使用 Appshots。
+
+<Callout kind="note">
+
+Appshots 可在 macOS 版 ChatGPT 桌面应用中使用。按下左右两个 Command 键，或你自定义的 Appshots 快捷键，即可拍摄一张应用截图。
+
+</Callout>
+
+## Appshots 会捕获什么
+
+一张 Appshot 只捕获最前方的窗口，其中可以包含：
+
+-   可见窗口的图像。
+-   该窗口提供的文本，包括屏幕上可见的文字，以及应用在当前滚动区域之外公开的文字。
+
+把 Appshot 加入聊天后，它会像普通附件一样工作。与手动附加的文件或图片一样，ChatGPT 会把 Appshot 本地存储在会话文件中。
+
+## 何时使用 Appshots
+
+当 ChatGPT 需要先了解某个 Mac 应用中的上下文才能继续时，可以使用 Appshots。例如：
+
+-   分享 API 参考页面，让 ChatGPT 编写使用该 API 的脚本。
+-   分享邮件或日历视图，让 ChatGPT 起草下一步内容。
+-   分享图片编辑器、设计工具或预览窗口，让 ChatGPT 修改相关资源或代码。
+-   分享错误、设置面板或难以用文字描述的应用状态。
+
+## 拍摄 Appshot
+
+1.  把需要分享的应用窗口切换到最前方。
+2.  按下左右两个 Command 键，或你在 ChatGPT 设置中配置的自定义快捷键。
+3.  如果 ChatGPT 请求 macOS 权限，请允许相应权限。
+4.  让 ChatGPT 使用这张 Appshot 完成任务。
+
+默认情况下，ChatGPT 会为 Appshot 新建聊天。如果你在最近 60 秒内操作过某个聊天，ChatGPT 会把 Appshot 加入该聊天；连续拍摄的 Appshots 也会进入同一聊天。
+
+你可以在应用设置中修改 Appshots 快捷键。
+
+## 权限与安全
+
+ChatGPT 可能需要以下权限：
+
+-   **Screen & System Audio Recording（屏幕与系统音频录制）**：捕获最前方窗口的图像。
+-   **Accessibility（辅助功能）**：读取最前方窗口提供的文本。
+
+拍摄 Appshot 会把捕获的图像和可用文本分享给 ChatGPT。除非任务确实需要，否则不要对敏感内容拍摄 Appshot。评审 Appshots 时，应采用与分享截图和文档相同的安全标准。
+
+## 限制与故障排查
+
+Appshots 只能在 macOS 版 ChatGPT 桌面应用中创建。如果你在 CLI 中继续一个已包含 Appshot 的聊天，该附件仍属于聊天历史，但 CLI 无法创建新的 Appshot。
+
+对于 Google Docs、Gmail、Google Sheets 和 Google Slides 等部分应用或网站，ChatGPT 可能只能获得可见截图，而无法获得完整文档或屏幕外文字。在 ChatGPT Work 或 Codex 中，如果安装了匹配的 plugin，ChatGPT 可以通过该 plugin 访问相关内容并协助完成请求。
+
+如果 Appshots 无法使用：
+
+1.  打开 **System Settings > Privacy & Security（系统设置 > 隐私与安全性）**。
+2.  检查 Codex Computer Use 的 **Screen & System Audio Recording** 和 **Accessibility** 权限。
+3.  重启应用后重试。

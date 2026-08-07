@@ -1,0 +1,46 @@
+---
+title: "管理"
+description: "掌握 管理 的核心概念，並透過可驗證的範例完成第一次實作。"
+locale: "zh-TW"
+translationKey: "administration"
+section: "top"
+order: 5
+draft: false
+translationStatus: needs-review
+lastUpdated: 2026-08-06
+---
+<Callout title="先從一個真實結果開始">
+
+直接在任務中寫明你希望取得的檔案、頁面或驗證結果。
+
+</Callout>
+
+## 開始使用 管理
+
+先說明想完成的結果，再提供必要的檔案、背景與限制。讓 Codex 讀取真實專案，並在每個重要步驟後驗證結果。
+
+<Example>
+
+「檢查這個 Astro 網站，在保留現有視覺的前提下加入多語言，並以行動版驗收。」
+
+</Example>
+
+## 可靠的工作流程
+
+1. 描述目標與驗收標準
+2. 讓 Codex 檢查相關檔案與既有約定
+3. 執行修改並進行與風險相符的檢查
+4. 檢視結果、差異與下一步
+
+## 發生問題時
+
+保留完整錯誤訊息，確認執行目錄與權限，再縮小到最小可重現步驟。不要以猜測取代真實輸出。
+
+```bash
+npm run check
+npm run build
+```
+
+## 完成檢查
+
+<Checklist items={["頁面或指令產生預期結果","沒有新的主控台錯誤或水平溢位","語言、主題與行動版導覽仍可使用"]} />

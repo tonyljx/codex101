@@ -1,0 +1,41 @@
+<script>
+  const setupQuickstart = () => {
+    document.querySelectorAll<HTMLElement>('[data-quickstart]:not([data-quickstart-ready])').forEach((root) => {
+      root.dataset.quickstartReady = 'true';
+      const tabs = [...root.querySelectorAll<HTMLButtonElement>('[data-surface-tab]')];
+      const panels = [...root.querySelectorAll<HTMLElement>('[data-surface-panel]')];
+
+      const activate = (index: number, focus = false) => {
+        tabs.forEach((tab, tabIndex) => {
+          const selected = tabIndex === index;
+          tab.setAttribute('aria-selected', selected ? 'true' : 'false');
+          tab.tabIndex = selected ? 0 : -1;
+        });
+        panels.forEach((panel, panelIndex) => {
+          panel.hidden = panelIndex !== index;
+        });
+        if (focus) tabs[index]?.focus();
+      };
+
+      tabs.forEach((tab, index) => {
+        tab.addEventListener('click', () => activate(index));
+        tab.addEventListener('keydown', (event) => {
+          if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+          event.preventDefault();
+          const next = event.key === 'Home'
+            ? 0
+            : event.key === 'End'
+              ? tabs.length - 1
+              : (index + (event.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length;
+          activate(next, true);
+        });
+      });
+
+      if (window.location.hash === '#web') activate(1);
+      if (window.location.hash === '#desktop-app' || window.location.hash === '#桌面-app') activate(0);
+    });
+  };
+
+  setupQuickstart();
+  document.addEventListener('astro:page-load', setupQuickstart);
+</script>

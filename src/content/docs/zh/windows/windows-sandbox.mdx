@@ -1,0 +1,190 @@
+---
+title: "Windows 沙箱"
+description: "配置和排查 Windows 上的原生 Codex 沙箱"
+locale: "zh"
+translationKey: "windows/windows-sandbox"
+section: "explore"
+order: 1038
+draft: false
+translationStatus: complete
+lastUpdated: 2026-08-06
+pageKind: article
+referenceHub: "configuration"
+sourceUrl: "https://www.codex-docs.com/docs/windows/windows-sandbox"
+outline:
+  - id: "windows-sandbox"
+    label: "配置 Windows 沙箱"
+  - id: "故障排查与-faq"
+    label: "故障排查与 FAQ"
+---
+
+在 Windows 上，可以通过原生 [ChatGPT 桌面应用](/docs/windows/windows-app)、[CLI](/docs/codex/cli) 或 [IDE 扩展](/docs/codex/ide)使用 Codex。
+
+Windows 版 ChatGPT 桌面应用支持并行聊天、工作树、定时任务、Git、内置浏览器、文件预览、plugins 和 skills 等核心工作流。
+
+应用可以在 PowerShell 中原生运行，并使用 Windows 沙箱，无需依赖 WSL 或虚拟机。这样既能保留 Windows 原生工作流，也能限制文件系统和网络权限。
+
+![ChatGPT 桌面应用中的 Windows 沙箱设置提示](/images/codex/windows/windows-sandbox-setup.webp)
+
+[在 Windows 上使用 ChatGPT 桌面应用](/docs/windows/windows-app)：通过原生 Windows 应用跨项目工作、并行运行聊天，并在一个界面中评审结果。
+
+原生 Windows 沙箱有两种模式：
+
+-   使用更强的 `elevated` 沙箱在 Windows 上原生运行。
+-   使用回退的 `unelevated` 沙箱在 Windows 上原生运行。
+
+<span id="windows-sandbox"></span>
+
+## 配置 Windows 沙箱
+
+在 Windows 原生运行 Codex 时，智能体模式会使用 Windows 沙箱，阻止对工作文件夹之外的文件进行写入，并避免在未经明确批准时访问网络。
+
+可以在 `config.toml` 中配置两种原生沙箱模式：
+
+<CodeBlock code={"[windows]\nsandbox = \"elevated\" # or \"unelevated\""} language="toml" />
+
+`elevated` 是首选原生 Windows 沙箱。它使用专门的低权限沙箱用户、文件系统权限边界、防火墙规则，以及运行沙箱命令所需的本地策略改动。
+
+`unelevated` 是回退方案。它根据当前用户创建受限 Windows token，使用基于 ACL 的文件系统边界，并通过环境级离线控制替代专用离线用户的防火墙规则。它比 `elevated` 弱，但当本地或企业策略阻止管理员批准的设置时，仍可继续使用。
+
+如果两种模式都可用，请选择 `elevated`。如果默认原生沙箱在当前环境中不可用，可以暂时使用 `unelevated`，同时排查设置问题。
+
+企业管理员可以通过 [requirements.toml](/docs/enterprise/managed-configuration#admin-enforced-requirements-requirementstoml) 限制允许使用的原生沙箱实现：
+
+<CodeBlock code={"[windows]\nallowed_sandbox_implementations = [\"elevated\"]"} language="toml" />
+
+这个示例要求使用 `elevated`，并禁止回退到 `unelevated`。如果允许两种实现，请同时列出两个值；未选择具体模式时，Codex 会优先使用 `elevated`。支持的值见 [`requirements.toml` 参考](/docs/config-file/config-reference#requirementstoml)。
+
+默认情况下，两种沙箱还会使用 private desktop（专用桌面）来加强 UI 隔离。只有确实需要兼容旧版 `Winsta0\Default` 行为时，才设置 `windows.sandbox_private_desktop = false`。
+
+### 沙箱权限
+
+<Callout kind="note">
+
+在 **Full access（完全访问）** 模式下运行 Codex，意味着 Codex 不再局限于项目目录，可能因意外破坏性操作造成数据丢失。更安全的自动化方式是保留沙箱边界，并使用[规则](/docs/agent-configuration/rules)添加具体例外；也可以根据你的[审批和安全设置](/docs/agent-approvals-security)，把[审批策略设为 never](/docs/agent-approvals-security#run-without-approval-prompts)，让 Codex 在不请求提升权限的前提下尝试解决问题。
+
+</Callout>
+
+### Windows 版本矩阵
+
+<div className="doc-table-wrap">
+
+| Windows 版本 | 支持级别 | 说明 |
+| --- | --- | --- |
+| Windows 11 | 推荐 | Windows 上使用 Codex 的最佳基线。企业统一部署时应优先选择。 |
+| 最近且已完全更新的 Windows 10 | 尽力支持 | 可靠性低于 Windows 11，并依赖 ConPTY 等现代控制台支持；实际需要 Windows 10 1809 或更高版本。 |
+| 较旧的 Windows 10 build | 不推荐 | 更可能缺少 ConPTY 等控制台组件，也更容易在企业环境中失败。 |
+
+</div>
+
+其他环境前提：
+
+-   系统应提供 `winget`。如果缺失，请更新 Windows 或先安装 Windows Package Manager。
+-   推荐的原生沙箱需要管理员批准设置。
+-   部分企业受管设备即使操作系统版本符合要求，也会阻止必要的设置步骤。
+
+### 授予沙箱读取权限
+
+当命令因为 Windows 沙箱无法读取某个目录而失败时，使用：
+
+<CodeBlock code={"/sandbox-add-read-dir C:\\absolute\\directory\\path"} language="text" />
+
+路径必须是已经存在的绝对目录。命令成功后，当前会话中后续运行在沙箱里的命令可以读取该目录。
+
+默认优先使用原生 Windows 沙箱。当工作流依赖 Linux 原生工具、已经位于 WSL2 中，或两种原生沙箱都无法满足需求时，再选择 [WSL](/docs/windows/wsl)。
+
+## 故障排查与 FAQ
+
+排查受管理 Windows 设备时，先确认原生沙箱模式、Windows 版本，以及 Codex 显示的策略错误。大多数原生 Windows 支持问题来自沙箱设置、登录权限或文件系统权限，而不是编辑器本身。
+
+**原生沙箱设置失败**
+
+Codex 无法完成 `elevated` 沙箱设置时，常见原因包括：
+
+-   拒绝了 Windows UAC 或管理员提示。
+-   机器不允许创建本地用户或群组。
+-   机器不允许修改防火墙规则。
+-   机器阻止沙箱用户所需的登录权限。
+-   其他企业策略阻止了设置流程。
+
+建议按以下顺序处理：
+
+1.  再次运行 `elevated` 沙箱设置，并在环境允许时批准管理员提示。
+2.  如果公司设备阻止设置，请让 IT 团队确认是否允许管理员批准本地用户或群组创建、防火墙配置，以及沙箱用户所需的登录权限。
+3.  默认设置仍失败时，先使用 `unelevated` 继续工作，同时调查问题。
+
+**Codex 切换到了 unelevated 沙箱**
+
+这表示 Codex 无法完成更强的 `elevated` 设置：
+
+-   Codex 仍可以在沙箱模式下运行。
+-   它仍会应用基于 ACL 的文件系统边界，但不再使用独立沙箱用户边界，网络隔离也更弱。
+-   该模式适合作为回退，但不应作为长期企业配置的首选。
+
+在受管理企业设备上，长期方案通常是让 IT 团队协助修复 `elevated` 沙箱设置。
+
+**出现 Windows error 1385**
+
+如果沙箱命令以错误 `1385` 失败，说明 Windows 拒绝了沙箱用户启动命令所需的登录类型。通常 Codex 已成功创建沙箱用户，但 Windows 策略仍阻止它们启动沙箱命令。
+
+处理方式：
+
+1.  让 IT 团队确认设备策略是否向 Codex 创建的沙箱用户授予所需登录权限。
+2.  如果问题只影响部分机器或团队，比较组策略或 OU 差异。
+3.  如需立即继续工作，在调查期间使用 `unelevated`。
+4.  提交 `CODEX_HOME/.sandbox/sandbox.log`，并附上 Windows 版本和简短故障说明。
+
+**Codex 警告部分文件夹可由 Everyone 写入**
+
+如果出现该警告，说明对应文件夹的 Windows 权限过宽，沙箱无法完整保护它们：
+
+1.  检查 Codex 在警告中列出的文件夹。
+2.  如果适合当前环境，移除这些文件夹对 `Everyone` 的写入权限。
+3.  修正权限后重启 Codex，或重新运行沙箱设置。
+
+不确定如何修改权限时，请联系 IT 团队。
+
+**沙箱命令无法访问网络**
+
+根据当前权限模式，部分 Codex 聊天会有意禁止出站网络访问。如果任务因此失败：
+
+1.  确认任务是否原本就应在禁用网络的条件下运行。
+2.  如果预期可以联网，请重启 Codex 后重试。
+3.  问题持续时收集沙箱日志，以确认机器是否处于部分配置或损坏状态。
+
+**沙箱之前可用，后来停止工作**
+
+移动仓库或工作区、修改机器权限、变更 Windows 策略或其他系统配置后，都可能出现这种情况。请依次尝试：
+
+1.  重启 Codex。
+2.  再次执行 `elevated` 沙箱设置。
+3.  如果仍未修复，临时使用 `unelevated`。
+4.  收集沙箱日志供进一步检查。
+
+**需要向 OpenAI 提交诊断信息**
+
+如果问题仍然存在，请提交：
+
+-   `CODEX_HOME/.sandbox/sandbox.log`
+
+同时附上：
+
+-   你当时尝试执行的操作。
+-   `elevated` 设置是否失败，或是否使用了 `unelevated`。
+-   应用显示的错误消息。
+-   是否出现 `1385` 或其他 Windows、PowerShell 错误。
+-   系统是 Windows 11 还是 Windows 10。
+
+不要提交：
+
+-   `CODEX_HOME/.sandbox-secrets/` 中的内容。
+
+**IDE 扩展已安装但没有响应**
+
+系统可能缺少部分原生依赖所需的 C++ 开发工具：
+
+-   Visual Studio Build Tools（C++ workload）
+-   Microsoft Visual C++ Redistributable（x64）
+-   使用 `winget` 安装：`winget install --id Microsoft.VisualStudio.2022.BuildTools -e`
+
+安装后请完全重启 VS Code。

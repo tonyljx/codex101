@@ -1,0 +1,57 @@
+---
+type Props = {
+  src: string;
+  playLabel?: string;
+  fallback?: string;
+};
+
+const {
+  src,
+  playLabel = '播放视频',
+  fallback = '你的浏览器不支持视频播放。',
+} = Astro.props;
+---
+
+<div class="doc-video">
+  <div class="deferred-video">
+    <video playsinline preload="none" data-deferred-video data-video-src={src}>
+      {fallback}
+    </video>
+    <button type="button" class="deferred-video__play" aria-label={playLabel} data-deferred-video-play>
+      <span aria-hidden="true"></span>
+      <span class="sr-only">{playLabel}</span>
+    </button>
+  </div>
+</div>
+
+<script>
+  const prepareDeferredVideos = () => {
+    document.querySelectorAll<HTMLButtonElement>('[data-deferred-video-play]').forEach((button) => {
+      if (button.dataset.ready === 'true') return;
+      button.dataset.ready = 'true';
+      button.addEventListener('click', async () => {
+        const host = button.closest('.deferred-video');
+        const video = host?.querySelector<HTMLVideoElement>('[data-deferred-video]');
+        if (!video) return;
+
+        if (!video.src) {
+          video.src = video.dataset.videoSrc ?? '';
+          video.controls = true;
+          video.preload = 'metadata';
+          video.load();
+        }
+
+        button.hidden = true;
+        try {
+          await video.play();
+        } catch {
+          button.hidden = false;
+          button.dataset.state = 'error';
+        }
+      });
+    });
+  };
+
+  prepareDeferredVideos();
+  document.addEventListener('astro:page-load', prepareDeferredVideos);
+</script>

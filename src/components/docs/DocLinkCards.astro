@@ -1,0 +1,21 @@
+---
+type Item = {
+  href: string;
+  title: string;
+  description: string;
+  icon: 'book' | 'chat' | 'plugin' | 'settings' | 'tools';
+};
+
+type Props = { items: Item[] };
+const { items } = Astro.props;
+---
+
+<div class="doc-link-card-stack">
+  {items.map((item) => (
+    <a class="doc-link-card" href={item.href}>
+      <span class={`doc-link-card__icon doc-link-card__icon--${item.icon}`} aria-hidden="true"></span>
+      <span class="doc-link-card__body"><strong>{item.title}</strong><span>{item.description}</span></span>
+      <span class="doc-link-card__arrow" aria-hidden="true">→</span>
+    </a>
+  ))}
+</div>

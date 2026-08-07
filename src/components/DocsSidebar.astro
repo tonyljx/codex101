@@ -1,0 +1,56 @@
+---
+import type { DocsNavigation } from '../lib/docs';
+import { getReferenceSidebar } from '../lib/reference-sidebars';
+import { copy, localizedPath, type Locale } from '../lib/site';
+
+type Props = {
+  locale: Locale;
+  currentSlug?: string;
+  navigation: DocsNavigation;
+};
+
+const { locale, currentSlug = '', navigation } = Astro.props;
+const c = copy[locale];
+const base = localizedPath(locale, '/docs');
+const reference = getReferenceSidebar(locale, currentSlug);
+const currentHref = currentSlug ? `/docs/${currentSlug}` : '/docs';
+---
+
+<aside class="docs-sidebar" aria-label={reference?.label ?? c.docsNavigation}>
+  <nav>
+    {reference ? (
+      reference.groups.map((group) => group.title ? (
+        <section>
+          <h2>{group.title}</h2>
+          <ul>
+            {group.items.map((item) => (
+              <li><a class:list={{ 'is-current': currentHref === item.href }} href={item.href}>{item.title}</a></li>
+            ))}
+          </ul>
+        </section>
+      ) : (
+        group.items.map((item) => (
+          <a class:list={['docs-sidebar__overview', { 'is-current': currentHref === item.href }]} href={item.href}>{item.title}</a>
+        ))
+      ))
+    ) : (
+      <>
+        <a class:list={['docs-sidebar__overview', { 'is-current': !currentSlug }]} href={base}>{c.docsOverview}</a>
+        {navigation.groups.map((group) => (
+          <section>
+            <h2>{group.title}</h2>
+            <ul>
+              {group.items.map((item) => (
+                <li>
+                  <a class:list={{ 'is-current': currentSlug === item.slug }} href={localizedPath(locale, `/docs/${item.slug}`)}>
+                    {item.title}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ))}
+      </>
+    )}
+  </nav>
+</aside>

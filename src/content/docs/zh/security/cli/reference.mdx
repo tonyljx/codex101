@@ -1,0 +1,537 @@
+---
+title: "Codex Security CLI 参考"
+navTitle: "CLI 参考"
+description: "Codex Security CLI 的参数、输出格式、扫描产物和退出码。"
+locale: "zh"
+translationKey: "security/cli/reference"
+section: "explore"
+order: 1082
+draft: false
+translationStatus: complete
+lastUpdated: 2026-08-06
+pageKind: article
+referenceHub: "security-administration"
+sourceUrl: "https://www.codex-docs.com/docs/security/cli/reference"
+outline:
+  - id: "命令概述"
+    label: "命令概述"
+  - id: "codex-security-scan"
+    label: "codex-security scan"
+  - id: "codex-security-install-hook"
+    label: "codex-security install-hook"
+  - id: "codex-security-bulk-scan"
+    label: "codex-security bulk-scan"
+  - id: "codex-security-scans"
+    label: "codex-security scans"
+  - id: "codex-security-findings"
+    label: "codex-security findings"
+  - id: "codex-security-export"
+    label: "codex-security export"
+  - id: "codex-security-validate-和-codex-security-patch"
+    label: "codex-security validate 和 codex-security patch"
+  - id: "codex-security-loginlogout-和-info"
+    label: "codex-security login、logout 和 info"
+  - id: "读取扫描输出"
+    label: "读取扫描输出"
+  - id: "扫描产物"
+    label: "扫描产物"
+  - id: "退出码和信号"
+    label: "退出码和信号"
+  - id: "认证和先决条件"
+    label: "认证和先决条件"
+---
+
+使用本参考查看 `codex-security` 支持的命令、flag、输出格式和退出行为。要在引导下完成首次扫描，请从 [CLI 快速入门](/docs/security/cli) 开始。
+
+<Callout kind="note">
+
+`@openai/codex-security` 软件包已公开发布。运行扫描仍需获得 Codex Security 访问权限。
+
+</Callout>
+
+在项目中安装公开发布的软件包：
+
+<CodeBlock code={"npm install @openai/codex-security"} language="bash" />
+
+使用 `npx @openai/codex-security` 调用已安装的软件包。当可执行文件位于 `PATH` 中时，也可以直接使用 `codex-security`。
+
+## 命令概述
+
+<CodeBlock code={"usage: codex-security [--version] <command> [options]"} language="text" />
+
+CLI 提供以下命令：
+
+<div className="doc-table-wrap">
+
+| 命令 | 目的 |
+| --- | --- |
+| `codex-security scan` | 运行 Codex Security 扫描。 |
+| `codex-security install-hook` | 安装 Git 预提交安全扫描。 |
+| `codex-security bulk-scan` | 发现仓库并运行可恢复批量扫描。 |
+| `codex-security scans` | 列出、检查、匹配、重新运行和比较已保存的扫描。 |
+| `codex-security findings` | 查看并更新已保存的安全发现。 |
+| `codex-security export` | 将已完成的结果导出为 CSV、JSON 或 SARIF。 |
+| `codex-security validate` | 检查一项或多项候选安全发现。 |
+| `codex-security patch` | 修补一个或多个安全问题。 |
+| `codex-security login` | 登录、存储凭据或检查登录状态。 |
+| `codex-security logout` | 删除存储的登录信息。 |
+| `codex-security info` | 显示只读 SDK 和捆绑插件元数据。 |
+
+</div>
+
+CLI 还提供以下集成命令：
+
+<div className="doc-table-wrap">
+
+| 命令 | 目的 |
+| --- | --- |
+| `codex-security completions` | 生成 shell 完成脚本。 |
+| `codex-security mcp` | 将 CLI 注册为 MCP server。 |
+| `codex-security skills` | 将 Codex Security 技能同步给智能体。 |
+
+</div>
+
+列出所有可用命令：
+
+<CodeBlock code={"npx @openai/codex-security --help"} language="bash" />
+
+将 `--help` 添加到命令中以检查其参数和选项：
+
+<CodeBlock code={"npx @openai/codex-security scan --help"} language="bash" />
+
+`codex-security --version` 打印安装的版本并退出。 `codex-security info --json` 报告 SDK 和捆绑插件版本。这两个命令都不需要 Python。
+
+### 发现命令并连接智能体
+
+打印智能体可读的命令清单：
+
+<CodeBlock code={"npx @openai/codex-security --llms"} language="bash" />
+
+检查扫描参数架构为 JSON：
+
+<CodeBlock code={"npx @openai/codex-security scan --schema --format json"} language="bash" />
+
+为 Bash 生成 shell 补全：
+
+<CodeBlock code={"npx @openai/codex-security completions bash"} language="bash" />
+
+对于这些 shell，将 `bash` 替换为 `zsh` 或 `fish`。
+
+扫描结果支持 `--format toon|json|yaml|jsonl` 和 `--full-output`。框架级 `--format` 与 `--export-format` 相互独立；后者用于选择从已完成扫描导出的产物格式。全局命令帮助中还列出了 `md`，但扫描结果不支持 Markdown 输出。
+
+将 CLI 注册为 MCP server：
+
+<CodeBlock code={"npx @openai/codex-security mcp add"} language="bash" />
+
+将 Codex Security 技能同步给你的智能体：
+
+<CodeBlock code={"npx @openai/codex-security skills add"} language="bash" />
+
+MCP 仅公开只读 `info` 元数据命令。扫描、导出、认证、验证和修补仍然仅限 CLI。
+
+## `codex-security scan`
+
+对仓库、选定的路径、提交的更改或工作树运行扫描。
+
+<CodeBlock code={"usage: codex-security scan [-h] [--auth {auto,chatgpt,api-key}]\n                           [--path PATH | --diff BASE | --working-tree]\n                           [--head HEAD] [--base BASE]\n                           [--knowledge-base PATH]\n                           [--mode {standard,deep}] [--model MODEL]\n                           [--effort {minimal,low,medium,high,xhigh}]\n                           [--output-dir DIR]\n                           [--archive-existing]\n                           [--plugin-path PATH] [--python PATH]\n                           [--codex KEY=VALUE] [--fail-on-severity LEVEL]\n                           [--max-cost USD] [--dry-run]\n                           [--json] [--format {toon,json,yaml,jsonl}]\n                           [--full-output] [repository]"} language="text" />
+
+`repository` 默认为当前目录。
+
+### 选择扫描认证方式
+
+使用默认值 `--auth auto` 可自动选择凭据。当 ChatGPT 登录和 `OPENAI_API_KEY` 或 `CODEX_API_KEY` 同时可用时，使用文本输出的交互式扫描会询问要使用哪种凭据。CI、JSON 和 JSONL 扫描，以及其它没有交互式终端的扫描，使用环境变量中的 API key。试运行不会提示选择，也不会加载凭据。
+
+如需使用已存储的凭据，请传入 `--auth chatgpt`：
+
+<CodeBlock code={"npx @openai/codex-security scan . --auth chatgpt"} language="bash" />
+
+如需使用环境变量中的 API key，请传入 `--auth api-key`：
+
+<CodeBlock code={"npx @openai/codex-security scan . --auth api-key"} language="bash" />
+
+如需让已存储的凭据成为自动选择的默认值，请运行 `unset OPENAI_API_KEY CODEX_API_KEY`。
+
+### 选择扫描目标
+
+为每次扫描选择一种目标类型。
+
+<div className="doc-table-wrap">
+
+| 参数 | 说明 |
+| --- | --- |
+| `--path PATH` | 扫描仓库内的相对路径。重复该 flag 可添加更多路径。 |
+| `--diff BASE` | 扫描从 `BASE` 到 `--head` 的已提交变更。head revision 默认为 `HEAD`。 |
+| `--head HEAD` | 设置 `--diff` 的 head revision。 |
+| `--working-tree` | 针对 `--base` 扫描已暂存和未暂存的变更。base revision 默认为 `HEAD`。 |
+| `--base BASE` | 设置 `--working-tree` 的 base revision。 |
+| `--mode {standard,deep}` | 选择扫描模式。默认为 `standard`。 |
+
+</div>
+
+`--path`、`--diff` 和 `--working-tree` 是互斥的。 `--head` 需要 `--diff`，`--base` 需要 `--working-tree`。深度模式支持仓库和路径目标。
+
+差异和工作树扫描要求仓库参数指向 Git 工作树根目录。所选 revision 必须存在于当前检出内容中。
+
+扫描整个仓库：
+
+<CodeBlock code={"npx @openai/codex-security scan ."} language="bash" />
+
+扫描选定的路径：
+
+<CodeBlock code={"npx @openai/codex-security scan . --path src --path tests"} language="bash" />
+
+扫描提交的更改：
+
+<CodeBlock code={"npx @openai/codex-security scan . --diff origin/main --head HEAD"} language="bash" />
+
+扫描暂存和未暂存的更改：
+
+<CodeBlock code={"npx @openai/codex-security scan . --working-tree --base HEAD"} language="bash" />
+
+对仓库进行更深入的评审：
+
+<CodeBlock code={"npx @openai/codex-security scan . --mode deep"} language="bash" />
+
+### 添加安全上下文
+
+使用 `--knowledge-base PATH` 提供架构文档、威胁模型或安全策略。要添加更多文件或目录，请重复该选项：
+
+<CodeBlock code={"npx @openai/codex-security scan . \\\n  --knowledge-base /path/to/architecture.md \\\n  --knowledge-base /path/to/security-policies"} language="bash" />
+
+支持的文档包括 `.md`、`.markdown`、`.txt`、`.pdf` 和 `.docx` 文件。CLI 递归搜索目录，拒绝链接的输入路径，跳过链接的目录条目，并将提取的文档内容保留在保存的扫描结果之外。
+
+### 设置输出和策略选项
+
+使用这些选项可以保留产物、保留早期结果或创建机器可读的结果。
+
+<div className="doc-table-wrap">
+
+| 参数 | 说明 |
+| --- | --- |
+| `--output-dir DIR` | 将扫描产物写入外层 Git 工作树之外的私有目录。默认为持久化的 Codex Security 状态目录。 |
+| `--archive-existing` | 将现有结果移至 `DIR.previous-<timestamp>-<id>` 并从空输出目录开始。需要 `--output-dir`。 |
+| `--fail-on-severity LEVEL` | 当完成的扫描报告结果等于或高于 `critical`、`high`、`medium` 或 `low` 时，返回退出 `1`。 |
+| `--max-cost USD` | 当估计模型成本超过指定的美元金额时停止扫描。 |
+| `--dry-run` | 检查仓库、目标、输出目录和 Codex 配置，而无需启动扫描。 |
+| `--json` | 将 manifest、安全发现、覆盖范围、路径和 `turn` 元数据输出为一份 JSON 文档。 |
+| `--format FORMAT` | 把完整扫描结果输出为 `toon`、`json`、`yaml` 或 `jsonl`。 |
+| `--full-output` | 使用默认结构化输出格式打印完整结果。 |
+
+</div>
+
+成本限制是一个估计值，而不是硬性支出上限。已在进行中的请求可能会超出限制，并且部分扫描结果仍然可用。
+
+当你省略 `--output-dir` 时，结果将保留在 `$CODEX_HOME/state/plugins/codex-security/scans/<repository>` 下。 `CODEX_HOME` 默认为 `~/.codex`。设置 `CODEX_SECURITY_STATE_DIR` 以将结果保留在 `$CODEX_SECURITY_STATE_DIR/scans/<repository>` 下。这些目录可以包含源代码摘录和漏洞详细信息，因此请相应地管理其权限和保留。
+
+工作台把扫描历史记录保存在 `$CODEX_HOME/state/plugins/codex-security/workbench.sqlite3`。设置 `CODEX_SECURITY_STATE_DIR` 也会移动工作台数据库。
+
+输出目录必须位于被扫描目录和任何外层 Git 工作树之外。扫描可以用 `--archive-existing` 替换现有结果目录。
+
+要在复用输出目录前保留早期结果：
+
+<CodeBlock code={"npx @openai/codex-security scan . \\\n  --output-dir /path/outside/repository/results \\\n  --archive-existing"} language="bash" />
+
+默认情况下，扫描仅报告。添加 `--fail-on-severity` 以评估 CI 中的严重性策略：
+
+<CodeBlock code={"npx @openai/codex-security scan . \\\n  --diff origin/main \\\n  --output-dir /path/outside/repository/results \\\n  --json \\\n  --fail-on-severity high \\\n  > /path/outside/repository/codex-security.json"} language="bash" />
+
+空运行检查本地输入，无需加载凭据、启动 Codex 或探测插件的 Python 解释器：
+
+<CodeBlock code={"npx @openai/codex-security scan . --output-dir /path/outside/repository/results --dry-run"} language="bash" />
+
+### 配置运行时
+
+当你需要显式模型、解释器、插件或 Codex 配置值时，请使用运行时选项。
+
+<div className="doc-table-wrap">
+
+| 参数 | 说明 |
+| --- | --- |
+| `--auth {auto,chatgpt,api-key}` | 选择扫描凭据。默认为 `auto`。 |
+| `--model MODEL` | 选择 OpenAI 模型。默认为 `gpt-5.6-sol`。 |
+| `--effort {minimal,low,medium,high,xhigh}` | 选择模型的推理强度。默认为 `xhigh`。 |
+| `--plugin-path PATH` | 使用 Codex Security 插件目录或 ZIP 覆盖捆绑的插件。 |
+| `--python PATH` | 为插件运行时选择 Python 解释器。 |
+| `--codex KEY=VALUE` | 覆盖隔离的 Codex 配置值。值使用 TOML 语法。重复该 flag 可添加更多值。 |
+
+</div>
+
+要在不写 TOML 的情况下选择其它模型和推理强度：
+
+<CodeBlock code={"npx @openai/codex-security scan . --model gpt-5.6-terra --effort high"} language="bash" />
+
+引用通过 `--codex` 传递的字符串值，以便 TOML 解析器接收一个字符串：
+
+<CodeBlock code={"npx @openai/codex-security scan . --codex 'model=\"gpt-5.6-terra\"'"} language="bash" />
+
+## `codex-security install-hook`
+
+为当前仓库安装 Git 预提交安全检查：
+
+<CodeBlock code={"npx @openai/codex-security install-hook"} language="bash" />
+
+检查会在每次提交之前扫描暂存和未暂存的更改，并阻止高严重性发现或扫描错误。它尊重 `core.hooksPath` 并且不会替换现有的预提交脚本。需要时设置不同的严重性阈值：
+
+<CodeBlock code={"npx @openai/codex-security install-hook . --fail-on-severity medium"} language="bash" />
+
+## `codex-security bulk-scan`
+
+发现并扫描 GitHub 仓库，或从仓库 CSV 运行可恢复扫描：
+
+有关 GitHub 发现、CSV 清单、批量扫描结果和容器化扫描的完整指南，请参阅[运行批量安全扫描](/docs/security/cli/bulk-scans)。
+
+<CodeBlock code={"usage: codex-security bulk-scan [input] [--output-dir DIR]\n                                [--workers N] [--mode {standard,deep}]\n                                [--model MODEL]\n                                [--effort {minimal,low,medium,high,xhigh}]\n                                [--max-attempts N] [--plugin-path PATH]\n                                [--python PATH] [--codex KEY=VALUE]"} language="text" />
+
+运行不带参数的 `npx @openai/codex-security bulk-scan`，以交互方式选择仓库。此流程需要 GitHub CLI 登录。
+
+要在交互式发现期间选择模型和推理强度：
+
+<CodeBlock code={"npx @openai/codex-security bulk-scan --model gpt-5.6-terra --effort high"} language="bash" />
+
+对于准备好的仓库列表，请提供 CSV 和 `--output-dir`：
+
+<CodeBlock code={"npx @openai/codex-security bulk-scan repositories.csv \\\n  --output-dir /path/outside/repositories/security-scans \\\n  --workers 4"} language="bash" />
+
+CSV 需要 `id`、`repository` 和 `revision` 列。修订必须是完整的提交哈希。可选的 `scope` 和 `mode` 列配置单独的仓库：
+
+<CodeBlock code={"id,repository,revision,scope,mode\nservice,https://github.com/example/service.git,0123456789abcdef0123456789abcdef01234567,src,standard"} language="csv" />
+
+`--workers` 限制并发扫描数，默认为 `4`。`--mode` 默认为 `standard`，`--max-attempts` 默认为 `1`。需要在错误后重试仓库时，请设置 `--max-attempts`。再次运行同一命令即可从现有输出目录恢复批量扫描。只有记录的结果产物仍然存在时，CLI 才会跳过已完成扫描的仓库。
+
+对于容器化批量扫描，请参阅[在 Docker 中运行批量扫描](/docs/security/cli/bulk-scans#run-bulk-scans-in-docker)。
+
+## `codex-security scans`
+
+### 查找保存的扫描
+
+列出当前目录的已保存扫描：
+
+<CodeBlock code={"npx @openai/codex-security scans"} language="bash" />
+
+列出不同仓库的扫描：
+
+<CodeBlock code={"npx @openai/codex-security scans list /path/to/repository"} language="bash" />
+
+查找存储在特定输出目录下的扫描：
+
+<CodeBlock code={"npx @openai/codex-security scans list --scan-root /path/outside/repository/results"} language="bash" />
+
+### 检查或重复扫描
+
+显示保存的扫描结果和配置：
+
+<CodeBlock code={"npx @openai/codex-security scans show SCAN_ID"} language="bash" />
+
+使用其原始配置针对当前检出内容重新运行扫描：
+
+<CodeBlock code={"npx @openai/codex-security scans rerun SCAN_ID"} language="bash" />
+
+### 匹配和比较结果
+
+匹配两次扫描中具有相同根本原因的结果：
+
+<CodeBlock code={"npx @openai/codex-security scans match PREVIOUS_SCAN_ID CURRENT_SCAN_ID"} language="bash" />
+
+比较匹配的扫描以查找新的、持续存在的、重新打开的、已解决的和未知的发现：
+
+<CodeBlock code={"npx @openai/codex-security scans compare PREVIOUS_SCAN_ID CURRENT_SCAN_ID"} language="bash" />
+
+当后续扫描覆盖不完整，或没有覆盖某项安全发现的原始位置时，该发现的状态为未知。需要重新计算现有匹配时，请为 `match` 添加 `--force`。
+
+要匹配当前仓库的所有已完成扫描，包括来自其他签出的扫描：
+
+<CodeBlock code={"npx @openai/codex-security scans match --all"} language="bash" />
+
+即使重新运行相同的配置，扫描结果也可能会有所不同。匹配和比较追踪变化；它们不会使结果具有确定性或证明漏洞不再存在。使用 `validate` 根据当前代码重新检查安全关键发现。
+
+## `codex-security findings`
+
+将安全发现标记为误报：
+
+<CodeBlock code={"usage: codex-security findings false-positive OCCURRENCE_ID\n                       --reason REASON"} language="text" />
+
+检查已保存的扫描，找到安全发现的 occurrence ID：
+
+<CodeBlock code={"npx @openai/codex-security scans show SCAN_ID"} language="bash" />
+
+记录误报的具体解释：
+
+<CodeBlock code={"npx @openai/codex-security findings false-positive FINDING_OCCURRENCE_ID \\\n  --reason \"The framework escapes this input before it reaches the query\""} language="bash" />
+
+原因不能为空。Codex Security 保存仓库的决策并将其作为未来扫描的上下文。每次扫描都会独立地重新检查当前源、控件和可达性。先前的决定不会抑制规则、路径或漏洞类别。
+
+## `codex-security export`
+
+从已完成并封存的扫描中导出 CSV、JSON 或 SARIF。导出会在写入输出前验证扫描产物，且不会改动 Codex 运行时和凭据。
+
+<CodeBlock code={"usage: codex-security export [--export-format {csv,json,sarif}]\n                             [--output FILE|-] [--source-root PATH]\n                             [--python PATH] scan_dir"} language="text" />
+
+`scan_dir` 是完成的扫描目录。
+
+<div className="doc-table-wrap">
+
+| 参数 | 说明 |
+| --- | --- |
+| `--export-format {csv,json,sarif}` | 选择导出格式。默认为 `sarif`。 |
+| `--output FILE\|-` | 将选定的格式写入文件或标准输出。默认为当前目录中的文件。 |
+| `--source-root PATH` | 使用仓库签出将源行指纹添加到 SARIF。 |
+| `--python PATH` | 为捆绑导出器选择 Python 解释器。 |
+
+</div>
+
+`--source-root` 仅适用于 `--export-format sarif`。JSON 会保存已封存的安全发现文件。CSV 包含可移植的安全发现字段，不包括本地工作台的分类状态。
+
+如果省略 `--output`，CLI 会在当前工作目录中把 SARIF 写入 `results.sarif`、JSON 写入 `findings.json`、CSV 写入 `findings.csv`。导出结果可能包含源代码摘录和漏洞详情。请在仓库外运行该命令，或通过 `--output` 指定扫描检出目录之外的私有路径。
+
+将 SARIF 写入文件：
+
+<CodeBlock code={"npx @openai/codex-security export /path/to/scan \\\n  --export-format sarif \\\n  --source-root /path/to/repository \\\n  --output /path/outside/repository/exports/results.sarif"} language="bash" />
+
+将 SARIF 写入标准输出：
+
+<CodeBlock code={"npx @openai/codex-security export /path/to/scan --export-format sarif --source-root . --output -"} language="bash" />
+
+将结果导出为 JSON：
+
+<CodeBlock code={"npx @openai/codex-security export /path/to/scan \\\n  --export-format json \\\n  --output /path/outside/repository/exports/findings.json"} language="bash" />
+
+将结果导出为 CSV：
+
+<CodeBlock code={"npx @openai/codex-security export /path/to/scan \\\n  --export-format csv \\\n  --output /path/outside/repository/exports/findings.csv"} language="bash" />
+
+## `codex-security validate` 和 `codex-security patch`
+
+检查候选结果是否有效：
+
+<CodeBlock code={"npx @openai/codex-security validate findings.json \"Possible SQL injection in src/query.ts:42\""} language="bash" />
+
+使用捆绑的修复技能生成补丁：
+
+<CodeBlock code={"npx @openai/codex-security patch findings.json \"Missing authorization check in src/routes.ts:18\""} language="bash" />
+
+每个参数都可以是字面文本或文件路径。这两个命令都针对当前目录运行。修复完成后，或后续扫描不再报告原始发现时，可以使用 `validate` 直接重新检查原始发现。只比较扫描结果并不能证明修复有效。外部工具也可以使用这些命令，无需重新构建扫描环境。
+
+使用 `--effort` 为任一命令选择推理强度：
+
+<CodeBlock code={"npx @openai/codex-security validate \"Possible SQL injection\" --effort high"} language="bash" />
+
+## `codex-security login`、`logout` 和 `info`
+
+交互式登录：
+
+<CodeBlock code={"npx @openai/codex-security login"} language="bash" />
+
+在远程或无头计算机上使用设备认证：
+
+<CodeBlock code={"npx @openai/codex-security login --device-auth"} language="bash" />
+
+检查当前登录情况：
+
+<CodeBlock code={"npx @openai/codex-security login status"} language="bash" />
+
+删除存储的登录信息：
+
+<CodeBlock code={"npx @openai/codex-security logout"} language="bash" />
+
+通过将 API key 传递到 stdin 来存储它：
+
+<CodeBlock code={"printenv OPENAI_API_KEY | npx @openai/codex-security login --with-api-key"} language="bash" />
+
+存储企业访问令牌：
+
+<CodeBlock code={"printenv CODEX_ACCESS_TOKEN | npx @openai/codex-security login --with-access-token"} language="bash" />
+
+检查只读 SDK 和捆绑插件元数据：
+
+<CodeBlock code={"npx @openai/codex-security info --json"} language="bash" />
+
+当你将 CLI 公开为 MCP server 时，`info` 是唯一可用的命令。扫描、导出、登录、验证和修补仍然仅限 CLI。
+
+## 读取扫描输出
+
+默认情况下，扫描会把进度、完成摘要和错误发送到 stderr，而不会把完整扫描结果写入 stdout。使用 `--json`、`--format` 或 `--full-output` 才会把结构化扫描结果发送到 stdout。
+
+### 完成总结
+
+完成的扫描会把安全发现数量、严重性细分、覆盖范围、耗时、报告路径和结果目录写入 stderr；如果可用，还会包含 token 用量和估算成本：
+
+<CodeBlock code={"codex-security: Findings: 4 (1 critical, 2 high, 1 informational). Coverage: complete.\ncodex-security: Elapsed: 1s.\ncodex-security: Tokens: 1,250 input, 200 cached, 30 output.\ncodex-security: Report: /path/to/scan/report.md\ncodex-security: Results: /path/to/scan"} language="text" />
+
+`informational` 安全发现会计入汇总总数。严重性策略只评估 `critical`、`high`、`medium` 和 `low` 级别的结果。
+
+### JSON 输出
+
+`scan --json` 将一份完整的 JSON 文档写入标准输出。它的顶层形状是：
+
+<CodeBlock code={"manifest\nfindings\ncoverage\nscanDir\nthreadId\nreportPath\nartifactsDir\nsarifPath\nturn\n  id\n  status\n  durationMs\n  finalResponse\n  usage"} language="text" />
+
+进度、完成摘要、存档通知和错误保留在 stderr 上。当严重性策略返回退出 `1` 或不完整覆盖返回退出 `2` 时，已完成的扫描仍会打印完整的 JSON 结果。
+
+<Callout kind="note">
+
+`codex-security scan --json` 会输出一份 JSON 文档；`codex exec --json` 则会输出 JSON Lines 事件流。请使用与当前命令匹配的输出格式。
+
+</Callout>
+
+## 扫描产物
+
+完整的扫描将可读的报告和结构化产物放在一起：
+
+<CodeBlock code={"<scan-directory>/\n├── scan-manifest.json\n├── findings.json\n├── coverage.json\n├── report.md\n├── artifacts/\n└── exports/\n    └── results.sarif       # when produced"} language="text" />
+
+结构化文件服务于不同的工作：
+
+<div className="doc-table-wrap">
+
+| 文件 | 内容 |
+| --- | --- |
+| `scan-manifest.json` | 扫描标识、状态、目标、范围、生产者和已封存的产物记录。 |
+| `findings.json` | 安全发现的标识符、严重性、置信度、分类、位置、证据、验证、数据流、可达性和补救措施。 |
+| `coverage.json` | 已评审范围、排除、延后处理的工作、悬而未决的问题和覆盖范围的完整性。 |
+| `report.md` | 可读的扫描报告。 |
+| `artifacts/` | 支持扫描产物。 |
+| `exports/results.sarif` | SARIF 在扫描期间生成（如果存在）。 |
+
+</div>
+
+覆盖完整性具有三个值：
+
+-   `complete`：扫描记录其选定范围的完整覆盖范围。
+-   `partial`：扫描记录延后处理的工作或其他覆盖范围限制。
+-   `unknown`：扫描报告覆盖完整性未知。
+
+在使用覆盖范围作为安全决策的证据之前，请检查延迟的表面、明确的排除和悬而未决的问题。
+
+## 退出码和信号
+
+CLI 使用以下退出码：
+
+<div className="doc-table-wrap">
+
+| 退出码 | 条件 |
+| --- | --- |
+| `0` | 扫描完成并完全覆盖并通过了其严重性策略，批量扫描完成且没有失败，或者另一个命令成功。 |
+| `1` | 完成的扫描会报告等于或高于配置的严重性的安全发现。 |
+| `2` | CLI 发现输入、运行时或导出错误，扫描覆盖不完整，或者批量扫描仓库有错误。 |
+| `130` | Ctrl-C 中断扫描。 |
+| `143` | SIGTERM 终止扫描。 |
+
+</div>
+
+即使没有严重性策略，任何具有 `partial` 或 `unknown` 覆盖范围的扫描都会返回 `2`。当你请求结构化输出时，完成的扫描仍会把可用结果写入 stdout。CLI 会在中断或运行时错误后打印任何部分输出的位置。
+
+## 认证和先决条件
+
+设置 `OPENAI_API_KEY` 或 `CODEX_API_KEY`，使用 `npx @openai/codex-security login` 登录，或复用现有的文件式 Codex 登录。
+
+凭据选择规则请参阅[选择扫描认证方式](#%E9%80%89%E6%8B%A9%E6%89%AB%E6%8F%8F%E8%AE%A4%E8%AF%81%E6%96%B9%E5%BC%8F)。
+
+对于 CI，请把 API key 的作用域限制在扫描步骤，并使用可信工作流。
+
+CLI 需要 Node.js 22 或更高版本。运行扫描或导出结果还需要 Python 3.10 或更高版本。 Python 3.10 还需要 `tomli`。当自动发现不适合时，使用 `--python` 或 `PYTHON` 选择解释器。
+
+继续阅读 [CLI 快速入门](/docs/security/cli)、[批量扫描指南](/docs/security/cli/bulk-scans)、[CLI 常见问题解答](/docs/security/cli/faq)、[CI 指南](/docs/security/cli/ci) 或 [TypeScript SDK指南](/docs/security/sdk)。
+
+### 纯文本别名
+
+-   `--output FILE|-`

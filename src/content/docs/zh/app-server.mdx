@@ -1,0 +1,1172 @@
+---
+title: "Codex 应用服务器"
+navTitle: "App Server"
+description: "使用App Server协议将 Codex 嵌入到你的产品中"
+locale: "zh"
+translationKey: "app-server"
+section: "explore"
+order: 1050
+draft: false
+translationStatus: complete
+lastUpdated: 2026-08-06
+pageKind: article
+referenceHub: "developers"
+sourceUrl: "https://www.codex-docs.com/docs/app-server"
+outline:
+  - id: "连接cli终端ui"
+    label: "连接CLI终端UI"
+  - id: "连接远程-code-mode-host"
+    label: "连接远程 Code Mode host"
+  - id: "协议"
+    label: "协议"
+  - id: "消息架构"
+    label: "消息架构"
+  - id: "入门"
+    label: "入门"
+  - id: "核心原语"
+    label: "核心原语"
+  - id: "生命周期概述"
+    label: "生命周期概述"
+  - id: "初始化"
+    label: "初始化"
+  - id: "实验性-api-选择加入"
+    label: "实验性 API 选择加入"
+  - id: "api概览"
+    label: "API概览"
+  - id: "模型"
+    label: "模型"
+  - id: "thread数"
+    label: "thread数"
+  - id: "转弯"
+    label: "转弯"
+  - id: "评审"
+    label: "评审"
+  - id: "流程执行"
+    label: "流程执行"
+  - id: "命令执行"
+    label: "命令执行"
+  - id: "文件系统"
+    label: "文件系统"
+  - id: "活动"
+    label: "活动"
+  - id: "错误"
+    label: "错误"
+  - id: "批准"
+    label: "批准"
+  - id: "技能"
+    label: "技能"
+  - id: "应用连接器"
+    label: "应用（连接器）"
+  - id: "身份验证端点"
+    label: "身份验证端点"
+---
+
+Codex 应用服务器是 Codex 用于支持富客户端的接口（例如，Codex VS Code 扩展）。当你想要在自己的产品中进行深度集成时，请使用它：身份验证、对话历史记录、批准和流式智能体事件。App Server实现在 Codex GitHub 仓库 ([openai/codex/codex-rs/app-server](https://github.com/openai/codex/tree/main/codex-rs/app-server)) 中开源。有关开源 Codex 组件的完整列表，请参阅[开源](/docs/open-source) 页面。
+
+<Callout kind="note">
+
+如果你要自动化作业或在 CI 中运行 Codex，请改用 [Codex SDK](/docs/codex-sdk)。
+
+</Callout>
+
+## 连接CLI终端UI
+
+远程终端 UI 模式允许你在一台计算机上运行App Server并连接 Codex CLI 是另一个终端接口。启动 WebSocket 监听器：
+
+<CodeBlock code={"codex app-server --listen ws://127.0.0.1:4500"} language="bash" />
+
+然后连接终端UI：
+
+<CodeBlock code={"codex --remote ws://127.0.0.1:4500"} language="bash" />
+
+对于非本地连接，配置 WebSocket 身份验证并将 TLS 后面的连接。将不记名令牌存储在环境变量中并 传递它的名称而不是将令牌放在命令行上：
+
+<CodeBlock code={"export CODEX_REMOTE_TOKEN=\"$(cat \"$HOME/.codex/app-server-token\")\"\ncodex --remote wss://remote-host:4500 \\\n  --remote-auth-token-env CODEX_REMOTE_TOKEN"} language="bash" />
+
+`--remote` 选项接受 `ws://`、`wss://`、`unix://` 和 `unix://PATH` 端点。仅对 localhost 或 SSH 使用普通 WebSocket 端口转发连接。
+
+## 连接远程 Code Mode host
+
+默认情况下，App Server 会启动本地 Code Mode host。如需改用远程 host，请传入它的安全 WebSocket URL：
+
+<CodeBlock code={"codex app-server --code-mode-host wss://code-mode.example.com/host"} language="bash" />
+
+`--code-mode-host` 控制 App Server 到 Code Mode host 的出站连接。它不会改变 `--listen`；后者控制客户端如何连接 App Server。同一 App Server 进程中的所有 thread 共享所选的 Code Mode host 连接。
+
+连接远程 host 时请使用 `wss://`。`ws://` 仅应用于 localhost 或通过 SSH 转发的连接。App Server 命令和 WebSocket 传输仍是实验性功能，不支持生产工作负载。
+
+## 协议
+
+与 [MCP](/docs) 一样，`codex app-server` 支持使用 JSON-RPC 2.0 消息的双向通信（在线路上省略 `"jsonrpc":"2.0"` 标头）。
+
+支持的运输：
+
+-   `stdio`（`--listen stdio://`，默认）：换行符分隔的JSON（JSONL）。
+-   `websocket`（`--listen ws://IP:PORT`，实验性且不受支持）：1 JSON-每个 WebSocket 文本框架的 RPC 消息。
+-   Unix 套接字（`--listen unix://` 或 `--listen unix://PATH`）：WebSocket 通过 Codex 的默认App Server控制套接字或自定义 Unix 进行连接 套接字路径，使用标准 HTTP 升级握手。
+-   `off` (`--listen off`)：不要公开本地传输。
+
+当你使用 `--listen ws://IP:PORT` 运行时，相同的侦听器还提供基本的服务 HTTP 健康探针：
+
+-   一旦侦听器接受新连接，`GET /readyz` 将返回 `200 OK`。
+-   当 request 不包含 `Origin` 时，`GET /healthz` 返回 `200 OK` 标头。
+-   带有 `Origin` 标头的请求将被拒绝，并显示 `403 Forbidden`。
+
+WebSocket 传输是实验性的且不受支持。本地听众，例如 `ws://127.0.0.1:PORT` 适用于本地主机和 SSH 端口转发 工作流。非环回 WebSocket 侦听器当前允许未经身份验证 推出期间默认连接，因此之前配置 WebSocket 身份验证 远程暴露一个。
+
+支持的 WebSocket 身份验证标志：
+
+-   `--ws-auth capability-token --ws-token-file /absolute/path`
+-   `--ws-auth capability-token --ws-token-sha256 HEX`
+-   `--ws-auth signed-bearer-token --ws-shared-secret-file /absolute/path`
+
+对于签名的不记名令牌，你还可以设置 `--ws-issuer`、`--ws-audience` 和 `--ws-max-clock-skew-seconds`。客户将凭证呈现为 WebSocket 握手期间的 `Authorization: Bearer <token>` 和App Server 在 JSON-RPC `initialize` 之前强制执行身份验证。
+
+优先选择 `--ws-token-file` 而不是在命令行上传递原始不记名令牌。使用 `--ws-token-sha256` 仅当客户端将原始高熵令牌保存在 单独的本地秘密存储；哈希只是一个验证者，客户端仍然需要 原始令牌。
+
+在WebSocket模式下，App Server使用有界队列。当request入口满时， 服务器拒绝新请求，并显示 JSON-RPC 错误代码 `-32001` 和消息 `"Server overloaded; retry later."` 客户端应以指数方式重试 增加延迟和抖动。
+
+## 消息架构
+
+请求包括`method`、`params`和`id`：
+
+<CodeBlock code={"{ \"method\": \"thread/start\", \"id\": 10, \"params\": { \"model\": \"gpt-5.6-terra\" } }"} language="json" />
+
+响应用 `result` 或 `error` 回显 `id`：
+
+<CodeBlock code={"{ \"id\": 10, \"result\": { \"thread\": { \"id\": \"thr_123\" } } }"} language="json" />
+
+<CodeBlock code={"{ \"id\": 10, \"error\": { \"code\": 123, \"message\": \"Something went wrong\" } }"} language="json" />
+
+通知省略 `id` 并仅使用 `method` 和 `params`：
+
+<CodeBlock code={"{ \"method\": \"turn/started\", \"params\": { \"turn\": { \"id\": \"turn_456\" } } }"} language="json" />
+
+你可以从 CLI 生成 TypeScript 架构或 JSON 架构捆绑包。每个输出都特定于你运行的 Codex 版本，因此生成的产物与该版本完全匹配：
+
+<CodeBlock code={"codex app-server generate-ts --out ./schemas\ncodex app-server generate-json-schema --out ./schemas"} language="bash" />
+
+## 入门
+
+1.  使用 `codex app-server` （默认 stdio 传输）启动服务器， `codex app-server --listen ws://127.0.0.1:4500`（TCP WebSocket），或 `codex app-server --listen unix://`（默认 Unix 套接字）。
+2.  通过所选传输连接客户端，然后发送 `initialize`，后跟 `initialized` notification。
+3.  启动 thread 和 turn，然后继续从活动传输流读取通知。
+
+示例（Node.js / TypeScript）：
+
+<CodeBlock code={"const proc = spawn(\"codex\", [\"app-server\"], {\n  stdio: [\"pipe\", \"pipe\", \"inherit\"],\n});\nconst rl = readline.createInterface({ input: proc.stdout });\n\nconst send = (message: unknown) => {\n  proc.stdin.write(`${JSON.stringify(message)}\\n`);\n};\n\nlet threadId: string | null = null;\n\nrl.on(\"line\", (line) => {\n  const msg = JSON.parse(line) as any;\n  console.log(\"server:\", msg);\n\n  if (msg.id === 1 && msg.result?.thread?.id && !threadId) {\n    threadId = msg.result.thread.id;\n    send({\n      method: \"turn/start\",\n      id: 2,\n      params: {\n        threadId,\n        input: [{ type: \"text\", text: \"Summarize this repo.\" }],\n      },\n    });\n  }\n});\n\nsend({\n  method: \"initialize\",\n  id: 0,\n  params: {\n    clientInfo: {\n      name: \"my_product\",\n      title: \"My Product\",\n      version: \"0.1.0\",\n    },\n  },\n});\nsend({ method: \"initialized\", params: {} });\nsend({ method: \"thread/start\", id: 1, params: { model: \"gpt-5.6-terra\" } });"} language="typescript" />
+
+## 核心原语
+
+-   **`thread`**：用户和 Codex 代理之间的对话。`thread`包含匝数。
+-   **轮**：单用户request和代理工作如下。`turn`包含项目并流增量更新。
+-   **项目**：输入或输出的单位（用户消息、智能体消息、命令运行、文件更改、工具调用等）。
+
+使用 thread API 创建、列出或存档对话。与 turn API 进行对话，并通过 turn 通知传输进度。
+
+## 生命周期概述
+
+-   **每个连接初始化一次**：打开传输连接后，立即发送带有客户端元数据的 `initialize` request，然后发出 `initialized`。在此握手之前，服务器拒绝该连接上的任何 request。
+-   **开始（或恢复）thread**：调用 `thread/start` 进行新对话，调用 `thread/resume` 继续现有对话，或调用 `thread/fork` 将历史记录分支到新的 thread id。
+-   **开始 turn**：使用目标 `threadId` 和用户输入调用 `turn/start`。可选字段覆盖模型、个性、`cwd`、沙箱策略等。
+-   **操纵活动的 turn**：调用 `turn/steer` 将用户输入附加到当前正在运行的 turn，而不创建新的 turn。
+-   **流事件**：在 `turn/start` 之后，继续阅读标准输出上的通知：`thread/archived`、`thread/unarchived`、`item/started`、`item/completed`、`item/agentMessage/delta`、工具进度和其他更新。
+-   **完成 turn**：当模型完成时或 `turn/interrupt` 取消后，服务器会发出带有最终状态的 `turn/completed`。
+
+## 初始化
+
+在调用该连接上的任何其他方法之前，客户端必须为每个传输连接发送一个 `initialize` request，然后使用 `initialized` notification 进行确认。在初始化之前发送的请求会收到 `Not initialized` 错误，并且在同一连接上重复 `initialize` 调用会返回 `Already initialized`。
+
+服务器返回将呈现给上游服务的user agent 字符串以及描述运行时目标的 `platformFamily` 和 `platformOs` 值。设置 `clientInfo` 以识别你的集成。
+
+`initialize.params.capabilities` 还支持以下客户端功能：
+
+-   `optOutNotificationMethods` - 要抑制的确切 notification 方法名称 这个连接。匹配精确（无通配符或前缀）；未知的名字 被接受和被忽略。
+-   `requestAttestation` - 选择服务器启动的 `attestation/generate` request。提供上游证明的桌面主机响应 不透明的 `{ "token": "..." }` 值。
+-   `mcpServerOpenaiFormElicitation` - 允许下游 MCP 服务器发送 OpenAI `mcpServer/elicitation/request` 的扩展形式变体。
+
+**重要**：使用 `clientInfo.name` 来识别 OpenAI 合规日志平台的客户端。如果你正在开发供企业使用的新 Codex 集成，请联系 OpenAI 以将其添加到已知客户列表中。有关更多上下文，请参阅 [Codex 日志参考](https://chatgpt.com/admin/api-reference#tag/Logs:-Codex)。
+
+示例（来自 Codex VS Code 扩展）：
+
+<CodeBlock code={"{\n  \"method\": \"initialize\",\n  \"id\": 0,\n  \"params\": {\n    \"clientInfo\": {\n      \"name\": \"codex_vscode\",\n      \"title\": \"Codex VS Code Extension\",\n      \"version\": \"0.1.0\"\n    }\n  }\n}"} language="json" />
+
+notification 选择退出的示例：
+
+<CodeBlock code={"{\n  \"method\": \"initialize\",\n  \"id\": 1,\n  \"params\": {\n    \"clientInfo\": {\n      \"name\": \"my_client\",\n      \"title\": \"My Client\",\n      \"version\": \"0.1.0\"\n    },\n    \"capabilities\": {\n      \"experimentalApi\": true,\n      \"optOutNotificationMethods\": [\"thread/started\", \"item/agentMessage/delta\"]\n    }\n  }\n}"} language="json" />
+
+## 实验性 API 选择加入
+
+一些App Server方法和字段有意被限制在 `experimentalApi` 功能后面。
+
+-   省略 `capabilities`（或将 `experimentalApi` 设置为 `false`）以保持稳定的 API 表面，并且服务器拒绝实验方法/字段。
+-   将 `capabilities.experimentalApi` 设置为 `true` 以启用实验方法和字段。
+
+<CodeBlock code={"{\n  \"method\": \"initialize\",\n  \"id\": 1,\n  \"params\": {\n    \"clientInfo\": {\n      \"name\": \"my_client\",\n      \"title\": \"My Client\",\n      \"version\": \"0.1.0\"\n    },\n    \"capabilities\": {\n      \"experimentalApi\": true\n    }\n  }\n}"} language="json" />
+
+如果客户端发送实验方法或字段而未选择加入，则App Server会拒绝它：
+
+`<descriptor> requires experimentalApi capability`
+
+## API概览
+
+-   `thread/start`——创建一个新的thread；发出 `thread/started` 并自动为你订阅该 thread 的 turn/item 事件。
+-   `thread/resume` - 通过 id 重新打开现有的 thread，以便稍后 `turn/start` 调用附加到它。
+-   `thread/fork` - 通过复制已存储的历史记录，将 thread 分叉为新的 thread id。传入 `lastTurnId` 可复制到该 turn 为止的历史记录并忽略后续 turn；传入 `ephemeral: true` 可创建仅驻留内存的分叉。它会为新 thread 发出 `thread/started`；返回的 thread 在可用时包含 `forkedFromId`。
+-   `thread/read` - 通过id读取存储的thread而不恢复它；设置 `includeTurns` 返回完整的 turn 历史记录。返回的 `thread` 对象包括运行时 `status`。
+-   `thread/list` - 翻阅存储的 thread 日志；支持基于光标的分页以及 `modelProviders`、`sourceKinds`、`archived`、`isPinned`、`cwd`、`useStateDbOnly`、`searchTerm` 和实验性 `parentThreadId` 或 `ancestorThreadId` 过滤器。返回的 `thread` 对象包括运行时 `status`。
+-   `thread/turns/list` - 实验性的；翻阅存储的 thread 的 turn 历史记录而不恢复它。 `itemsView` 控制 turn 项目是否被省略、汇总或完全加载。
+-   `thread/items/list` - 实验性的；翻阅持久化的 thread 项目，可选择限制为一个 `turnId`。活动的 thread 存储必须支持 item 分页。
+-   `thread/loaded/list` - 列出当前加载到内存中的 thread id。
+-   `thread/name/set` - 为加载的 thread 或持久部署设置或更新 thread 的面向用户的名称；发出 `thread/name/updated`。
+-   `thread/goal/set` - 为 thread 设定目标；发出 `thread/goal/updated`。
+-   `thread/goal/get` - 读取 thread 的当前目标。
+-   `thread/goal/clear` - 清除thread的目标；发出 `thread/goal/cleared`。
+-   `thread/metadata/update` - 修补由 SQLite 支持的已存储 thread 元数据，包括持久化的 `gitInfo` 和 `isPinned`。
+-   `thread/archive` - 将 thread 的日志文件移动到存档目录中，并尝试存档尚未存档的衍生后代 thread 日志；成功时返回 `{}` 并为每个存档的 thread 发出 `thread/archived`。
+-   `thread/delete` - 永久删除持久的活动或存档的 thread 以及任何生成的后代`thread`；成功时返回 `{}` ，并为每个删除的 thread 发出 `thread/deleted` 。
+-   `thread/unsubscribe` - 从 thread turn/item 事件取消订阅此连接。如果这是最后一个订阅者，则服务器在无订阅者不活动宽限期后卸载 thread 并发出 `thread/closed`。
+-   `thread/unarchive` - 将存档的 thread 部署恢复到活动会话目录中；返回恢复的 `thread` 并发出 `thread/unarchived`。
+-   `thread/status/changed` - 当加载的 thread 的运行时 `status` 更改时发出 notification。
+-   `thread/compact/start` - 触发 thread 的对话历史压缩；立即返回 `{}`，同时通过 `turn/*` 和 `item/*` 通知传输进度。
+-   `thread/shellCommand` - 针对 thread 运行用户启动的 shell 命令。它在沙箱外部运行，具有完全访问权限，并且不继承 thread 沙箱策略。
+-   `thread/backgroundTerminals/clean` - 停止 thread 的所有正在运行的后台终端（实验性；需要 `capabilities.experimentalApi`）。
+-   `thread/backgroundTerminals/list` - 列出加载的 thread 的正在运行的后台终端（实验性；需要 `capabilities.experimentalApi`）。
+-   `thread/backgroundTerminals/terminate` - 通过App Server `processId` 终止一个正在运行的后台终端（实验性；需要 `capabilities.experimentalApi`）。
+-   `thread/rollback` - 已弃用；从内存上下文中删除最后 N 轮并保留回滚标记；返回更新后的 `thread`。
+-   `turn/start` - 将用户输入添加到 thread 并开始 Codex 生成；使用初始 `turn` 进行响应并流式传输事件。对于`collaborationMode`，`settings.developer_instructions: null`表示“使用所选模式的内置指令”。
+-   `thread/inject_items` - 将原始响应 API 项附加到加载的 thread 的模型可见历史记录中，而无需启动用户 turn。
+-   `turn/steer` - 将用户输入附加到 thread 的活动中的 turn；返回接受的 `turnId`。
+-   `turn/interrupt` - request 取消飞行中的 turn；成功是`{}`，turn以`status: "interrupted"`结束。
+-   `review/start` - 为 thread 启动 Codex 审阅者；发出 `enteredReviewMode` 和 `exitedReviewMode` 项目。
+-   `command/exec` - 在服务器沙箱下运行单个命令，而不启动 thread/turn。
+-   `command/exec/write` - 将 `stdin` 字节写入正在运行的 `command/exec` 会话或关闭 `stdin`。
+-   `command/exec/resize` - 调整正在运行的 PTY 支持的 `command/exec` 会话的大小。
+-   `command/exec/terminate` - 停止正在运行的 `command/exec` 会话。
+-   `command/exec/outputDelta`（通知） - 从流 `command/exec` 会话中发出 Base64 编码的 stdout/stderr 块。
+-   `process/spawn` - 在 Codex 的沙箱外部启动显式进程会话（实验性；需要 `capabilities.experimentalApi`）。
+-   `process/writeStdin` - 将标准输入字节写入正在运行的 `process/spawn` 会话或关闭标准输入（实验性）。
+-   `process/resizePty` - 调整正在运行的 PTY 支持的进程会话的大小（实验性）。
+-   `process/kill` - 终止正在运行的进程会话（实验性）。
+-   `process/outputDelta` 和 `process/exited`（通知） - 为流处理输出和进程退出状态发出（实验）。
+-   `model/list` - 列出可用模型（设置 `includeHidden: true` 以包括带有 `hidden: true` 的条目）以及工作量选项、可选 `upgrade` 和 `inputModalities`。
+-   `modelProvider/capabilities/read` - 读取模型/提供者组合的提供者能力范围。
+-   `experimentalFeature/list` - 列出具有生命周期阶段元数据和光标分页的功能标志。
+-   `experimentalFeature/enablement/set` - 为支持的功能键（例如 `apps` 和 `plugins`）修补内存运行时设置。
+-   `environment/info` - 实验性的；连接到配置的执行环境并返回其 shell 和默认工作目录。
+-   `permissionProfile/list` - 列出 beta 权限配置文件以及有效要求是否允许它们，并带有光标分页。
+-   `collaborationMode/list` - 列出协作模式预设（实验性，无分页）。
+-   `skills/list` - 列出一个或多个 `cwd` 值的技能（支持 `forceReload` 和可选的 `perCwdExtraUserRoots`）。
+-   `skills/extraRoots/set` - 替换用于发现独立技能而不保留它们的进程级额外根。
+-   `skills/changed`（通知）- 当观察本地技能文件更改时发出。
+-   `hooks/list` - 列出一个或多个 `cwd` 值的已发现生命周期挂钩。
+-   `marketplace/add` - 添加远程插件市场并将其保存到用户的市场配置中。
+-   `marketplace/remove` - 删除已配置的市场及其已安装的市场根（如果存在）。
+-   `marketplace/upgrade` - 当你省略市场名称时，刷新已配置的 Git 市场或所有已配置的 Git 市场。
+-   `plugin/list` - 正在开发中；列出已发现的插件市场和插件状态，包括安装/身份验证策略元数据、市场加载错误、特色插件 ID 以及本地、Git、包注册表或远程插件源元数据。摘要可以包括远程 `version`、本地 `localVersion`、结构化亮/暗图标和 `installPolicySource`，对于当前远程行，可以是 `null`、`WORKSPACE_SETTING` 或 `IMPLICIT_CANONICAL_APP`。暂时不要从生产客户端调用此方法。
+-   `plugin/read` - 正在开发中；通过市场路径或远程市场名称和插件名称读取一个插件，包括捆绑的技能、应用、MCP 服务器名称以及远程插件 `shareUrl`（当远程目录提供远程插件时）。暂时不要从生产客户端调用此方法。
+-   `plugin/install` - 正在开发中；从市场路径或远程市场名称安装插件。暂时不要从生产客户端调用此方法。
+-   `plugin/uninstall` - 正在开发中；卸载已安装的插件。暂时不要从生产客户端调用此方法。
+-   `plugin/skill/read` - 通过远程市场、插件 ID 和技能名称按需读取远程插件技能 Markdown。
+-   `app/installed` - 读取已安装应用的运行时状态，包括每个应用最终生效的启用状态和可调用状态。
+-   `app/list` - 列出可用的应用（连接器），具有分页以及可访问性/启用的元数据。
+-   `app/read` - 获取指定 app id 的元数据和可选的仅供展示的工具摘要。
+-   `skills/config/write` - 按路径启用或禁用技能。
+-   `mcpServer/oauth/login` - 为已配置的 MCP 服务器启动 OAuth 登录；返回授权 URL 并在完成时发出 `mcpServer/oauthLogin/completed`。
+-   `tool/requestUserInput` - 提示用户 1-3 个简短问题以进行工具调用（实验）；问题可以设置 `isOther` 为自由格式选项。
+-   `mcpServer/elicitation/request`（服务器 request） - 要求客户端进行结构化表单输入或确认 MCP 服务器请求的 URL 流。
+-   `item/permissions/requestApproval`（服务器 request） - 要求客户端授予内置 `request_permissions` 工具请求的网络或文件系统权限的子集。
+-   `config/mcpServer/reload` - 从磁盘重新加载 MCP 服务器配置并为加载的`thread`排队刷新。
+-   `mcpServerStatus/list` - 列出 MCP 服务器、工具、资源和身份验证状态（光标+限制分页）。使用 `detail: "full"` 获取完整数据，或使用 `detail: "toolsAndAuthOnly"` 省略资源。
+-   `mcpServer/resource/read` - 通过初始化的 MCP 服务器读取单个 MCP 资源。
+-   `mcpServer/tool/call` - 调用 thread 配置的 MCP 服务器上的工具。
+-   `mcpServer/startupStatus/updated`（通知）- 当已配置的 MCP 服务器的启动状态针对已加载的 thread 发生更改时发出。
+-   `windowsSandbox/setupStart` - 启动 `elevated` 或 `unelevated` 模式的 Windows 沙箱设置；快速返回并稍后发出 `windowsSandbox/setupCompleted`。
+-   `feedback/upload` - 提交反馈报告（分类+可选原因/日志+对话ID，以及可选`extraLogFiles`附件）。
+-   `config/read` - 解决配置分层后，在磁盘上获取有效配置。
+-   `externalAgentConfig/detect` - 检测可以使用 `includeHome` 和可选的 `cwds` 迁移的外部智能体产物；每个检测到的 item 包括 `cwd`（`null` 用于家庭）。
+-   `externalAgentConfig/import` - 通过传递显式 `migrationItems` 和 `cwd`（`null` 用于 home）来应用选定的外部代理迁移项目。支持的 item 类型包括配置、技能、`AGENTS.md`、插件、MCP 服务器配置、子智能体、挂钩、命令和会话；当工作完成时，非空导入会发出 `externalAgentConfig/import/progress` 和 `externalAgentConfig/import/completed` 。插件和会话导入可以异步完成。
+-   `config/value/write` - 将单个配置键/值写入磁盘上用户的 `config.toml`。
+-   `config/batchWrite` - 将配置编辑自动应用到磁盘上用户的 `config.toml`。
+-   `configRequirements/read` - 从 `requirements.toml` 和/或 MDM 获取要求，包括精确托管配置、allowlist、固定的 `featureRequirements` 以及驻留/网络要求（如果尚未设置任何要求，则为 `null`）。
+-   `fs/readFile`、`fs/writeFile`、`fs/createDirectory`、`fs/getMetadata`、`fs/readDirectory`、`fs/remove`、`fs/copy`、`fs/watch`、`fs/unwatch` 和 `fs/changed`（通知） - 通过App Server对绝对文件系统路径进行操作v2 文件系统 API。
+
+插件摘要包括 `source` 联合。本地插件返回 `{ "type": "local", "path": ... }`，Git 支持的市场条目返回 `{ "type": "git", "url": ..., "path": ..., "refName": ..., "sha": ... }`, 包注册表项返回 `{ "type": "npm", "package": ..., "version": ..., "registry": ... }`，和 远程目录条目返回 `{ "type": "remote" }`。对于仅远程目录 条目，`PluginMarketplaceEntry.path` 可以是 `null`；经过 读取或安装时用`remoteMarketplaceName`代替`marketplacePath` 那些插件。
+
+## 模型
+
+### 列出模型（`model/list`）
+
+在渲染模型或个性选择器之前，调用 `model/list` 来发现可用模型及其功能。
+
+<CodeBlock code={"{ \"method\": \"model/list\", \"id\": 6, \"params\": { \"limit\": 20, \"includeHidden\": false } }\n{ \"id\": 6, \"result\": {\n  \"data\": [{\n    \"id\": \"gpt-5.6-sol\",\n    \"model\": \"gpt-5.6-sol\",\n    \"displayName\": \"GPT-5.6-Sol\",\n    \"hidden\": false,\n    \"defaultReasoningEffort\": \"low\",\n    \"supportedReasoningEfforts\": [{\n      \"reasoningEffort\": \"low\",\n      \"description\": \"Fast responses with lighter reasoning\"\n    }],\n    \"inputModalities\": [\"text\", \"image\"],\n    \"supportsPersonality\": true,\n    \"isDefault\": true\n  }],\n  \"nextCursor\": null\n} }"} language="json" />
+
+每个模型条目可以包括：
+
+-   `supportedReasoningEfforts` - 模型支持的工作量选项。
+-   `defaultReasoningEffort` - 建议客户的默认工作量。
+-   `upgrade` - 客户端中迁移提示的可选推荐升级模型 ID。
+-   `upgradeInfo` - 客户端中迁移提示的可选升级元数据。
+-   `hidden` - 模型是否在默认选择器列表中隐藏。
+-   `inputModalities` - 模型支持的输入类型（例如 `text`、`image`）。
+-   `supportsPersonality` - 模型是否支持个性特定指令，例如`/personality`。
+-   `isDefault` - 该模型是否是推荐的默认值。
+
+默认情况下，`model/list` 仅返回选择器可见的模型。如果你需要完整列表并希望使用 `hidden` 在客户端进行过滤，请设置 `includeHidden: true`。
+
+当 `inputModalities` 缺失（旧模型目录）时，将其视为 `["text", "image"]` 以实现向后兼容性。
+
+### 列出实验性功能（`experimentalFeature/list`）
+
+使用此端点来发现具有元数据和生命周期阶段的功能标志：
+
+<CodeBlock code={"{ \"method\": \"experimentalFeature/list\", \"id\": 7, \"params\": { \"limit\": 20 } }\n{ \"id\": 7, \"result\": {\n  \"data\": [{\n    \"name\": \"unified_exec\",\n    \"stage\": \"beta\",\n    \"displayName\": \"Unified exec\",\n    \"description\": \"Use the unified PTY-backed execution tool.\",\n    \"announcement\": \"Beta rollout for improved command execution reliability.\",\n    \"enabled\": false,\n    \"defaultEnabled\": false\n  }],\n  \"nextCursor\": null\n} }"} language="json" />
+
+`stage` 可以是 `beta`、`underDevelopment`、`stable`、`deprecated` 或 `removed`。对于非 beta 标志，`displayName`、`description` 和 `announcement` 可能是 `null`。
+
+### 检查执行环境（实验）
+
+使用`environment/info`检查之前配置的远程环境 在那里开始工作。该方法需要 `capabilities.experimentalApi = true`。
+
+<CodeBlock code={"{ \"method\": \"environment/info\", \"id\": 8, \"params\": { \"environmentId\": \"devbox\" } }\n{ \"id\": 8, \"result\": {\n  \"shell\": { \"name\": \"zsh\", \"path\": \"/bin/zsh\" },\n  \"cwd\": \"file:///workspace/project\"\n} }"} language="json" />
+
+`cwd` 可以是 `null`。如果存在，它是一个规范的 `file:` URI，使用 环境的本机路径语法。未知的环境 ID 和连接或 协议失败返回 request 错误。
+
+## `thread`数
+
+-   `thread/read` 读取一个存储的 thread 而不订阅它；设置 `includeTurns` 以包括转弯。
+-   `thread/turns/list` 是实验性的，可以通过存储的 thread 的 turn 历史记录进行分页，而无需 恢复它。使用`itemsView`选择是否省略turn项， 总结的，或者说满载的。
+-   `thread/items/list` 是实验性的，可对持久的 thread 项目进行分页，可以选择限制为一个 turn。
+-   `thread/list` 支持光标分页以及 `modelProviders`、`sourceKinds`、`archived`、`isPinned`、`cwd`、`useStateDbOnly`、`searchTerm` 和实验性 `parentThreadId` 或 `ancestorThreadId` 过滤。
+-   `thread/loaded/list` 返回当前内存中的 thread ID。
+-   `thread/archive` 将 thread 的持久 JSONL 日志移动到存档目录中，并尝试存档尚未存档的生成的后代 thread 日志。
+-   `thread/delete` 永久删除持久的活动或存档的 thread 及其生成的后代`thread`。
+-   `thread/metadata/update` 修补已存储的 thread 元数据，包括持久化的 `gitInfo` 和 `isPinned`。
+-   `thread/unsubscribe` 从已加载的 thread 取消订阅当前连接，并可以在不活动宽限期后触发 `thread/closed`。
+-   `thread/unarchive` 将存档的 thread 转出恢复到活动会话目录中。
+-   `thread/compact/start` 触发压缩并立即返回 `{}`。
+-   `thread/rollback` 已弃用。它从内存上下文中删除最后 N 轮，并在 thread 的持久 JSONL 日志中记录回滚标记。
+-   `thread/inject_items` 将原始响应 API 项附加到加载的 thread 的模型可见历史记录中，而无需启动用户 turn。
+
+### 启动或恢复 thread
+
+当你需要新的 Codex 对话时，开始新的 thread。
+
+<CodeBlock code={"{ \"method\": \"thread/start\", \"id\": 10, \"params\": {\n  \"model\": \"gpt-5.6-terra\",\n  \"cwd\": \"/Users/me/project\",\n  \"approvalPolicy\": \"never\",\n  \"sandbox\": \"workspaceWrite\",\n  \"personality\": \"friendly\",\n  \"serviceName\": \"my_app_server_client\"\n} }\n{ \"id\": 10, \"result\": {\n  \"thread\": {\n    \"id\": \"thr_123\",\n    \"sessionId\": \"thr_123\",\n    \"preview\": \"\",\n    \"ephemeral\": false,\n    \"modelProvider\": \"openai\",\n    \"createdAt\": 1730910000\n  }\n} }\n{ \"method\": \"thread/started\", \"params\": { \"thread\": { \"id\": \"thr_123\" } } }"} language="json" />
+
+`serviceName` 是可选的。当你希望App Server使用集成的服务名称标记 thread 级别指标时，请设置它。
+
+`thread/start`、`thread/resume` 和 `thread/fork` 返回 `instructionSources`，加载指令文件路径的数组。每个路径都使用 其源环境的本机绝对语法，包括远程 环境。
+
+实验客户端可以将`thread/start`上的`historyMode`设置为`"legacy"` （默认值）或 `"paginated"`。尚不支持分页 thread 创建 并返回 JSON-RPC 错误 `-32601`。App Server可以列出并读取摘要 现有分页记录，但完整历史读取、turn 分页和恢复 在支持分页历史记录之前关闭失败。
+
+选择 `capabilities.experimentalApi` 的 Beta 客户端可以传递一个命名的 `permissions` 中的权限配置文件 ID 而不是旧版 `sandbox` 字段。 不要将 `permissions` 和 `sandbox` 一起发送。使用 `permissionProfile/list` 与项目 `cwd` 一起发现可用的配置文件 以及托管需求是否允许每一项。
+
+`thread.sessionId` 标识当前实时会话树根。根螺纹 使用自己的thread id作为会话id；分叉`thread`保留会话 ID 他们来自的根源。客户端应该从中读取会话 ID `thread.sessionId`，而不是从 thread id 派生。
+
+要继续存储的会话，请使用你之前记录的 `thread.id` 调用 `thread/resume`。 response 形状与 `thread/start` 相匹配。你还可以传递 `thread/start` 支持的相同配置覆盖，例如 `personality`：
+
+<CodeBlock code={"{ \"method\": \"thread/resume\", \"id\": 11, \"params\": {\n  \"threadId\": \"thr_123\",\n  \"personality\": \"friendly\"\n} }\n{ \"id\": 11, \"result\": { \"thread\": { \"id\": \"thr_123\", \"name\": \"Bug bash notes\", \"ephemeral\": false } } }"} language="json" />
+
+恢复 thread 本身不会更新 `thread.updatedAt` （或转出文件的修改时间）。当你启动 turn 时，时间戳会更新。
+
+如果你在配置中将启用的 MCP 服务器标记为 `required`，并且该服务器无法初始化，则 `thread/start` 和 `thread/resume` 将失败，而不是在没有它的情况下继续。
+
+`thread/start`上的`dynamicTools`是一个实验场（需要`capabilities.experimentalApi = true`）。 Codex 将这些动态工具保留在 thread 推出元数据中，并在你不提供新的动态工具时在 `thread/resume` 上恢复它们​​。
+
+如果你使用与首次部署中记录的模型不同的模型继续，Codex 会发出警告，并在下一个 turn 上应用一次性模型切换指令。
+
+### 管理 thread 目标
+
+使用`thread/goal/set`、`thread/goal/get`和`thread/goal/clear`管理 `/goal` 在 TUI 中呈现相同的持久目标状态。
+
+<CodeBlock code={"{ \"method\": \"thread/goal/set\", \"id\": 13, \"params\": {\n  \"threadId\": \"thr_123\",\n  \"objective\": \"Finish the migration and keep tests green\",\n  \"status\": \"active\",\n  \"tokenBudget\": 40000\n} }\n{ \"id\": 13, \"result\": { \"goal\": {\n  \"threadId\": \"thr_123\",\n  \"objective\": \"Finish the migration and keep tests green\",\n  \"status\": \"active\",\n  \"tokenBudget\": 40000,\n  \"tokensUsed\": 0,\n  \"timeUsedSeconds\": 0\n} } }\n{ \"method\": \"thread/goal/updated\", \"params\": {\n  \"threadId\": \"thr_123\",\n  \"goal\": {\n    \"threadId\": \"thr_123\",\n    \"objective\": \"Finish the migration and keep tests green\",\n    \"status\": \"active\",\n    \"tokenBudget\": 40000,\n    \"tokensUsed\": 0,\n    \"timeUsedSeconds\": 0\n  }\n} }"} language="json" />
+
+目标必须非空且最多 4,000 个字符。供应新的 Objective 取代了目标并重置了使用情况统计。提供电流 非最终目标，或省略 `objective`，更新状态或代币预算 同时保留使用历史记录。
+
+要从存储的会话分支，请使用 `thread.id` 调用 `thread/fork`。这将创建一个新的 thread id 并为其发出 `thread/started` notification 。经过 `lastTurnId` 通过turn复制历史记录，包含在内，后面省略 轮流：
+
+<CodeBlock code={"{ \"method\": \"thread/fork\", \"id\": 12, \"params\": { \"threadId\": \"thr_123\", \"lastTurnId\": \"turn_456\" } }\n{ \"id\": 12, \"result\": { \"thread\": { \"id\": \"thr_456\", \"sessionId\": \"thr_123\", \"forkedFromId\": \"thr_123\" } } }\n{ \"method\": \"thread/started\", \"params\": { \"thread\": { \"id\": \"thr_456\" } } }"} language="json" />
+
+App Server拒绝正在进行的 `lastTurnId`。如果你在 源 thread 是 mid-turn，分叉记录一个中断标记而不是 保留未标记的部分turn。
+
+传入 `ephemeral: true` 可创建仅驻留内存的分叉，而不会将它加入已存储的 thread 列表：
+
+<CodeBlock code={"{\n  \"method\": \"thread/fork\",\n  \"id\": 13,\n  \"params\": {\n    \"threadId\": \"thr_123\",\n    \"ephemeral\": true\n  }\n}\n{\n  \"id\": 13,\n  \"result\": {\n    \"thread\": {\n      \"id\": \"thr_789\",\n      \"sessionId\": \"thr_789\",\n      \"forkedFromId\": \"thr_123\",\n      \"ephemeral\": true\n    }\n  }\n}"} language="json" />
+
+分页 thread 的临时分叉还需要设置 `excludeTurns: true`。该字段是实验性的，需要 `capabilities.experimentalApi = true`。
+
+设置面向用户的 thread 标题后，App Server会在 `thread/list`、`thread/read`、`thread/resume`、`thread/unarchive` 和 `thread/rollback` 响应上水合 `thread.name`。 `thread/start` 和 `thread/fork` 可以省略 `name`（或返回 `null`），直到稍后设置标题。
+
+### 读取存储的thread（不恢复）
+
+当你想要存储 thread 数据但不想恢复 thread 或订阅其事件时，请使用 `thread/read`。
+
+-   `includeTurns` - 当`true`时，response包含thread的`turn`；当 `false` 或省略时，你仅获得 thread 摘要。
+-   返回的 `thread` 对象包括运行时 `status`（`notLoaded`、`idle`、`systemError` 或 `active` 与 `activeFlags`）。
+
+<CodeBlock code={"{ \"method\": \"thread/read\", \"id\": 19, \"params\": { \"threadId\": \"thr_123\", \"includeTurns\": true } }\n{ \"id\": 19, \"result\": { \"thread\": { \"id\": \"thr_123\", \"name\": \"Bug bash notes\", \"ephemeral\": false, \"status\": { \"type\": \"notLoaded\" }, \"turns\": [] } } }"} language="json" />
+
+与 `thread/resume` 不同，`thread/read` 不会将 thread 加载到内存中或发出 `thread/started`。
+
+### 列表 thread 轮次
+
+`thread/turns/list` 是实验性的。使用它来分页存储的 thread 的 turn 历史记录，而无需恢复它。结果默认为最新优先，因此客户端可以使用 `nextCursor` 获取较旧的轮次。 response还包括`backwardsCursor`；将其作为 `cursor` 和 `sortDirection: "asc"` 传递，以从较早的页面中获取比第一个 item 更新的轮次。
+
+`itemsView` 控制 response 包含多少 turn-item 数据：
+
+-   `notLoaded` 省略项目。
+-   `summary` 返回汇总的 item 数据，省略时为默认值。
+-   `full` 返回完整的 item 数据。
+
+<CodeBlock code={"{ \"method\": \"thread/turns/list\", \"id\": 20, \"params\": {\n  \"threadId\": \"thr_123\",\n  \"limit\": 50,\n  \"sortDirection\": \"desc\",\n  \"itemsView\": \"summary\"\n} }\n{ \"id\": 20, \"result\": {\n  \"data\": [],\n  \"nextCursor\": \"older-turns-cursor-or-null\",\n  \"backwardsCursor\": \"newer-turns-cursor-or-null\"\n} }"} language="json" />
+
+`thread/items/list` 也是实验性的。它对持久化项目进行分页，无需 恢复thread。传递 `turnId` 将结果限制为一个 turn，或忽略它 对 thread 中的项目进行分页。活动的 thread 存储必须支持 item 分页；否则，服务器将返回不支持的方法错误。
+
+### 列出主题（带分页和过滤器）
+
+`thread/list` 允许你渲染历史 UI。 `createdAt` 默认结果为最新优先。过滤器在分页之前应用。通过以下任意组合：
+
+-   `cursor` - 来自先前 response 的不透明字符串；省略第一页。
+-   `limit` - 如果未设置，服务器默认为合理的页面大小。
+-   `sortKey` - `created_at`（默认）、`updated_at` 或 `recency_at`。
+-   `sortDirection` - `desc`（默认）或 `asc`。
+-   `modelProviders` - 将结果限制为特定提供商； unset、null 或空数组包含所有提供程序。
+-   `sourceKinds` - 将结果限制为特定的 thread 源。当省略或 `[]` 时，服务器默认仅使用交互式源：`cli` 和 `vscode`。
+-   `archived` - 当 `true` 时，仅列出已存档的`thread`。当 `false` 或省略时，列出非归档`thread`（默认）。
+-   `isPinned` - 提供此字段时，只返回持久化置顶状态与其相符的 thread；省略时同时返回已置顶和未置顶的 thread。
+-   `cwd` - 将结果限制为会话当前工作目录与此路径或数组中的路径之一完全匹配的`thread`。从App Server进程工作目录解析相对路径。
+-   `useStateDbOnly` - 当 `true` 时，返回状态数据库结果，而不扫描 JSONL thread 日志来修复元数据。忽略它或传递 `false` 以获得默认的扫描和修复行为。
+-   `searchTerm` - 将结果限制为提取的标题包含此区分大小写的文本片段的`thread`。
+-   `parentThreadId` - 将结果限制为给定父 thread 的直接子`thread`。该过滤器是实验性的，需要 `capabilities.experimentalApi = true`。
+-   `ancestorThreadId` - 将结果限制为给定 thread 在任何深度的生成后代。该过滤器是实验性的，需要 `capabilities.experimentalApi = true`；不要将其与 `parentThreadId` 结合使用。
+
+`sourceKinds` 接受以下值：
+
+-   `cli`
+-   `vscode`
+-   `exec`
+-   `appServer`
+-   `subAgent`
+-   `subAgentReview`
+-   `subAgentCompact`
+-   `subAgentThreadSpawn`
+-   `subAgentOther`
+-   `unknown`
+
+例子：
+
+<CodeBlock code={"{ \"method\": \"thread/list\", \"id\": 20, \"params\": {\n  \"cursor\": null,\n  \"limit\": 25,\n  \"sortKey\": \"created_at\"\n} }\n{ \"id\": 20, \"result\": {\n  \"data\": [\n    { \"id\": \"thr_a\", \"preview\": \"Create a TUI\", \"ephemeral\": false, \"isPinned\": true, \"modelProvider\": \"openai\", \"createdAt\": 1730831111, \"updatedAt\": 1730831111, \"name\": \"TUI prototype\", \"status\": { \"type\": \"notLoaded\" } },\n    { \"id\": \"thr_b\", \"preview\": \"Fix tests\", \"ephemeral\": false, \"isPinned\": false, \"modelProvider\": \"openai\", \"createdAt\": 1730750000, \"updatedAt\": 1730750000, \"status\": { \"type\": \"notLoaded\" } }\n  ],\n  \"nextCursor\": \"opaque-token-or-null\"\n} }"} language="json" />
+
+当 `nextCursor` 为 `null` 时，你已到达最后一页。
+
+### 更新存储的 thread 元数据
+
+使用 `thread/metadata/update` 修补已存储的 thread 元数据，而无需恢复 thread。设置 `isPinned` 可置顶或取消置顶 thread；更新 `gitInfo` 可修改持久化的 Git 元数据。省略的字段保持不变；显式 `null` 会清除已存储的 Git 元数据值。
+
+<CodeBlock code={"{ \"method\": \"thread/metadata/update\", \"id\": 21, \"params\": {\n  \"threadId\": \"thr_123\",\n  \"isPinned\": true,\n  \"gitInfo\": { \"branch\": \"feature/sidebar-pr\" }\n} }\n{ \"id\": 21, \"result\": {\n  \"thread\": {\n    \"id\": \"thr_123\",\n    \"isPinned\": true,\n    \"gitInfo\": { \"sha\": null, \"branch\": \"feature/sidebar-pr\", \"originUrl\": null }\n  }\n} }"} language="json" />
+
+### 跟踪thread状态变化
+
+每当加载的 thread 的运行时状态发生变化时，就会发出 `thread/status/changed` 。有效负载包括`threadId`和新的`status`。
+
+<CodeBlock code={"{\n  \"method\": \"thread/status/changed\",\n  \"params\": {\n    \"threadId\": \"thr_123\",\n    \"status\": { \"type\": \"active\", \"activeFlags\": [\"waitingOnApproval\"] }\n  }\n}"} language="json" />
+
+### 列出已加载的`thread`
+
+`thread/loaded/list` 返回当前加载到内存中的 thread ID。
+
+<CodeBlock code={"{ \"method\": \"thread/loaded/list\", \"id\": 21 }\n{ \"id\": 21, \"result\": { \"data\": [\"thr_123\", \"thr_456\"] } }"} language="json" />
+
+### 取消订阅已加载的 thread
+
+`thread/unsubscribe` 删除当前连接对 thread 的订阅。 response 状态是以下之一：
+
+-   `unsubscribed` 连接已订阅且现已删除。
+-   `notSubscribed` 当连接未订阅该 thread 时。
+-   当 thread 未加载时为 `notLoaded`。
+
+如果这是最后一个订阅者，服务器将保持加载 thread，直到 30 分钟内没有订阅者且没有 thread 活动。当宽限期到期时，应用服务器卸载 thread 并发出 `thread/status/changed` 转换到 `notLoaded` 加上 `thread/closed`。
+
+<CodeBlock code={"{ \"method\": \"thread/unsubscribe\", \"id\": 22, \"params\": { \"threadId\": \"thr_123\" } }\n{ \"id\": 22, \"result\": { \"status\": \"unsubscribed\" } }"} language="json" />
+
+如果thread稍后过期：
+
+<CodeBlock code={"{ \"method\": \"thread/status/changed\", \"params\": {\n    \"threadId\": \"thr_123\",\n    \"status\": { \"type\": \"notLoaded\" }\n} }\n{ \"method\": \"thread/closed\", \"params\": { \"threadId\": \"thr_123\" } }"} language="json" />
+
+### 存档 thread
+
+使用 `thread/archive` 将持久的 thread 日志（作为 JSONL 文件存储在磁盘上）移动到存档会话目录中。归档 thread 还会尝试归档尚未归档的生成的后代`thread`。
+
+<CodeBlock code={"{ \"method\": \"thread/archive\", \"id\": 22, \"params\": { \"threadId\": \"thr_b\" } }\n{ \"id\": 22, \"result\": {} }\n{ \"method\": \"thread/archived\", \"params\": { \"threadId\": \"thr_b\" } }\n{ \"method\": \"thread/archived\", \"params\": { \"threadId\": \"thr_child\" } }"} language="json" />
+
+除非你传递 `archived: true`，否则存档的`thread`不会出现在以后对 `thread/list` 的调用中。服务器为其实际归档的每个 thread 发出一个 `thread/archived` notification；如果无法存档生成的后代，则 request 仍然可以成功，而无需该后代的存档 notification。
+
+### 删除thread
+
+使用 `thread/delete` 永久删除持久的活动或存档的 thread 及其衍生的后代`thread`。服务器删除现有的部署文件并 返回成功之前关联元数据；处理丢失的推出文件 因为已经删除了。临时根`thread`无法删除。
+
+<CodeBlock code={"{ \"method\": \"thread/delete\", \"id\": 23, \"params\": { \"threadId\": \"thr_b\" } }\n{ \"id\": 23, \"result\": {} }\n{ \"method\": \"thread/deleted\", \"params\": { \"threadId\": \"thr_b\" } }\n{ \"method\": \"thread/deleted\", \"params\": { \"threadId\": \"thr_child\" } }"} language="json" />
+
+### 取消存档 thread
+
+使用 `thread/unarchive` 将存档的 thread 转出移回活动会话目录。
+
+<CodeBlock code={"{ \"method\": \"thread/unarchive\", \"id\": 24, \"params\": { \"threadId\": \"thr_b\" } }\n{ \"id\": 24, \"result\": { \"thread\": { \"id\": \"thr_b\", \"name\": \"Bug bash notes\" } } }\n{ \"method\": \"thread/unarchived\", \"params\": { \"threadId\": \"thr_b\" } }"} language="json" />
+
+### 触发thread压缩
+
+使用 `thread/compact/start` 触发 thread 的手动历史压缩。 request 立即返回 `{}`。
+
+App Server在同一 `threadId` 上以标准 `turn/*` 和 `item/*` 通知的形式发出进度，包括 `contextCompaction` item 生命周期（`item/started` 然后 `item/completed`）。
+
+<CodeBlock code={"{ \"method\": \"thread/compact/start\", \"id\": 25, \"params\": { \"threadId\": \"thr_b\" } }\n{ \"id\": 25, \"result\": {} }"} language="json" />
+
+### 运行 thread shell 命令
+
+将 `thread/shellCommand` 用于属于 thread 的用户启动的 shell 命令。 request 立即返回 `{}`，同时进度流通过标准 `turn/*` 和 `item/*` 通知。
+
+该API在沙箱外运行，具有完全访问权限，并且不继承thread沙箱策略。客户端应该仅针对显式用户启动的命令公开它。
+
+如果 thread 已经有一个活动的 turn，则该命令作为 turn 上的辅助操作运行，并且其格式化输出被注入到 turn 的消息流中。如果 thread 空闲，app-server 会为 shell 命令启动独立的 turn。
+
+<CodeBlock code={"{ \"method\": \"thread/shellCommand\", \"id\": 26, \"params\": { \"threadId\": \"thr_b\", \"command\": \"git status --short\" } }\n{ \"id\": 26, \"result\": {} }"} language="json" />
+
+### 清理后台终端
+
+使用 `thread/backgroundTerminals/clean` 停止与 thread 关联的所有正在运行的后台终端。此方法是实验性的，需要 `capabilities.experimentalApi = true`。
+
+<CodeBlock code={"{ \"method\": \"thread/backgroundTerminals/clean\", \"id\": 27, \"params\": { \"threadId\": \"thr_b\" } }\n{ \"id\": 27, \"result\": {} }"} language="json" />
+
+使用`thread/backgroundTerminals/list`检查正在运行的后台终端 对于已加载的 thread。 request 支持标准 `cursor` 和 `limit` 分页，返回的`processId`是app-server进程id。这 该方法是实验性的，需要 `capabilities.experimentalApi = true`：
+
+<CodeBlock code={"{ \"method\": \"thread/backgroundTerminals/list\", \"id\": 28, \"params\": { \"threadId\": \"thr_b\" } }\n{ \"id\": 28, \"result\": { \"data\": [\n  {\n    \"itemId\": \"item_456\",\n    \"processId\": \"42\",\n    \"command\": \"python3 -m http.server\",\n    \"cwd\": \"/workspace\",\n    \"osPid\": null,\n    \"cpuPercent\": null,\n    \"rssKb\": null\n  }\n], \"nextCursor\": null } }"} language="json" />
+
+使用 `thread/backgroundTerminals/terminate` 和 `processId` 来停止一个 后台终端。该方法是实验性的，需要 `capabilities.experimentalApi = true`：
+
+<CodeBlock code={"{ \"method\": \"thread/backgroundTerminals/terminate\", \"id\": 29, \"params\": { \"threadId\": \"thr_b\", \"processId\": \"42\" } }\n{ \"id\": 29, \"result\": { \"terminated\": true } }"} language="json" />
+
+### 回滚最近的`turn`
+
+`thread/rollback` 已弃用并将被删除。它删除了最后一个 `numTurns` 来自内存上下文的条目并在中保留回滚标记 推出日志。返回的`thread`包括在之后填充的`turns` 回滚。
+
+<CodeBlock code={"{ \"method\": \"thread/rollback\", \"id\": 30, \"params\": { \"threadId\": \"thr_b\", \"numTurns\": 1 } }\n{ \"id\": 30, \"result\": { \"thread\": { \"id\": \"thr_b\", \"name\": \"Bug bash notes\", \"ephemeral\": false } } }"} language="json" />
+
+## 转弯
+
+`input` 字段接受`item` 列表：
+
+-   `{ "type": "text", "text": "Explain this diff" }`
+-   `{ "type": "image", "url": "https://.../design.png" }`
+-   `{ "type": "localImage", "path": "/tmp/screenshot.png" }`
+
+你可以覆盖每个 turn 的配置设置（模型、工作量、个性、`cwd`、沙箱策略、摘要）。指定后，这些设置将成为以后打开同一 thread 的默认设置。 `outputSchema`仅适用于当前的turn。对于`sandboxPolicy.type = "externalSandbox"`，将`networkAccess`设置为`restricted`或`enabled`；对于 `workspaceWrite`，`networkAccess` 仍然是布尔值。
+
+对于`turn/start.collaborationMode`，`settings.developer_instructions: null`表示“对所选模式使用内置指令”而不是清除模式指令。
+
+### 沙盒读取访问（`ReadOnlyAccess`）
+
+`sandboxPolicy` 支持显式读取访问控制：
+
+-   `readOnly`：可选`access`（默认为`{ "type": "fullAccess" }`，或受限根）。
+-   `workspaceWrite`：可选`readOnlyAccess`（默认为`{ "type": "fullAccess" }`，或受限根）。
+
+限制读取访问形状：
+
+<CodeBlock code={"{\n  \"type\": \"restricted\",\n  \"includePlatformDefaults\": true,\n  \"readableRoots\": [\"/Users/me/shared-read-only\"]\n}"} language="json" />
+
+在 macOS 上，`includePlatformDefaults: true` 为受限读取会话附加策划的平台默认安全带策略。这提高了工具兼容性，而无需广泛允许所有 `/System`。
+
+示例：
+
+<CodeBlock code={"{ \"type\": \"readOnly\", \"access\": { \"type\": \"fullAccess\" } }"} language="json" />
+
+<CodeBlock code={"{\n  \"type\": \"workspaceWrite\",\n  \"writableRoots\": [\"/Users/me/project\"],\n  \"readOnlyAccess\": {\n    \"type\": \"restricted\",\n    \"includePlatformDefaults\": true,\n    \"readableRoots\": [\"/Users/me/shared-read-only\"]\n  },\n  \"networkAccess\": false\n}"} language="json" />
+
+### 启动turn
+
+<CodeBlock code={"{ \"method\": \"turn/start\", \"id\": 30, \"params\": {\n  \"threadId\": \"thr_123\",\n  \"input\": [ { \"type\": \"text\", \"text\": \"Run tests\" } ],\n  \"cwd\": \"/Users/me/project\",\n  \"approvalPolicy\": \"unlessTrusted\",\n  \"sandboxPolicy\": {\n    \"type\": \"workspaceWrite\",\n    \"writableRoots\": [\"/Users/me/project\"],\n    \"networkAccess\": true\n  },\n  \"model\": \"gpt-5.6-terra\",\n  \"effort\": \"medium\",\n  \"summary\": \"concise\",\n  \"personality\": \"friendly\",\n  \"outputSchema\": {\n    \"type\": \"object\",\n    \"properties\": { \"answer\": { \"type\": \"string\" } },\n    \"required\": [\"answer\"],\n    \"additionalProperties\": false\n  }\n} }\n{ \"id\": 30, \"result\": { \"turn\": { \"id\": \"turn_456\", \"status\": \"inProgress\", \"items\": [], \"error\": null } } }"} language="json" />
+
+### 将项目注入 thread
+
+使用 `thread/inject_items` 将预构建的响应 API 项目附加到加载的 thread 的提示历史记录中，而无需启动用户 turn。这些项目将保留到推出并包含在后续模型请求中。
+
+<CodeBlock code={"{ \"method\": \"thread/inject_items\", \"id\": 31, \"params\": {\n  \"threadId\": \"thr_123\",\n  \"items\": [\n    {\n      \"type\": \"message\",\n      \"role\": \"assistant\",\n      \"content\": [{ \"type\": \"output_text\", \"text\": \"Previously computed context.\" }]\n    }\n  ]\n} }\n{ \"id\": 31, \"result\": {} }"} language="json" />
+
+### 驾驶主动 turn
+
+使用 `turn/steer` 将更多用户输入附加到活动的运行中 turn。
+
+-   包括`expectedTurnId`；它必须与活动的 turn id 匹配。
+-   如果thread上没有活动的turn，则request失败。
+-   `turn/steer` 不会发出新的 `turn/started` notification。
+-   `turn/steer` 不接受 turn 级别覆盖（`model`、`cwd`、`sandboxPolicy` 或 `outputSchema`）。
+
+<CodeBlock code={"{ \"method\": \"turn/steer\", \"id\": 32, \"params\": {\n  \"threadId\": \"thr_123\",\n  \"input\": [ { \"type\": \"text\", \"text\": \"Actually focus on failing tests first.\" } ],\n  \"expectedTurnId\": \"turn_456\"\n} }\n{ \"id\": 32, \"result\": { \"turnId\": \"turn_456\" } }"} language="json" />
+
+### 启动一个turn（调用一个技能）
+
+通过在文本输入中包含 `$<skill-name>` 并在其旁边添加 `skill` 输入 item 来显式调用技能。
+
+<CodeBlock code={"{ \"method\": \"turn/start\", \"id\": 33, \"params\": {\n  \"threadId\": \"thr_123\",\n  \"input\": [\n    { \"type\": \"text\", \"text\": \"$skill-creator Add a new skill for triaging flaky CI and include step-by-step usage.\" },\n    { \"type\": \"skill\", \"name\": \"skill-creator\", \"path\": \"/Users/me/.codex/skills/skill-creator/SKILL.md\" }\n  ]\n} }\n{ \"id\": 33, \"result\": { \"turn\": { \"id\": \"turn_457\", \"status\": \"inProgress\", \"items\": [], \"error\": null } } }"} language="json" />
+
+### 中断 turn
+
+<CodeBlock code={"{ \"method\": \"turn/interrupt\", \"id\": 31, \"params\": { \"threadId\": \"thr_123\", \"turnId\": \"turn_456\" } }\n{ \"id\": 31, \"result\": {} }"} language="json" />
+
+成功后，turn 以 `status: "interrupted"` 结束。
+
+## 评审
+
+`review/start` 为 thread 运行 Codex 审阅器并流式传输审阅项目。目标包括：
+
+-   `uncommittedChanges`
+-   `baseBranch`（与分支的差异）
+-   `commit`（查看特定提交）
+-   `custom`（自由格式指令）
+
+使用 `delivery: "inline"`（默认）对现有 thread 运行评审，或使用 `delivery: "detached"` 分叉新评审 thread。
+
+示例 request/response：
+
+<CodeBlock code={"{ \"method\": \"review/start\", \"id\": 40, \"params\": {\n  \"threadId\": \"thr_123\",\n  \"delivery\": \"inline\",\n  \"target\": { \"type\": \"commit\", \"sha\": \"1234567deadbeef\", \"title\": \"Polish tui colors\" }\n} }\n{ \"id\": 40, \"result\": {\n  \"turn\": {\n    \"id\": \"turn_900\",\n    \"status\": \"inProgress\",\n    \"items\": [\n      { \"type\": \"userMessage\", \"id\": \"turn_900\", \"content\": [ { \"type\": \"text\", \"text\": \"Review commit 1234567: Polish tui colors\" } ] }\n    ],\n    \"error\": null\n  },\n  \"reviewThreadId\": \"thr_123\"\n} }"} language="json" />
+
+对于独立评审，请使用 `"delivery": "detached"`。 response 形状相同，但 `reviewThreadId` 将是新评论 thread 的 id（与原来的 `threadId` 不同）。在流式传输评论 turn 之前，服务器还会为新的 thread 发出 `thread/started` notification。
+
+Codex 流式传输通常的 `turn/started` notification，后跟 `item/started` 和 `enteredReviewMode` item：
+
+<CodeBlock code={"{\n  \"method\": \"item/started\",\n  \"params\": {\n    \"item\": {\n      \"type\": \"enteredReviewMode\",\n      \"id\": \"turn_900\",\n      \"review\": \"current changes\"\n    }\n  }\n}"} language="json" />
+
+当审阅者完成时，服务器发出 `item/started` 和 `item/completed` ，其中包含 `exitedReviewMode` item 和最终审阅文本：
+
+<CodeBlock code={"{\n  \"method\": \"item/completed\",\n  \"params\": {\n    \"item\": {\n      \"type\": \"exitedReviewMode\",\n      \"id\": \"turn_900\",\n      \"review\": \"Looks solid overall...\"\n    }\n  }\n}"} language="json" />
+
+使用此 notification 在客户端中呈现审阅者输出。
+
+## 流程执行
+
+`process/*` 是一个实验性的显式过程控制 API。它需要 `capabilities.experimentalApi = true` 并在 Codex 的沙箱之外运行。使用它 仅当你的客户故意公开本地流程控制而没有 沙箱。
+
+使用 `process/spawn` 启动进程并提供 `processHandle`，然后使用 处理标准输入、调整大小和终止请求。输出流通过 `process/outputDelta` 通知和完成流通过 `process/exited`。
+
+<CodeBlock code={"{ \"method\": \"process/spawn\", \"id\": 48, \"params\": {\n  \"command\": [\"python3\", \"-m\", \"pytest\", \"-q\"],\n  \"processHandle\": \"pytest-1\",\n  \"cwd\": \"/Users/me/project\",\n  \"tty\": true\n} }\n{ \"id\": 48, \"result\": {} }\n{ \"method\": \"process/outputDelta\", \"params\": {\n  \"processHandle\": \"pytest-1\",\n  \"stream\": \"stdout\",\n  \"deltaBase64\": \"Li4u\"\n} }\n{ \"method\": \"process/exited\", \"params\": {\n  \"processHandle\": \"pytest-1\",\n  \"exitCode\": 0\n} }"} language="json" />
+
+使用 `process/writeStdin` 与 `deltaBase64`、`closeStdin` 或两者一起发送 输入。使用 `process/resizePty` 进行 PTY 调整大小事件，使用 `process/kill` 进行 PTY 调整大小事件 终止正在运行的进程。
+
+## 命令执行
+
+`command/exec` 在服务器沙箱下运行单个命令（`argv` 数组），而无需创建 thread。
+
+<CodeBlock code={"{ \"method\": \"command/exec\", \"id\": 50, \"params\": {\n  \"command\": [\"ls\", \"-la\"],\n  \"cwd\": \"/Users/me/project\",\n  \"sandboxPolicy\": { \"type\": \"workspaceWrite\" },\n  \"timeoutMs\": 10000\n} }\n{ \"id\": 50, \"result\": { \"exitCode\": 0, \"stdout\": \"...\", \"stderr\": \"\" } }"} language="json" />
+
+如果你已经对服务器进程进行沙箱处理并希望 Codex 跳过其自己的沙箱强制执行，请使用 `sandboxPolicy.type = "externalSandbox"`。对于外部沙箱模式，将 `networkAccess` 设置为 `restricted`（默认）或 `enabled`。对于 `readOnly` 和 `workspaceWrite`，请使用与上面所示相同的可选 `access` / `readOnlyAccess` 结构。
+
+笔记：
+
+-   服务器拒绝空的 `command` 数组。
+-   `sandboxPolicy` 接受 `turn/start` 使用的相同形状（例如，`dangerFullAccess`、`readOnly`、`workspaceWrite`、`externalSandbox`）。
+-   当省略时，`timeoutMs` 回退到服务器默认值。
+-   为 PTY 支持的会话设置 `tty: true`，并在计划跟进 `command/exec/write`、`command/exec/resize` 或 `command/exec/terminate` 时使用 `processId`。
+-   设置 `streamStdoutStderr: true` 以在命令运行时接收 `command/exec/outputDelta` 通知。
+
+### 阅读管理要求 (`configRequirements/read`)
+
+使用 `configRequirements/read` 检查从 `requirements.toml` 和/或 MDM 加载的有效管理要求。
+
+<CodeBlock code={"{ \"method\": \"configRequirements/read\", \"id\": 52, \"params\": {} }\n{ \"id\": 52, \"result\": {\n  \"requirements\": {\n    \"allowedApprovalPolicies\": [\"onRequest\", \"unlessTrusted\"],\n    \"allowedSandboxModes\": [\"readOnly\", \"workspaceWrite\"],\n    \"featureRequirements\": {\n      \"personality\": true,\n      \"unified_exec\": false\n    },\n    \"network\": {\n      \"enabled\": true,\n      \"allowedDomains\": [\"api.openai.com\"],\n      \"allowUnixSockets\": [\"/tmp/example.sock\"],\n      \"dangerouslyAllowAllUnixSockets\": false\n    }\n  }\n} }"} language="json" />
+
+不配置要求时，`result.requirements` 为 `null`。有关支持的键和值的详细信息，请参阅 [`requirements.toml`](/docs/config-file/config-reference#requirementstoml) 上的文档。
+
+### Windows 沙箱设置 (`windowsSandbox/setupStart`)
+
+自定义 Windows 客户端可以异步触发沙箱设置，而不是阻止启动检查。
+
+<CodeBlock code={"{ \"method\": \"windowsSandbox/setupStart\", \"id\": 53, \"params\": { \"mode\": \"elevated\" } }\n{ \"id\": 53, \"result\": { \"started\": true } }"} language="json" />
+
+App Server在后台启动设置，然后发出完成 notification：
+
+<CodeBlock code={"{\n  \"method\": \"windowsSandbox/setupCompleted\",\n  \"params\": { \"mode\": \"elevated\", \"success\": true, \"error\": null }\n}"} language="json" />
+
+模式：
+
+-   `elevated` - 运行提升的 Windows 沙箱安装路径。
+-   `unelevated` - 运行旧设置/预检路径。
+
+## 文件系统
+
+v2 文件系统 API 在绝对路径上运行。当客户端需要在文件或目录更改后使 UI 状态无效时，请使用 `fs/watch`。
+
+<CodeBlock code={"{ \"method\": \"fs/watch\", \"id\": 54, \"params\": {\n  \"watchId\": \"0195ec6b-1d6f-7c2e-8c7a-56f2c4a8b9d1\",\n  \"path\": \"/Users/me/project/.git/HEAD\"\n} }\n{ \"id\": 54, \"result\": { \"path\": \"/Users/me/project/.git/HEAD\" } }\n{ \"method\": \"fs/changed\", \"params\": {\n  \"watchId\": \"0195ec6b-1d6f-7c2e-8c7a-56f2c4a8b9d1\",\n  \"changedPaths\": [\"/Users/me/project/.git/HEAD\"]\n} }\n{ \"method\": \"fs/unwatch\", \"id\": 55, \"params\": {\n  \"watchId\": \"0195ec6b-1d6f-7c2e-8c7a-56f2c4a8b9d1\"\n} }\n{ \"id\": 55, \"result\": {} }"} language="json" />
+
+监视文件会针对该文件路径发出 `fs/changed`，包括通过替换或重命名操作提供的更新。
+
+## 活动
+
+事件通知是服务器启动的 thread 生命周期、turn 生命周期及其中的项目的流。启动或恢复 thread 后，继续读取 `thread/started`、`thread/archived`、`thread/unarchived`、`thread/closed`、`thread/status/changed`、`turn/*`、`item/*` 和 `serverRequest/resolved` 通知的活动传输流。
+
+### 通知选择退出
+
+客户端可以通过在 `initialize.params.capabilities.optOutNotificationMethods` 中发送确切的方法名称来抑制每个连接的特定通知。
+
+-   仅精确匹配：`item/agentMessage/delta` 仅抑制该方法。
+-   未知的方法名称将被忽略。
+-   适用于当前的`thread/*`、`turn/*`、`item/*`以及相关的v2通知。
+-   不适用于请求、响应或错误。
+
+### 模糊文件搜索事件（实验）
+
+模糊文件搜索会话 API 发出每个查询的通知：
+
+-   `fuzzyFileSearch/sessionUpdated` - `{ sessionId, query, files }` 与活动查询的当前匹配项。
+-   `fuzzyFileSearch/sessionCompleted` - 一旦该查询的索引和匹配完成，`{ sessionId }`。
+
+### 警告事件
+
+-   `configWarning` - `{ summary, details?, path?, range? }` 用于可恢复 配置或初始化问题。
+-   `warning` - `{ threadId?, message }` 用于非致命运行时警告。
+
+### Windows 沙箱设置事件
+
+-   `windowsSandbox/setupCompleted` - `windowsSandbox/setupStart` request 完成后发出 `{ mode, success, error }`。
+
+### 转事件
+
+-   `turn/started` - `{ turn }` 具有 turn id、空 `items` 和 `status: "inProgress"`。
+-   `turn/completed` - `{ turn }`，其中 `turn.status` 是 `completed`、`interrupted` 或 `failed`；故障携带`{ error: { message, codexErrorInfo?, additionalDetails? } }`。
+-   `turn/diff/updated` - `{ threadId, turnId, diff }` 具有 turn 中每个文件更改的最新聚合统一差异。
+-   `turn/plan/updated` - 每当代理共享或更改其计划时，`{ turnId, explanation?, plan }`；每个 `plan` 条目都是 `{ step, status }`，其中 `status` 位于 `pending`、`inProgress` 或 `completed` 中。
+-   `hook/started` 和 `hook/completed` - 当生命周期挂钩启动且其最终运行摘要可用时，`{ threadId, turnId?, run }`。
+-   `model/safetyBuffering/updated` - `{ threadId, turnId, model, useCases, reasons, showBufferingUi, fasterModel }`，当 response 进入瞬态安全缓冲时。
+-   `model/rerouted` - `{ threadId, turnId, fromModel, toModel, reason }`，当服务将 request 路由到另一个模型时。
+-   `model/verification` - 当服务需要额外帐户验证时为 `{ threadId, turnId, verifications }`。
+-   `thread/tokenUsage/updated` - 活动 thread 的使用更新。
+
+即使 item 事件流式传输，`turn/diff/updated` 和 `turn/plan/updated` 目前也包含空的 `items` 数组。使用 `item/*` 通知作为 turn 项目的事实来源。
+
+### 项目
+
+`ThreadItem` 是 turn 响应和 `item/*` 通知中携带的标记联合。常见的item类型包括：
+
+-   `userMessage` - `{id, content}`，其中 `content` 是用户输入的列表（`text`、`image` 或 `localImage`）。
+-   `agentMessage` - `{id, text, phase?}` 包含累积的代理回复。如果存在，`phase` 使用响应 API 线值（`commentary`、`final_answer`）。
+-   `plan` - `{id, text}` 包含计划模式下建议的计划文本。将 `item/completed` 中的最终 `plan` item 视为权威。
+-   `reasoning` - `{id, summary, content}`，其中 `summary` 保存流式推理摘要，`content` 保存原始推理块。
+-   `commandExecution` - `{id, command, cwd, status, commandActions, aggregatedOutput?, exitCode?, durationMs?}`。
+-   `fileChange` - `{id, changes, status}` 描述建议的编辑； `changes` 列出 `{path, kind, diff}`。
+-   `mcpToolCall` - `{id, server, tool, status, arguments, appContext?, pluginId?, result?, error?}`。对于受信任的 MCP 应用，`appContext` 可以包括 `connectorId`、`linkId`、`resourceUri`、`appName`、`templateId` 和稳定连接器 `actionName`。较旧的持久项目可以忽略较新的元数据。使用 `appContext.resourceUri` 而不是已弃用的顶级 `mcpAppResourceUri`。
+-   `dynamicToolCall` - `{id, tool, arguments, status, contentItems?, success?, durationMs?}` 用于客户端执行的动态工具调用。
+-   `collabToolCall` - `{id, tool, status, senderThreadId, receiverThreadId?, newThreadId?, prompt?, agentStatus?}`。
+-   `webSearch` - `{id, query, action?}` 用于代理发出的 Web 搜索请求。
+-   `imageView` - 当代理调用图像查看器工具时发出 `{id, path}`。
+-   `enteredReviewMode` - 当审阅者开始时发送 `{id, review}`。
+-   `exitedReviewMode` - 当审阅者完成时发出 `{id, review}`。
+-   `contextCompaction` - Codex 压缩对话历史记录时发出 `{id}`。
+
+对于 `webSearch.action`，动作 `type` 可以是 `search`（`query?`、`queries?`）、`openPage`（`url?`）或 `findInPage`（`url?`、`pattern?`）。
+
+应用服务器弃用旧版 `thread/compacted` notification；请改用 `contextCompaction` item。
+
+所有项目都会发出两个共享生命周期事件：
+
+-   `item/started` - 当新的工作单元开始时发出完整的 `item` ； `item.id` 与 delta 使用的 `itemId` 匹配。
+-   `item/completed` - 工作完成后发送最终的 `item`；将此视为权威状态。
+
+### 项目增量
+
+-   `item/agentMessage/delta` - 附加智能体消息的流文本。
+-   `item/plan/delta` - 流提议的计划文本。最终的 `plan` item 可能不完全等于串联的增量。
+-   `item/reasoning/summaryTextDelta` - 流可读的推理摘要；当新的摘要部分打开时，`summaryIndex` 会递增。
+-   `item/reasoning/summaryPartAdded` - 标记推理摘要部分之间的边界。
+-   `item/reasoning/textDelta` - 流原始推理文本（当模型支持时）。
+-   `item/commandExecution/outputDelta` - 流式传输命令的 stdout/stderr；按顺序附加增量。
+-   `item/fileChange/outputDelta` - 已弃用旧版 `apply_patch` 文本输出的兼容性 notification。当前的App Server版本不再发出它；使用 `fileChange` 物品和 `turn/diff/updated` 代替。
+
+## 错误
+
+如果 turn 失败，服务器会使用 `{ error: { message, codexErrorInfo?, additionalDetails? } }` 发出 `error` 事件，然后使用 `status: "failed"` 完成 turn。当上游 HTTP 状态可用时，它会出现在 `codexErrorInfo.httpStatusCode` 中。
+
+常见的 `codexErrorInfo` 值包括：
+
+-   `ContextWindowExceeded`
+-   `UsageLimitExceeded`
+-   `HttpConnectionFailed`（4xx/5xx 上游错误）
+-   `ResponseStreamConnectionFailed`
+-   `ResponseStreamDisconnected`
+-   `ResponseTooManyFailedAttempts`
+-   `BadRequest`、`Unauthorized`、`SandboxError`、`InternalServerError`、`Other`
+
+当上游 HTTP 状态可用时，服务器在相关 `codexErrorInfo` 变体上的 `httpStatusCode` 中转发它。
+
+## 批准
+
+根据用户的 Codex 设置，命令执行和文件更改可能需要批准。App Server向客户端发送服务器发起的 JSON-RPC request，客户端以决策负载进行响应。
+
+-   命令执行决策：`accept`、`acceptForSession`、`decline`、`cancel` 或 `{ "acceptWithExecpolicyAmendment": { "execpolicy_amendment": ["cmd", "..."] } }`。
+    
+-   文件更改决策：`accept`、`acceptForSession`、`decline`、`cancel`。
+    
+-   请求包括 `threadId` 和 `turnId` - 使用它们将 UI 状态范围限定为活动对话。
+    
+-   服务器恢复或拒绝工作并以 `item/completed` 结束 item。
+    
+
+### 命令执行批准
+
+消息顺序：
+
+1.  `item/started` 显示待处理的 `commandExecution` item 以及 `command`、`cwd` 和其他字段。
+2.  `item/commandExecution/requestApproval` 包括 `itemId`、`threadId`、`turnId`、可选 `reason`、可选 `command`、可选 `cwd`、可选 `commandActions`、可选 `proposedExecpolicyAmendment`、可选 `networkApprovalContext` 和可选`availableDecisions`。当 `initialize.params.capabilities.experimentalApi = true` 时，有效负载还可以包括描述请求的每命令沙箱访问的实验性 `additionalPermissions`。 `additionalPermissions` 内的任何文件系统路径都是绝对路径。
+3.  客户端以上述命令执行批准决策之一进行响应。
+4.  `serverRequest/resolved` 确认待处理的 request 已被应答或清除。
+5.  `item/completed` 返回最终的 `commandExecution` item 和 `status: completed | failed | declined`。
+
+当 `networkApprovalContext` 存在时，提示是用于托管网络访问（不是一般的 shell 命令批准）。当前v2 schema暴露了目标`host`和`protocol`；客户端应该呈现特定于网络的提示符，而不是依赖 `command` 作为对用户有意义的 shell 命令预览。
+
+Codex 按目的地（`host`、协议和端口）对并发网络批准提示进行分组。因此，App Server可能会发送一个提示，以解除对同一目的地的多个排队请求的阻止，而同一主机上的不同端口将被单独处理。
+
+### 文件变更审批
+
+消息顺序：
+
+1.  `item/started` 发出 `fileChange` item 以及建议的 `changes` 和 `status: "inProgress"`。
+2.  `item/fileChange/requestApproval` 包括 `itemId`、`threadId`、`turnId`、可选的 `reason` 和可选的 `grantRoot`。
+3.  客户以上述文件变更批准决定之一进行响应。
+4.  `serverRequest/resolved` 确认待处理的 request 已被应答或清除。
+5.  `item/completed` 返回最终的 `fileChange` item 和 `status: completed | failed | declined`。
+
+### `tool/requestUserInput`
+
+当客户端响应 `item/tool/requestUserInput` 时，App Server会发出 `serverRequest/resolved` 和 `{ threadId, requestId }`。如果在客户端应答之前通过 turn 启动、turn 完成或 turn 中断清除了挂起的 request，则服务器会为该清除发出相同的 notification。
+
+请求参数包括 `autoResolutionMs` 作为整数毫秒超时或 `null`。如果存在，主机客户端可以在之后自动解决提示 如果用户没有应答，则间隔。
+
+### 权限请求
+
+内置`request_permissions`工具发送 `item/permissions/requestApproval` 与 `threadId`、`turnId`、`itemId`、 `environmentId`、`cwd`、可选的 `reason` 以及请求的网络或文件系统 权限。使用仅包含授予的子集的 `permissions` 进行响应。 将 `scope` 设置为 `"session"` 以在同一轮中保留后续轮次的授权 会议;省略它或使用 `"turn"` 进行 turn 范围的授权。权限 未请求的将被忽略。
+
+### MCP 服务器引出请求
+
+MCP 服务器可以使用 `mcpServer/elicitation/request` 中断 turn。这 request 包括 `threadId`、可选的 `turnId`、`serverName` 和以下之一 这些 request 形状：
+
+-   `mode: "form"` 或 `mode: "openai/form"`，其中 `message` 和 `requestedSchema`。
+-   `mode: "url"`、`message`、`url` 和 `elicitationId`。
+
+响应 `action: "accept"` 和请求的 `content`，或者 `action: "decline"` 或 `"cancel"` 和 `content: null`。然后App Server发出 `serverRequest/resolved`。要接收 `openai/form` 变体，请选择加入 `initialize.params.capabilities.mcpServerOpenaiFormElicitation`。
+
+### 动态工具调用（实验性）
+
+`thread/start` 上的 `dynamicTools` 和相应的 `item/tool/call` request 或 response 流是实验性 API。
+
+动态工具名称和命名空间名称必须遵循 Responses API 命名 限制。避免内置 Codex 工具使用保留的命名空间名称。
+
+当在 turn 期间调用动态工具时，App Server会发出：
+
+1.  `item/started` 与 `item.type = "dynamicToolCall"`、`status = "inProgress"`，加上 `tool` 和 `arguments`。
+2.  `item/tool/call`作为服务器，request作为客户端。
+3.  带有返回内容项的客户端 response 有效负载。
+4.  `item/completed` 与 `item.type = "dynamicToolCall"`、最终的 `status` 以及任何返回的 `contentItems` 或 `success` 值。
+
+### MCP 工具调用批准（应用）
+
+应用（连接器）工具调用也可能需要批准。当应用工具调用有副作用时，服务器可能会使用 `tool/requestUserInput` 和诸如**接受**、**拒绝**和**取消**等选项来引发批准。即使该工具还公布了权限较低的提示，破坏性工具注释也始终会触发批准。如果用户拒绝或取消，相关的 `mcpToolCall` item 将完成并出现错误，而不是运行该工具。
+
+## 技能
+
+通过在用户文本输入中包含 `$<skill-name>` 来调用技能。添加 `skill` 输入 item（推荐），以便服务器注入完整的技能指令，而不是依赖模型来解析名称。
+
+<CodeBlock code={"{\n  \"method\": \"turn/start\",\n  \"id\": 101,\n  \"params\": {\n    \"threadId\": \"thread-1\",\n    \"input\": [\n      {\n        \"type\": \"text\",\n        \"text\": \"$skill-creator Add a new skill for triaging flaky CI.\"\n      },\n      {\n        \"type\": \"skill\",\n        \"name\": \"skill-creator\",\n        \"path\": \"/Users/me/.codex/skills/skill-creator/SKILL.md\"\n      }\n    ]\n  }\n}"} language="json" />
+
+如果省略 `skill` item，模型仍会解析 `$<skill-name>` 标记并尝试定位技能，这可能会增加延迟。
+
+例子：
+
+<CodeBlock code={"$skill-creator Add a new skill for triaging flaky CI and include step-by-step usage."} language="text" />
+
+使用 `skills/list` 获取可用技能（可以选择由 `cwds` 和 `forceReload` 限定范围）。你还可以包含 `perCwdExtraUserRoots` 以扫描额外的绝对路径作为特定 `cwd` 值的 `user` 范围。App Server会忽略 `cwds` 中不存在 `cwd` 的条目。 `skills/list` 可以重用每个 `cwd` 的缓存结果；设置 `forceReload: true` 从磁盘刷新。当存在时，服务器从 `SKILL.json` 读取 `interface` 和 `dependencies`。
+
+<CodeBlock code={"{ \"method\": \"skills/list\", \"id\": 25, \"params\": {\n  \"cwds\": [\"/Users/me/project\", \"/Users/me/other-project\"],\n  \"forceReload\": true,\n  \"perCwdExtraUserRoots\": [\n    {\n      \"cwd\": \"/Users/me/project\",\n      \"extraUserRoots\": [\"/Users/me/shared-skills\"]\n    }\n  ]\n} }\n{ \"id\": 25, \"result\": {\n  \"data\": [{\n    \"cwd\": \"/Users/me/project\",\n    \"skills\": [\n      {\n        \"name\": \"skill-creator\",\n        \"description\": \"Create or update a Codex skill\",\n        \"enabled\": true,\n        \"interface\": {\n          \"displayName\": \"Skill Creator\",\n          \"shortDescription\": \"Create or update a Codex skill\"\n        },\n        \"dependencies\": {\n          \"tools\": [\n            {\n              \"type\": \"env_var\",\n              \"value\": \"GITHUB_TOKEN\",\n              \"description\": \"GitHub API token\"\n            },\n            {\n              \"type\": \"mcp\",\n              \"value\": \"github\",\n              \"transport\": \"streamable_http\",\n              \"url\": \"https://example.com/mcp\"\n            }\n          ]\n        }\n      }\n    ],\n    \"errors\": []\n  }]\n} }"} language="json" />
+
+当看到本地技能文件发生变化时，服务器还会发出 `skills/changed` 通知。将此视为无效信号，并在需要时使用当前参数重新运行 `skills/list`。
+
+要按路径启用或禁用技能：
+
+<CodeBlock code={"{\n  \"method\": \"skills/config/write\",\n  \"id\": 26,\n  \"params\": {\n    \"path\": \"/Users/me/.codex/skills/skill-creator/SKILL.md\",\n    \"enabled\": false\n  }\n}"} language="json" />
+
+## 应用（连接器）
+
+使用 `app/installed` 读取最近一次提交的已安装应用运行时快照。每项结果都包含应用 `id`、`runtimeName`（或 `null`）、最终生效的 `enabled` 状态和 `callable` 状态。只有当最终配置启用了应用，且至少有一个模型可见工具符合应用与工具策略时，应用才可调用。
+
+<CodeBlock code={"{\n  \"method\": \"app/installed\",\n  \"id\": 49,\n  \"params\": {\n    \"threadId\": \"thread-1\",\n    \"forceRefresh\": false\n  }\n}\n{\n  \"id\": 49,\n  \"result\": {\n    \"apps\": [\n      {\n        \"id\": \"demo-app\",\n        \"runtimeName\": \"Demo App\",\n        \"enabled\": true,\n        \"callable\": true\n      }\n    ]\n  }\n}"} language="json" />
+
+省略 `threadId` 可使用全局配置，而不是已加载 thread 的配置。设置 `forceRefresh: true` 可在读取前刷新连接器运行时快照。当全局或工作区策略阻止应用访问时，已观测到的应用仍可能出现，但 `enabled` 和 `callable` 都会设为 `false`。
+
+使用 `app/list` 获取可用的应用。在CLI/TUI中，`/apps`是面向用户的选择器；在自定义客户端中，直接调用`app/list`。每个条目都包含 `isAccessible`（用户可用）和 `isEnabled`（在 `config.toml` 中启用），因此客户端可以区分安装/访问与本地启用状态。应用条目还可以包括可选的 `branding`、`appMetadata` 和 `labels` 字段。
+
+<CodeBlock code={"{ \"method\": \"app/list\", \"id\": 50, \"params\": {\n  \"cursor\": null,\n  \"limit\": 50,\n  \"threadId\": \"thread-1\",\n  \"forceRefetch\": false\n} }\n{ \"id\": 50, \"result\": {\n  \"data\": [\n    {\n      \"id\": \"demo-app\",\n      \"name\": \"Demo App\",\n      \"description\": \"Example connector for documentation.\",\n      \"logoUrl\": \"https://example.com/demo-app.png\",\n      \"logoUrlDark\": null,\n      \"distributionChannel\": null,\n      \"branding\": null,\n      \"appMetadata\": null,\n      \"labels\": null,\n      \"installUrl\": \"https://chatgpt.com/apps/demo-app/demo-app\",\n      \"isAccessible\": true,\n      \"isEnabled\": true\n    }\n  ],\n  \"nextCursor\": null\n} }"} language="json" />
+
+如果你提供 `threadId`，应用功能门控 (`features.apps`) 将使用该 thread 的配置快照。省略时，App Server使用最新的全局配置。
+
+`app/list` 在可访问应用和目录应用加载后返回。设置 `forceRefetch: true` 以绕过应用缓存并获取新数据。仅当刷新成功时才会替换缓存条目。
+
+每当源（可访问的应用或目录应用）完成加载时，服务器还会发出 `app/list/updated` 通知。每个 notification 都包含最新的合并应用列表。
+
+<CodeBlock code={"{\n  \"method\": \"app/list/updated\",\n  \"params\": {\n    \"data\": [\n      {\n        \"id\": \"demo-app\",\n        \"name\": \"Demo App\",\n        \"description\": \"Example connector for documentation.\",\n        \"logoUrl\": \"https://example.com/demo-app.png\",\n        \"logoUrlDark\": null,\n        \"distributionChannel\": null,\n        \"branding\": null,\n        \"appMetadata\": null,\n        \"labels\": null,\n        \"installUrl\": \"https://chatgpt.com/apps/demo-app/demo-app\",\n        \"isAccessible\": true,\n        \"isEnabled\": true\n      }\n    ]\n  }\n}"} language="json" />
+
+当你已经知道 app id 并需要应用元数据而非已安装的运行时状态时，请使用 `app/read`。最多可传入 100 个 `appIds`。服务器只保留每个重复 id 的第一次出现，并在 `apps` 和 `missingAppIds` 中保持该顺序。未知或不可访问的应用会放入 `missingAppIds`，不会使整个 request 失败。
+
+<CodeBlock code={"{\n  \"method\": \"app/read\",\n  \"id\": 52,\n  \"params\": {\n    \"appIds\": [\"demo-app\", \"missing-app\"],\n    \"includeTools\": true\n  }\n}\n{\n  \"id\": 52,\n  \"result\": {\n    \"apps\": [\n      {\n        \"id\": \"demo-app\",\n        \"name\": \"Demo App\",\n        \"description\": \"Example connector for documentation.\",\n        \"iconUrl\": null,\n        \"iconUrlDark\": null,\n        \"distributionChannel\": null,\n        \"installUrl\": null,\n        \"pluginDisplayNames\": [],\n        \"toolSummaries\": [\n          {\n            \"name\": \"search\",\n            \"title\": \"Search\",\n            \"description\": \"Search the app.\",\n            \"isEnabled\": true,\n            \"disabledReason\": null,\n            \"isReadOnly\": true\n          }\n        ]\n      }\n    ],\n    \"missingAppIds\": [\"missing-app\"]\n  }\n}"} language="json" />
+
+设置 `includeTools: true` 可请求仅供展示的公开工具摘要。元数据 response 不包含已安装应用的运行时状态，也不会授权工具调用；请使用 `app/installed` 检查最终生效的 `enabled` 和 `callable` 状态。
+
+通过在文本输入中插入 `$<app-slug>` 并添加带有 `app://<id>` 路径的 `mention` 输入 item 来调用应用（推荐）。
+
+<CodeBlock code={"{\n  \"method\": \"turn/start\",\n  \"id\": 51,\n  \"params\": {\n    \"threadId\": \"thread-1\",\n    \"input\": [\n      {\n        \"type\": \"text\",\n        \"text\": \"$demo-app Pull the latest updates from the team.\"\n      },\n      {\n        \"type\": \"mention\",\n        \"name\": \"Demo App\",\n        \"path\": \"app://demo-app\"\n      }\n    ]\n  }\n}"} language="json" />
+
+### 应用设置的配置 RPC 示例
+
+使用 `config/read`、`config/value/write` 和 `config/batchWrite` 检查或更新 `config.toml` 中的应用控件。
+
+读取有效的应用配置形状（包括 `_default` 和每个工具的覆盖）：
+
+<CodeBlock code={"{ \"method\": \"config/read\", \"id\": 60, \"params\": { \"includeLayers\": false } }\n{ \"id\": 60, \"result\": {\n  \"config\": {\n    \"apps\": {\n      \"_default\": {\n        \"enabled\": true,\n        \"destructive_enabled\": true,\n        \"open_world_enabled\": true,\n        \"approvals_reviewer\": \"user\",\n        \"default_tools_approval_mode\": \"auto\"\n      },\n      \"google_drive\": {\n        \"enabled\": true,\n        \"destructive_enabled\": false,\n        \"approvals_reviewer\": \"auto_review\",\n        \"default_tools_approval_mode\": \"prompt\",\n        \"tools\": {\n          \"files/delete\": { \"enabled\": false, \"approval_mode\": \"approve\" }\n        }\n      }\n    }\n  }\n} }"} language="json" />
+
+`apps._default.approvals_reviewer` 会设置所有应用的审阅者，除非单个应用的值覆盖它。如果这两处均未设置，应用会继承顶层的 `approvals_reviewer`。`apps._default.default_tools_approval_mode` 会为没有单应用或单工具覆盖项的工具设置后备审批模式。托管的审批模式要求优先于工具的审批模式设置。
+
+更新单个应用设置：
+
+<CodeBlock code={"{\n  \"method\": \"config/value/write\",\n  \"id\": 61,\n  \"params\": {\n    \"keyPath\": \"apps.google_drive.default_tools_approval_mode\",\n    \"value\": \"prompt\",\n    \"mergeStrategy\": \"replace\"\n  }\n}"} language="json" />
+
+以原子方式应用多个应用编辑：
+
+<CodeBlock code={"{\n  \"method\": \"config/batchWrite\",\n  \"id\": 62,\n  \"params\": {\n    \"edits\": [\n      {\n        \"keyPath\": \"apps._default.destructive_enabled\",\n        \"value\": false,\n        \"mergeStrategy\": \"upsert\"\n      },\n      {\n        \"keyPath\": \"apps.google_drive.tools.files/delete.approval_mode\",\n        \"value\": \"approve\",\n        \"mergeStrategy\": \"upsert\"\n      }\n    ]\n  }\n}"} language="json" />
+
+### 检测并导入外部智能体配置
+
+使用 `externalAgentConfig/detect` 发现可以迁移的外部智能体产物，然后将选定的条目传递给 `externalAgentConfig/import`。
+
+检测示例：
+
+<CodeBlock code={"{ \"method\": \"externalAgentConfig/detect\", \"id\": 63, \"params\": {\n  \"includeHome\": true,\n  \"cwds\": [\"/Users/me/project\"]\n} }\n{ \"id\": 63, \"result\": {\n  \"items\": [\n    {\n      \"itemType\": \"AGENTS_MD\",\n      \"description\": \"Import /Users/me/project/CLAUDE.md to /Users/me/project/AGENTS.md.\",\n      \"cwd\": \"/Users/me/project\"\n    },\n    {\n      \"itemType\": \"SKILLS\",\n      \"description\": \"Copy skill folders from /Users/me/.claude/skills to /Users/me/.agents/skills.\",\n      \"cwd\": null\n    }\n  ]\n} }"} language="json" />
+
+导入示例：
+
+<CodeBlock code={"{ \"method\": \"externalAgentConfig/import\", \"id\": 64, \"params\": {\n  \"migrationItems\": [\n    {\n      \"itemType\": \"AGENTS_MD\",\n      \"description\": \"Import /Users/me/project/CLAUDE.md to /Users/me/project/AGENTS.md.\",\n      \"cwd\": \"/Users/me/project\"\n    }\n  ],\n  \"source\": \"claude-code\"\n} }\n{ \"id\": 64, \"result\": { \"importId\": \"8ae96ff3-3425-4f4c-8772-b6fd61502868\" } }"} language="json" />
+
+可选的顶级 `source` 导入参数标记的产品 产生选定的迁移项目。
+
+当 item 类型完成时，服务器发出 `externalAgentConfig/import/progress`， 和`externalAgentConfig/import/completed`全部同步和后台后 进口完成。这些通知包含相同的 `importId` response 和 `itemTypeResults` 以及每个类型的 `successes` 和 `failures`。 完成可能会在 response 之后或后台远程之后立即到达 导入完成。
+
+<CodeBlock code={"{ \"method\": \"externalAgentConfig/import/progress\", \"params\": {\n  \"importId\": \"8ae96ff3-3425-4f4c-8772-b6fd61502868\",\n  \"itemTypeResults\": [\n    {\n      \"itemType\": \"AGENTS_MD\",\n      \"successes\": [\n        { \"itemType\": \"AGENTS_MD\", \"cwd\": \"/Users/me/project\", \"source\": null, \"target\": \"/Users/me/project/AGENTS.md\" }\n      ],\n      \"failures\": []\n    }\n  ]\n} }\n{ \"method\": \"externalAgentConfig/import/completed\", \"params\": {\n  \"importId\": \"8ae96ff3-3425-4f4c-8772-b6fd61502868\",\n  \"itemTypeResults\": [\n    {\n      \"itemType\": \"AGENTS_MD\",\n      \"successes\": [\n        { \"itemType\": \"AGENTS_MD\", \"cwd\": \"/Users/me/project\", \"source\": null, \"target\": \"/Users/me/project/AGENTS.md\" }\n      ],\n      \"failures\": []\n    }\n  ]\n} }"} language="json" />
+
+阅读之前完成的导入：
+
+<CodeBlock code={"{ \"method\": \"externalAgentConfig/import/readHistories\", \"id\": 65 }\n{ \"id\": 65, \"result\": { \"data\": [\n  {\n    \"importId\": \"8ae96ff3-3425-4f4c-8772-b6fd61502868\",\n    \"completedAtMs\": 1781784000000,\n    \"successes\": [\n      { \"itemType\": \"AGENTS_MD\", \"cwd\": \"/Users/me/project\", \"source\": null, \"target\": \"/Users/me/project/AGENTS.md\" }\n    ],\n    \"failures\": []\n  }\n] } }"} language="json" />
+
+支持的 `itemType` 值为 `AGENTS_MD`、`CONFIG`、`SKILLS`、`PLUGINS`、 `MCP_SERVER_CONFIG`、`SUBAGENTS`、`HOOKS`、`COMMANDS` 和 `SESSIONS`。为了 `PLUGINS` 项，`details.plugins` 列出每个 `marketplaceName` 和 `pluginNames` Codex 可以尝试迁移。检测仅返回仍然存在的项目 有工作要做。例如，当 `AGENTS.md` 时，Codex 会跳过 AGENTS 迁移 已存在且非空，并且技能导入不会覆盖现有的 技能目录。
+
+当检测到来自`.claude/settings.json`的插件时，Codex读取配置 市场来源来自 `extraKnownMarketplaces`。如果 `enabledPlugins` 包含 来自 `claude-plugins-official` 的插件，但缺少市场源， Codex 推断 `anthropics/claude-plugins-official` 为源。
+
+## 身份验证端点
+
+JSON-RPC 身份验证/帐户表面公开 request/response 方法以及服务器启动的通知（无 `id`）。使用这些来确定身份验证状态、启动或取消登录、注销、检查 ChatGPT 速率限制，并通知工作区所有者有关耗尽的积分或使用限制。
+
+### 认证方式
+
+Codex支持这些认证方式。 `account/updated.authMode` 显示活动模式，并包括当前的 ChatGPT `planType`（如果可用）。 `account/read` 还报告帐户和计划详细信息。
+
+-   **API key (`apikey`)** - 调用者提供 OpenAI API key 和 `type: "apiKey"`，并且 Codex 存储它以用于 API 请求。
+-   **ChatGPT 托管 (`chatgpt`)** - Codex 拥有 ChatGPT OAuth 流，保留令牌并自动刷新它们。从浏览器流程的 `type: "chatgpt"` 开始，或从设备代码流程的 `type: "chatgptDeviceCode"` 开始。
+-   **ChatGPT 外部令牌 (`chatgptAuthTokens`)** - 实验性的，适用于已经拥有用户 ChatGPT 身份验证生命周期的主机应用。主机应用直接提供 `accessToken`、`chatgptAccountId` 和可选的 `chatgptPlanType`，并且必须在询问时刷新令牌。
+-   **Amazon Bedrock** - `account/read` 将 Bedrock 账户报告为 `type: "amazonBedrock"`，并指示凭证是否来自 Codex 管理的 Bedrock API key (`credentialSource: "codexManaged"`) 还是外部 AWS 凭证链 (`credentialSource: "awsManaged"`)。 `account/updated.authMode` 使用 `bedrockApiKey` 作为 Codex 管理的 Bedrock API 密钥。
+
+<span id="api概览-2"></span>
+
+### API概览
+
+-   `account/read` - 获取当前帐户信息；可选地刷新令牌。
+-   `account/login/start` - 开始登录（`apiKey`、`chatgpt`、`chatgptDeviceCode` 或实验性 `chatgptAuthTokens`）。
+-   `account/login/completed`（通知）- 登录尝试完成（成功或错误）时发出。
+-   `account/login/cancel` - 通过 `loginId` 取消挂起的托管 ChatGPT 登录。
+-   `account/logout` - 注销；触发 `account/updated`。
+-   `account/updated`（通知）- 每当身份验证模式更改时发出（`authMode`：`apikey`、`chatgpt`、`chatgptAuthTokens`、`agentIdentity`、`personalAccessToken`、`bedrockApiKey` 或 `null`），并包括 `planType`（如果可用）。
+-   `account/chatgptAuthTokens/refresh`（服务器 request） - 授权错误后 request 新鲜的外部管理的 ChatGPT 令牌。
+-   `account/rateLimits/read` - 获取 ChatGPT 速率限制。
+-   `account/rateLimits/updated`（通知）- 每当用户的 ChatGPT 速率限制发生变化时发出。
+-   `account/sendAddCreditsNudgeEmail` - 要求 ChatGPT 通过电子邮件向工作区所有者发送有关积分耗尽或达到使用限制的信息。
+-   `account/rateLimitResetCredit/consume` - 使用调用者提供的 `idempotencyKey` 值消耗一个已获得的速率限制重置。
+-   `account/usage/read` - 获取 ChatGPT 账户代币活动摘要和每日存储桶。
+-   `account/workspaceMessages/read` - 获取活动工作区消息，包括 notification 标题（如果可用）。
+-   `mcpServer/oauthLogin/completed`（通知）- `mcpServer/oauth/login` 流程完成后发出；有效负载包括`{ name, threadId, success, error? }`。对于应用范围或插件 OAuth 流，`threadId` 可以是 `null`。
+-   `mcpServer/startupStatus/updated`（通知）- 当配置的 MCP 服务器的启动状态发生变化时发出；有效负载包括`{ threadId, name, status, error, failureReason }`。 `threadId` 是用于应用范围启动的 `null`。启动失败时，`failureReason: "reauthenticationRequired"` 表示存储的 OAuth 凭据已过期且无法刷新，因此客户端应主动重新连接服务器。
+
+### 1) 检查授权状态
+
+要求：
+
+<CodeBlock code={"{ \"method\": \"account/read\", \"id\": 1, \"params\": { \"refreshToken\": false } }"} language="json" />
+
+响应示例：
+
+<CodeBlock code={"{ \"id\": 1, \"result\": { \"account\": null, \"requiresOpenaiAuth\": false } }"} language="json" />
+
+<CodeBlock code={"{ \"id\": 1, \"result\": { \"account\": null, \"requiresOpenaiAuth\": true } }"} language="json" />
+
+<CodeBlock code={"{\n  \"id\": 1,\n  \"result\": { \"account\": { \"type\": \"apiKey\" }, \"requiresOpenaiAuth\": true }\n}"} language="json" />
+
+<CodeBlock code={"{\n  \"id\": 1,\n  \"result\": {\n    \"account\": {\n      \"type\": \"amazonBedrock\",\n      \"credentialSource\": \"codexManaged\"\n    },\n    \"requiresOpenaiAuth\": false\n  }\n}"} language="json" />
+
+<CodeBlock code={"{\n  \"id\": 1,\n  \"result\": {\n    \"account\": {\n      \"type\": \"amazonBedrock\",\n      \"credentialSource\": \"awsManaged\"\n    },\n    \"requiresOpenaiAuth\": false\n  }\n}"} language="json" />
+
+<CodeBlock code={"{\n  \"id\": 1,\n  \"result\": {\n    \"account\": {\n      \"type\": \"chatgpt\",\n      \"email\": \"user@example.com\",\n      \"planType\": \"pro\"\n    },\n    \"requiresOpenaiAuth\": true\n  }\n}"} language="json" />
+
+现场笔记：
+
+-   `refreshToken`（布尔值）：设置 `true` 以在托管 ChatGPT 模式下强制刷新令牌。在外部令牌模式（`chatgptAuthTokens`）下，App Server忽略此标志。
+-   当 ChatGPT 帐户没有电子邮件地址时，`email` 为 `null`。
+-   `requiresOpenaiAuth` 反映活跃提供者；当 `false` 时，Codex 可以在没有 OpenAI 凭据的情况下运行。
+-   Amazon Bedrock 在使用时报告 `credentialSource: "codexManaged"` 基岩 API key 由 Codex 管理。报告 `credentialSource: "awsManaged"` 用于外部 AWS 凭证路径。这标识了所选的凭证 来源;它不验证 AWS 凭证链是否可以解析 证书。
+
+### 2）使用API key登录
+
+1.  发送：
+
+<CodeBlock code={"   {\n     \"method\": \"account/login/start\",\n     \"id\": 2,\n     \"params\": { \"type\": \"apiKey\", \"apiKey\": \"sk-...\" }\n   }"} language="json" />
+
+2.  预计：
+
+<CodeBlock code={"   { \"id\": 2, \"result\": { \"type\": \"apiKey\" } }"} language="json" />
+
+3.  通知：
+
+<CodeBlock code={"   {\n     \"method\": \"account/login/completed\",\n     \"params\": { \"loginId\": null, \"success\": true, \"error\": null }\n   }"} language="json" />
+
+<CodeBlock code={"   {\n     \"method\": \"account/updated\",\n     \"params\": { \"authMode\": \"apikey\", \"planType\": null }\n   }"} language="json" />
+
+### 3）使用ChatGPT登录（浏览器流程）
+
+1.  开始：
+
+<CodeBlock code={"   {\n     \"method\": \"account/login/start\",\n     \"id\": 3,\n     \"params\": {\n       \"type\": \"chatgpt\",\n       \"useHostedLoginSuccessPage\": true,\n       \"appBrand\": \"chatgpt\"\n     }\n   }"} language="json" />
+
+默认情况下，成功的浏览器回调会重定向到本地成功页面。 设置 `useHostedLoginSuccessPage: true` 以在以下情况下使用托管成功页面： 不需要组织设置。启用托管成功后，`appBrand` 可以是 `"codex"` 或 `"chatgpt"`；省略或 `null` 值默认为 `"codex"`。
+
+<CodeBlock code={"   {\n     \"id\": 3,\n     \"result\": {\n       \"type\": \"chatgpt\",\n       \"loginId\": \"<uuid>\",\n       \"authUrl\": \"https://chatgpt.com/...&redirect_uri=http%3A%2F%2Flocalhost%3A<port>%2Fauth%2Fcallback\"\n     }\n   }"} language="json" />
+
+2.  在浏览器中打开`authUrl`；App Server托管本地回调。
+3.  等待通知：
+
+<CodeBlock code={"   {\n     \"method\": \"account/login/completed\",\n     \"params\": { \"loginId\": \"<uuid>\", \"success\": true, \"error\": null }\n   }"} language="json" />
+
+<CodeBlock code={"   {\n     \"method\": \"account/updated\",\n     \"params\": { \"authMode\": \"chatgpt\", \"planType\": \"plus\" }\n   }"} language="json" />
+
+### 3b) 使用 ChatGPT 登录（设备代码流程）
+
+当你的客户端拥有登录仪式或浏览器回调很脆弱时，请使用此流程。
+
+1.  开始：
+
+<CodeBlock code={"   {\n     \"method\": \"account/login/start\",\n     \"id\": 4,\n     \"params\": { \"type\": \"chatgptDeviceCode\" }\n   }"} language="json" />
+
+<CodeBlock code={"   {\n     \"id\": 4,\n     \"result\": {\n       \"type\": \"chatgptDeviceCode\",\n       \"loginId\": \"<uuid>\",\n       \"verificationUrl\": \"https://auth.openai.com/codex/device\",\n       \"userCode\": \"ABCD-1234\"\n     }\n   }"} language="json" />
+
+2.  向用户显示`verificationUrl`和`userCode`；前端拥有用户体验。
+3.  等待通知：
+
+<CodeBlock code={"   {\n     \"method\": \"account/login/completed\",\n     \"params\": { \"loginId\": \"<uuid>\", \"success\": true, \"error\": null }\n   }"} language="json" />
+
+<CodeBlock code={"   {\n     \"method\": \"account/updated\",\n     \"params\": { \"authMode\": \"chatgpt\", \"planType\": \"plus\" }\n   }"} language="json" />
+
+### 3c) 使用外部管理的 ChatGPT 代币登录 (`chatgptAuthTokens`)
+
+仅当主机应用拥有用户的 ChatGPT 身份验证生命周期并直接提供令牌时，才使用此实验模式。在使用此登录类型之前，客户端必须在 `initialize` 期间设置 `capabilities.experimentalApi = true`。
+
+1.  发送：
+
+<CodeBlock code={"   {\n     \"method\": \"account/login/start\",\n     \"id\": 7,\n     \"params\": {\n       \"type\": \"chatgptAuthTokens\",\n       \"accessToken\": \"<jwt>\",\n       \"chatgptAccountId\": \"org-123\",\n       \"chatgptPlanType\": \"business\"\n     }\n   }"} language="json" />
+
+2.  预计：
+
+<CodeBlock code={"   { \"id\": 7, \"result\": { \"type\": \"chatgptAuthTokens\" } }"} language="json" />
+
+3.  通知：
+
+<CodeBlock code={"   {\n     \"method\": \"account/login/completed\",\n     \"params\": { \"loginId\": null, \"success\": true, \"error\": null }\n   }"} language="json" />
+
+<CodeBlock code={"   {\n     \"method\": \"account/updated\",\n     \"params\": { \"authMode\": \"chatgptAuthTokens\", \"planType\": \"business\" }\n   }"} language="json" />
+
+当服务器收到 `401 Unauthorized` 时，它可能会从主机应用刷新 request 令牌：
+
+<CodeBlock code={"{\n  \"method\": \"account/chatgptAuthTokens/refresh\",\n  \"id\": 8,\n  \"params\": { \"reason\": \"unauthorized\", \"previousAccountId\": \"org-123\" }\n}\n{ \"id\": 8, \"result\": { \"accessToken\": \"<jwt>\", \"chatgptAccountId\": \"org-123\", \"chatgptPlanType\": \"business\" } }"} language="json" />
+
+服务器在成功刷新 response 后重试原始 request。请求大约 10 秒后超时。
+
+### 4) 取消ChatGPT登录
+
+<CodeBlock code={"{ \"method\": \"account/login/cancel\", \"id\": 4, \"params\": { \"loginId\": \"<uuid>\" } }\n{ \"method\": \"account/login/completed\", \"params\": { \"loginId\": \"<uuid>\", \"success\": false, \"error\": \"...\" } }"} language="json" />
+
+### 5) 退出
+
+<CodeBlock code={"{ \"method\": \"account/logout\", \"id\": 5 }\n{ \"id\": 5, \"result\": {} }\n{ \"method\": \"account/updated\", \"params\": { \"authMode\": null, \"planType\": null } }"} language="json" />
+
+### 6）速率限制（ChatGPT）
+
+<CodeBlock code={"{ \"method\": \"account/rateLimits/read\", \"id\": 6 }\n{ \"id\": 6, \"result\": {\n  \"rateLimits\": {\n    \"limitId\": \"codex\",\n    \"limitName\": null,\n    \"primary\": { \"usedPercent\": 25, \"windowDurationMins\": 15, \"resetsAt\": 1730947200 },\n    \"secondary\": null,\n    \"rateLimitReachedType\": null\n  },\n  \"rateLimitsByLimitId\": {\n    \"codex\": {\n      \"limitId\": \"codex\",\n      \"limitName\": null,\n      \"primary\": { \"usedPercent\": 25, \"windowDurationMins\": 15, \"resetsAt\": 1730947200 },\n      \"secondary\": null,\n      \"rateLimitReachedType\": null\n    },\n    \"codex_other\": {\n      \"limitId\": \"codex_other\",\n      \"limitName\": \"codex_other\",\n      \"primary\": { \"usedPercent\": 42, \"windowDurationMins\": 60, \"resetsAt\": 1730950800 },\n      \"secondary\": null,\n      \"rateLimitReachedType\": null\n    }\n  },\n  \"rateLimitResetCredits\": {\n    \"availableCount\": 2,\n    \"credits\": [{\n      \"id\": \"RateLimitResetCredit_1\",\n      \"resetType\": \"codexRateLimits\",\n      \"status\": \"available\",\n      \"grantedAt\": 1781654400,\n      \"expiresAt\": 1784246400,\n      \"title\": \"Rate-limit reset\",\n      \"description\": \"Reset an eligible Codex rate-limit window.\"\n    }]\n  }\n} }\n{ \"method\": \"account/rateLimits/updated\", \"params\": {\n  \"rateLimits\": {\n    \"limitId\": \"codex\",\n    \"primary\": { \"usedPercent\": 31, \"windowDurationMins\": 15, \"resetsAt\": 1730948100 }\n  }\n} }"} language="json" />
+
+现场笔记：
+
+-   `rateLimits` 是向后兼容的单桶视图。
+-   `rateLimitsByLimitId`（如果存在）是由计量的 `limit_id`（例如 `codex`）键入的多存储桶视图。
+-   `limitId` 是计量桶标识符。
+-   `limitName` 是存储桶的可选面向用户标签。
+-   `usedPercent` 是配额窗口内的当前使用情况。
+-   `windowDurationMins` 是配额窗口长度。
+-   `resetsAt` 是下次重置的 Unix 时间戳（秒）。
+-   当服务器返回与存储桶关联的 ChatGPT 计划时，会包含 `planType`。
+-   当服务器返回剩余工作区信用详细信息时，将包含 `credits`。
+-   `rateLimitReachedType` 标识达到服务器分类的限制状态。
+-   `rateLimitResetCredits` 包含服务提供时可用的赢得重置计数；否则为`null`。
+-   当仅知道计数时，`rateLimitResetCredits.credits` 是 `null`。空数组意味着服务获取了详细信息并且没有返回可用的积分。该服务可以限制详细信息行，因此 `availableCount` 具有权威性。
+-   每个详细信息行包括不透明的 `id`、`resetType`、`status`、`grantedAt`、`expiresAt`（可以是 `null`）、`title`（可以是 `null`）和 `description`（可以是`null`）。
+-   消耗复位后获取 `account/rateLimits/read`。
+
+### 7）代币使用（ChatGPT）
+
+使用 `account/usage/read` 获取 ChatGPT 代币活动摘要字段并 可选的日常桶。
+
+<CodeBlock code={"{ \"method\": \"account/usage/read\", \"id\": 7 }\n{ \"id\": 7, \"result\": {\n  \"summary\": {\n    \"lifetimeTokens\": 1234567,\n    \"peakDailyTokens\": 45678,\n    \"longestRunningTurnSec\": 540,\n    \"currentStreakDays\": 8,\n    \"longestStreakDays\": 14\n  },\n  \"dailyUsageBuckets\": [\n    { \"startDate\": \"2026-06-18\", \"tokens\": 12345 }\n  ]\n} }"} language="json" />
+
+现场笔记：
+
+-   当服务未返回该指标时，`summary` 值可能是 `null`。
+-   `dailyUsageBuckets`可能是`null`；当存在时，每个桶包括 `startDate` 和 `tokens`。
+-   端点需要 Codex 服务支持的身份验证。 ChatGPT， 外部 ChatGPT 令牌、智能体身份和个人访问令牌身份验证工作； 仅 API 密钥，而 Bedrock 身份验证则不然。
+
+### 8) 赚取速率限制重置(ChatGPT)
+
+使用 `account/rateLimitResetCredit/consume` 消耗一次获得的重置。
+
+<CodeBlock code={"{ \"method\": \"account/rateLimitResetCredit/consume\", \"id\": 8, \"params\": { \"idempotencyKey\": \"8ae96ff3-3425-4f4c-8772-b6fd61502868\", \"creditId\": \"RateLimitResetCredit_1\" } }\n{ \"id\": 8, \"result\": { \"outcome\": \"reset\" } }"} language="json" />
+
+现场笔记：
+
+-   `idempotencyKey` 必须非空。对每个逻辑兑换尝试使用 UUID，并在重试该尝试时重复使用相同的值。
+-   `creditId` 是可选的。当提供时，它必须是来自 `account/rateLimits/read` 的非空不透明 ID。省略时，服务会选择下一个可用积分。
+-   `reset` 表示积分已消耗。
+-   `alreadyRedeemed` 表示之前完成的相同兑换。将其视为幂等成功并刷新帐户限制。
+-   `nothingToReset` 表示没有符合条件的速率限制窗口可以重置。
+-   `noCredit` 表示该帐户没有可用的重置积分。
+-   使用重置后获取 `account/rateLimits/read`，而不是从此 response 推断更新的窗口。
+
+### 9) 通知工作区所有者有关限制
+
+使用 `account/sendAddCreditsNudgeEmail` 要求 ChatGPT 在积分耗尽或达到使用限制时向工作区所有者发送电子邮件。
+
+<CodeBlock code={"{ \"method\": \"account/sendAddCreditsNudgeEmail\", \"id\": 9, \"params\": { \"creditType\": \"credits\" } }\n{ \"id\": 9, \"result\": { \"status\": \"sent\" } }"} language="json" />
+
+当工作区积分耗尽时使用 `creditType: "credits"`，或者当达到工作区使用限制时使用 `creditType: "usage_limit"`。如果最近已通知所有者，则 response 状态为 `cooldown_active`。
+
+### 10）工作区消息（ChatGPT）
+
+使用 `account/workspaceMessages/read` 获取当前的活动消息 工作区，包括 notification 标题（如果有）。
+
+<CodeBlock code={"{ \"method\": \"account/workspaceMessages/read\", \"id\": 10 }\n{ \"id\": 10, \"result\": { \"featureEnabled\": true, \"messages\": [\n  { \"messageId\": \"msg_123\", \"messageType\": \"headline\", \"messageBody\": \"Workspace maintenance starts at 5pm.\", \"createdAt\": 1781395200, \"archivedAt\": null }\n] } }"} language="json" />

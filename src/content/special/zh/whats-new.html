@@ -1,0 +1,154 @@
+<header class="docs-page-header"> <h1>最新动态</h1> <p>每周汇总可能改变你工作方式的 ChatGPT 和 Codex 功能</p> </header> <div class="docs-changelog"> <div class="docs-changelog__preamble doc-content"><p>本周报聚焦可能改变工作方式的 ChatGPT 和 Codex 功能，并提供示例与延伸阅读。所有带版本号的更新、Bug 修复和细节改进，请参阅 <a href="/docs/changelog">Codex changelog</a>。</p></div> <section class="docs-changelog__section doc-content" aria-labelledby="2026-年-7-月-2731-日"> <h2 id="2026-年-7-月-2731-日">2026 年 7 月 27–31 日</h2> <div><h3 id="以更低费率使用-gpt-56-terra-和-luna">以更低费率使用 GPT-5.6 Terra 和 Luna</h3>
+<p>GPT-5.6 Terra 的费用现已降低 20%，GPT-5.6 Luna 则降低 80%；输入、缓存输入和输出费率都按相同比例下调。更新后的<a href="/docs/pricing">用量限制与费率</a>让 Terra 更适合日常工作，也让 Luna 尤其适合聚焦的编码任务和高吞吐工作。</p>
+<h3 id="从浏览器和已打开标签页查找有用上下文">从浏览器和已打开标签页查找有用上下文</h3>
+<p>在 ChatGPT 桌面 App 中，<a href="/docs/browser">内置浏览器</a>可以从浏览历史中查找页面，也可以直接从地址栏搜索 Google。当任务需要先前的上下文时，ChatGPT 还可以请求搜索你的浏览历史。</p>
+<p><a href="/docs/chrome-extension">Chrome extension</a> 允许你提及已打开的标签页，把页面中选中的文本带入 side chat，询问 YouTube 视频内容，或从页面右键菜单选择 <strong>Ask ChatGPT</strong>。ChatGPT 把浏览历史纳入任务前，请先评审并批准相关请求。</p>
+<h3 id="跨多个仓库评审改动">跨多个仓库评审改动</h3>
+<p>当<a href="/docs/projects#use-local-projects-for-folders-and-codebases">本地项目包含多个文件夹</a>时，桌面 App 会显示每个仓库及其中修改的行。选择 <strong>Review（评审）</strong>，即可集中检查这些 diff，无需在多个独立评审视图之间切换。</p>
+<p><strong>提示词：</strong></p>
+<pre class="shiki shiki-themes github-light github-dark code-copy-host has-copy-button" style="background-color:#fff;--shiki-dark-bg:#24292e;color:#24292e;--shiki-dark:#e1e4e8" data-language="text" data-copy-ready="true"><button type="button" class="code-copy-button" data-state="idle" aria-label="复制代码" title="复制代码"></button><code class="language-text"><span class="line"><span>Review the changes across every repository in this project, identify integration risks, and summarize the fixes needed before I open a pull request.</span></span></code></pre><h3 id="在聊天中继续完善生成的图片">在聊天中继续完善生成的图片</h3>
+<p>在扩展查看器中打开生成的图片，然后在 <strong>Focused view（聚焦视图）</strong> 与 <strong>Canvas view（画布视图）</strong> 之间切换。你可以为多张图片添加评论，选择想保留的版本，并直接在聊天中要求有针对性的修改。详情见<a href="/docs/image-generation">图像生成</a>。</p>
+<h3 id="找到需要关注的聊天">找到需要关注的聊天</h3>
+<p>桌面 App 新增的 <strong>Activity view（活动视图）</strong> 会集中显示最近参与过的聊天和需要关注的工作。选择侧边栏中的铃铛即可打开。</p>
+<p><a href="/docs/changelog#codex-2026-07-30-app">阅读 7 月 30 日桌面端发布说明</a>。</p>
+<h3 id="使用-sign-in-with-chatgpt-连接合作伙伴工具">使用 Sign in with ChatGPT 连接合作伙伴工具</h3>
+<p><strong>Sign in with ChatGPT</strong> 正在面向受支持的 plugins 和合作伙伴网站逐步推出 beta 版，首批包括 Airtable、GitLab、HubSpot、Notion、Supabase 和 Vercel。你可以用更少步骤创建或关联合作伙伴账号，然后在 ChatGPT 或 Codex 中使用相应服务。</p>
+<p>合作伙伴只会在相关信息可用时收到你的姓名、电子邮件地址和头像。每个 plugin 请求的访问权限仍需单独评审和批准。详情见<a href="/docs/changelog#codex-2026-07-29">7 月 29 日登录功能公告</a>。</p>
+<h3 id="在专用学术研究工作区中协作">在专用学术研究工作区中协作</h3>
+<p><a href="https://openai.com/index/chatgpt-for-academic-researchers/">ChatGPT for Academic Researchers</a> 为符合条件的教师和博士后研究人员提供 12 个月免费的专用 ChatGPT 工作区访问。获批团队最多可以包含同一机构中五名通过验证的研究人员，并享有企业数据保护以及 ChatGPT Pro 级用量限制。参与者可以在 ChatGPT、ChatGPT Work 和 Codex 中使用 GPT-5.6 完成研究与编码工作流。</p>
+<p>该计划提供 ChatGPT 访问权限，不包含 OpenAI API credits。申请资格要求通过<a href="https://help.openai.com/en/articles/20001406">机构验证，并提供符合条件的研究论文</a>。</p>
+<h3 id="在-ios-上更可靠地继续-codex-任务">在 iOS 上更可靠地继续 Codex 任务</h3>
+<p>ChatGPT for iOS 1.2026.202 提高了重新连接任务的可靠性：返回 App 或通过 Face ID 解锁设备时，任务恢复更加稳定。语音聊天会使用你选择的 ChatGPT voice，并显示用量限制提醒；输入框现在也会与桌面 App 一致地推荐已安装 plugins 及其 skills。</p>
+<p>本次发布还改进了目标的暂停与恢复控制、行内表格与视觉主题、大型工作区 diff、所选文本引用和模型恢复。详情见<a href="/docs/changelog#codex-2026-07-27-mobile">7 月 27 日 iOS 发布说明</a>。</p>
+<h3 id="比较安全扫描并管理发现">比较安全扫描并管理发现</h3>
+<p>托管 Codex Security plugin 的 <code>0.1.14</code> 和 <code>0.1.15</code> 版本新增扫描比较、误报反馈、限定范围的 <code>SECURITY.md</code> 策略，以及更清晰的仓库与发现历史。你可以选择要在 Linear 或 GitHub Issues 中跟踪的发现；批准前，Codex 会先评审拟执行的操作。</p>
+<p>继续使用现有的 <a href="/docs/security/plugin/workbench">Codex Security workbench</a>，即可在桌面 App 中检查保存的扫描、发现、仓库历史和修复进度。托管 plugin catalog 提供 <code>0.1.15</code>，公开 CLI plugin marketplace 则提供 <code>0.1.11</code>。依赖新功能前，请检查 <a href="/docs/security/plugin/changelog">Codex Security plugin changelog</a>。</p>
+<h3 id="从终端ci-或-typescript-运行安全扫描">从终端、CI 或 TypeScript 运行安全扫描</h3>
+<p>公开的 <code>@openai/codex-security</code> CLI 和 TypeScript SDK 已升级至 <code>0.1.5</code>，其版本号与 Codex Security plugin 相互独立。你可以使用该软件包<a href="/docs/security/cli">从 CLI 运行扫描</a>，在 <a href="/docs/security/cli/ci">CI</a> 中评审 pull request 改动并上传 SARIF 结果，或对 GitHub 仓库或固定 CSV 清单运行可恢复的<a href="/docs/security/cli/bulk-scans">批量扫描</a>。</p>
+<p><a href="/docs/security/sdk">Codex Security TypeScript SDK</a> 还允许你在自己的工具中集成扫描、进度报告、成本控制和取消操作。软件包本身是公开的，但运行扫描仍需要 Codex Security 访问权限。部分完整仓库扫描还要求 Trusted Access for Cyber。</p>
+<h3 id="组织-session-并扩展-codex-cli-01460">组织 session 并扩展 Codex CLI 0.146.0</h3>
+<p><a href="https://github.com/openai/codex/releases/tag/rust-v0.146.0">Codex CLI 0.146.0</a> 允许使用 <code>/new release prep</code> 或 <code>/clear bug bash</code> 为新聊天命名、置顶重要 thread，并在不关闭 side conversation 的情况下切换。它还新增临时聊天 fork、面向兼容自定义模型提供商的独立 Web 搜索、由 executor 提供的 skills，以及 Agent Plugins manifests、工作区 plugin 发布和其他 plugin marketplaces 支持。</p>
+<p>对于自定义客户端，<a href="/docs/app-server">app server</a> 现在可以筛选已置顶 thread、创建内存内 fork、检查已安装连接器状态并读取连接器 metadata。实验性 WebSocket 支持还可以让 app-server 连接远程 Code Mode host。开放远程连接前，请先检查 <a href="/docs/app-server#connect-the-cli-terminal-ui">app-server 安全要求</a>。本次发布还改进了代理支持、MCP 重连、终端响应速度和 Windows 沙箱可靠性。</p>
+<h3 id="在托管-codex-工作中使用-gpt-56-sol">在托管 Codex 工作中使用 GPT-5.6 Sol</h3>
+<p><a href="/docs/models#recommended-models">GPT-5.6 Sol</a> 现已为符合条件的客户提供 Codex 云端代码评审与质量保障能力。Sol 是 GPT-5.6 系列面向复杂编码、研究、Computer Use 和安全工作的旗舰模型。Codex 云端会自动选择模型；Terra 和 Luna 仍可在受支持的本地与 Web 入口中使用。</p>
+<h3 id="为-gpt-54-模型退役做好准备">为 GPT-5.4 模型退役做好准备</h3>
+<p>8 月 31 日起，使用 ChatGPT 登录的用户将无法继续在 Codex 中使用 GPT-5.4 和 GPT-5.4 mini。请在工作区默认值、已保存模型设置、托管配置、自定义智能体和计划任务中，把 <code>gpt-5.4</code> 替换为 <code>gpt-5.6-terra</code>，把 <code>gpt-5.4-mini</code> 替换为 <code>gpt-5.6-luna</code>。</p>
+<p>OpenAI API 和使用 API key 认证的 Codex session 不受影响。请在截止日期前检查<a href="/docs/models#deprecated-codex-models">已弃用 Codex 模型</a>和<a href="/docs/enterprise/workspace-model-availability">工作区模型可用性</a>。</p></div> </section><section class="docs-changelog__section doc-content" aria-labelledby="2026-年-7-月-2024-日"> <h2 id="2026-年-7-月-2024-日">2026 年 7 月 20–24 日</h2> <div><h3 id="使用-chatgpt-voice-边说边推进工作">使用 ChatGPT Voice 边说边推进工作</h3>
+<p>由 GPT-Live 驱动的 <a href="/docs/features/voice">ChatGPT Voice</a> 允许你在 ChatGPT 桌面 App 的 Chat、Work 和 Codex 中通过语音讨论工作并协调任务。进入语音模式开始新聊天或任务后，可以让 ChatGPT 启动、检查或调整其他对话线程中的工作。</p>
+<p>在 macOS 上开启 <strong>Screen context（屏幕上下文）</strong> 后，说出 “Take a look at this”，即可分享最前方窗口的 <a href="/docs/appshots">appshot</a>。</p>
+<p>Plus、Pro、Business、Edu 和 Enterprise 套餐都可在桌面 App 中使用 Voice，也可通过 <a href="/docs/remote-connections#set-up-mobile-access">iOS 版 Remote</a> 使用。</p>
+<h3 id="在一个本地项目中使用多个文件夹">在一个本地项目中使用多个文件夹</h3>
+<p>ChatGPT 桌面 App 的本地项目现在可以包含多个相关文件夹。你可以指定主文件夹，用于新聊天、Git 操作，以及自动发现 <code>AGENTS.md</code>、skills 和 <code>config.toml</code>；辅助文件夹仍可用于搜索、读取和编辑文件。</p>
+<p>打开 <strong>Edit project（编辑项目）</strong>，即可<a href="/docs/projects#use-local-projects-for-folders-and-codebases">添加文件夹并选择主文件夹</a>。</p>
+<p><a href="/docs/changelog#codex-2026-07-23-app">阅读 7 月 23 日发布说明</a>。</p></div> </section><section class="docs-changelog__section doc-content" aria-labelledby="2026-年-7-月-1317-日"> <h2 id="2026-年-7-月-1317-日">2026 年 7 月 13–17 日</h2> <div><h3 id="在桌面端统一管理-work-对话与-projects">在桌面端统一管理 Work 对话与 Projects</h3>
+<p>ChatGPT 桌面 App 现在会在 ChatGPT 视图中统一显示 Chat 和 Work 对话。云端 Work 对话会在 Web、移动端和桌面端同步；本地 Work 对话仍保留在你的电脑上。ChatGPT Projects 也已进入桌面 App。Codex 则继续保留专属视图，以及面向开发者工作流的独立历史记录。</p>
+<p>通过<a href="/docs/use-chatgpt#compare-chatgpt-work-and-codex-on-desktop">比较桌面端 ChatGPT Work 与 Codex</a>，选择更适合当前任务的视图。</p>
+<pre class="shiki shiki-themes github-light github-dark code-copy-host has-copy-button" style="background-color:#fff;--shiki-dark-bg:#24292e;color:#24292e;--shiki-dark:#e1e4e8" data-language="text" data-copy-ready="true"><button type="button" class="code-copy-button" data-state="idle" aria-label="复制代码" title="复制代码"></button><code class="language-text"><span class="line"><span>Open the Launch project, review its files and recent conversations, and continue the launch plan from the latest Work conversation.</span></span></code></pre><h3 id="使用-codex-micro-控制并行-codex-工作">使用 Codex Micro 控制并行 Codex 工作</h3>
+<p>7 月 15 日，OpenAI 与 Work Louder 推出限量版实体控制器 <a href="/docs/features/codex-micro">Codex Micro</a>，用于控制 ChatGPT 桌面 App 中的 Codex。Agent Keys 可显示最多六个聊天的状态并在它们之间切换；可自定义 Command Keys、摇杆和旋钮则能触发常用操作或 skills、启动按键说话，并在不离开键盘的情况下调整推理强度。</p>
+<h3 id="通过-amazon-bedrock-使用-gpt-56">通过 Amazon Bedrock 使用 GPT-5.6</h3>
+<p>GPT-5.6 Sol、Terra 和 Luna 已通过 Amazon Bedrock 正式提供。ChatGPT Work 与 Codex 的本地界面可以使用内建 <a href="/docs/amazon-bedrock"><code>amazon-bedrock</code> provider</a>，通过 Bedrock API key 或 AWS SDK 凭据链连接。支持范围包括 ChatGPT 桌面 App 中的 Work 与 Codex、Codex CLI、IDE 扩展和 Codex SDK。</p>
+<h3 id="在-ios-上查看-codex-任务可视化">在 iOS 上查看 Codex 任务可视化</h3>
+<p>ChatGPT for iOS 1.2026.188 为 Codex 任务加入行内可视化，并改进了从对话创建和管理任务的体验，包括更可靠的新任务链接。详情参见 <a href="/docs/changelog#codex-2026-07-13-mobile">7 月 13 日 iOS 发布说明</a>。</p></div> </section><section class="docs-changelog__section doc-content" aria-labelledby="2026-年-7-月-610-日"> <h2 id="2026-年-7-月-610-日">2026 年 7 月 6–10 日</h2> <div><h3 id="take-on-ambitious-work-with-chatgpt-work">在 ChatGPT 中完成更有挑战性的工作</h3>
+<p>ChatGPT 中的 <a href="/docs/get-started-with-work">ChatGPT Work</a> 可以从文件和 <a href="/docs/plugins">plugins</a> 收集上下文、跨工作流采取行动，并创建可评审的文档、演示文稿、电子表格、Sites 和其他成品。它由 <a href="/docs/models">GPT-5.6</a> 驱动，可以把目标拆成步骤并连续工作数小时；期间你可以跟踪进度、回答问题、调整方向并批准重要操作。</p>
+<p><a href="/docs/automations">定时任务</a>可以在你离开时继续推进工作，支持单次运行、按计划运行、事件触发或持续监控变化。</p>
+<pre class="shiki shiki-themes github-light github-dark code-copy-host has-copy-button" style="background-color:#fff;--shiki-dark-bg:#24292e;color:#24292e;--shiki-dark:#e1e4e8" data-language="text" data-copy-ready="true"><button type="button" class="code-copy-button" data-state="idle" aria-label="复制代码" title="复制代码"></button><code class="language-text"><span class="line"><span>Create a launch brief from the attached research and campaign template. Show me the plan and flag missing information before you build the final document, then adapt the approved brief into assets for three markets.</span></span></code></pre><h3 id="选择合适的-gpt-56-模型">选择合适的 GPT-5.6 模型</h3>
+<p><a href="/docs/models#recommended-models">GPT-5.6 系列</a>为 ChatGPT Work、ChatGPT 桌面 App、Codex CLI 和 Codex IDE 扩展提供三款推荐模型。Sol 是复杂编码、Computer Use、研究和安全工作的旗舰模型；Terra 在能力与成本之间取得平衡，适合日常工作；Luna 速度最快、成本最低。默认 <strong>Power</strong> 设置使用中等推理强度的 Sol。</p>
+<h3 id="在-chatgpt-桌面应用中使用-codex">在 ChatGPT 桌面应用中使用 Codex</h3>
+<p>7 月 9 日，Codex App 已合并到 macOS 和 Windows 的新版 <a href="/docs/app">ChatGPT 桌面 App</a>。Codex 与 ChatGPT 的 Chat 和 Work 并列，继续提供专门的编码体验，包括在 diff 中直接编辑、在侧边面板评审 pull request、由 GPT-5.6 驱动的更快 <a href="/docs/computer-use">Computer Use</a>，以及多仓库项目。</p>
+<p>现有 Codex App 用户可以照常更新。你可以把 Codex 设为默认视图、使用 Codex logo 作为应用图标，并从 ChatGPT 移动应用访问桌面端 Codex 项目。新版桌面应用面向全球所有 ChatGPT 套餐提供，包括 Free。</p></div> </section><section class="docs-changelog__section doc-content" aria-labelledby="2026-年-6-月-1519-日"> <h2 id="2026-年-6-月-1519-日">2026 年 6 月 15–19 日</h2> <div><h3 id="把演示过的工作流变成可复用-skills">把演示过的工作流变成可复用 skills</h3>
+<p><a href="/docs/extend/record-and-replay">Record &amp; Replay</a> 允许你在 macOS 上向 Codex 演示工作流，并把演示转换成可复用 skill。对于容易演示但不易描述的重复任务，可以先生成 skill，再继续完善并使用新输入重放。首批可用范围不包括欧洲经济区、英国和瑞士，并且需要 Computer Use。</p>
+<h3 id="continue-a-task-on-another-host">在另一台主机上继续聊天</h3>
+<p><a href="/docs/remote-connections#hand-off-a-chat-between-hosts">聊天交接</a>可以在本地电脑和已连接远程主机之间移动聊天及其 Git 状态。Codex 可以在目标端创建或复用工作树、传输聊天，并从对应项目继续工作。</p>
+<p>同一桌面版本还为定时运行历史加入批量操作，可以把全部运行标为已读，或一起归档符合条件的运行。</p>
+<h3 id="从-ios-浏览和评审工作区">从 iOS 浏览和评审工作区</h3>
+<p>ChatGPT 移动应用的 <strong>Remote</strong> 在 iOS 上加入工作区文件浏览器、新聊天目录选择器、diff 展开与折叠控件，以及按聊天或跨聊天选择 MCP 审批的能力。</p>
+<p>Computer Use、Chrome extension、Memories 和 Chronicle 也开始向欧洲经济区、英国和瑞士推出。Memories 在这些地区仍默认关闭；Chronicle 是面向 macOS ChatGPT Pro 订阅者的可选研究预览。</p>
+<p>参阅 <a href="/docs/changelog#codex-2026-06-15-mobile">6 月 15 日 iOS</a>、<a href="/docs/changelog#codex-2026-06-16-app">6 月 16 日可用性</a>和<a href="/docs/changelog#codex-2026-06-18-app">6 月 18 日 App</a> 发布说明。</p></div> </section><section class="docs-changelog__section doc-content" aria-labelledby="2026-年-6-月-812-日"> <h2 id="2026-年-6-月-812-日">2026 年 6 月 8–12 日</h2> <div><h3 id="使用-browser-developer-mode-调试-web-应用">使用 Browser Developer mode 调试 Web 应用</h3>
+<p><a href="/docs/browser?surface=app#app-developer-mode">Developer mode</a> 让 Codex 以受控方式访问 Chrome 和内置浏览器的 Chrome DevTools Protocol 能力。分析或调试应用时，Codex 可以检查网络流量、控制台输出、运行时错误和页面状态。在 <strong>Settings &gt; Browser &gt; Developer mode（设置 &gt; 浏览器 &gt; 开发者模式）</strong> 中启用 <strong>Enable full CDP access</strong>。Codex 在网站上使用该权限前会请求明确批准。</p>
+<p>CDP 与 DOM 快照优化减少了浏览器往返次数，Browser Use 速度最高可提升一倍。</p>
+<figure class="doc-screenshot" style="--doc-screenshot-max-height: 420px">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="/images/codex/app/browser-developer-mode-dark.webp">
+    <img src="/images/codex/app/browser-developer-mode-dark.webp" alt="ChatGPT 界面截图：已启用 Developer mode 的 Codex Browser 设置" loading="lazy" decoding="async" data-docs-light-src="/images/codex/app/browser-developer-mode-light.webp">
+  </picture>
+</figure>
+
+<pre class="shiki shiki-themes github-light github-dark code-copy-host has-copy-button" style="background-color:#fff;--shiki-dark-bg:#24292e;color:#24292e;--shiki-dark:#e1e4e8" data-language="text" data-copy-ready="true"><button type="button" class="code-copy-button" data-state="idle" aria-label="复制代码" title="复制代码"></button><code class="language-text"><span class="line"><span>Use @Browser to reproduce the slow checkout. Inspect the network timing and console errors, fix the cause, and verify the result.</span></span></code></pre><h3 id="把现有设置带入-codex">把现有设置带入 Codex</h3>
+<p>新的迁移流程可以在初始设置期间导入其他编码智能体支持的设置。Codex App 还加入 <code>/init</code>，用于创建项目指令，并改进了 plugin 管理、浏览器诊断和已完成聊天摘要。</p>
+<h3 id="set-up-codex-tasks-from-ios">从 iOS 设置 Codex 聊天</h3>
+<p>iOS 版 Remote 现在可以选择分支、创建工作树、运行环境设置脚本、管理目标并添加行内评审评论。</p>
+<p>参阅 <a href="/docs/changelog#codex-2026-06-09-app">6 月 9 日 App</a>、<a href="/docs/changelog#codex-2026-06-09-mobile">6 月 9 日 iOS</a>和<a href="/docs/changelog#codex-2026-06-11-app">6 月 11 日 App</a> 发布说明。</p></div> </section><section class="docs-changelog__section doc-content" aria-labelledby="2026-年-6-月-15-日"> <h2 id="2026-年-6-月-15-日">2026 年 6 月 1–5 日</h2> <div><h3 id="使用-sites-构建和部署网站">使用 Sites 构建和部署网站</h3>
+<p><a href="/docs/sites">Sites</a> 让 ChatGPT 创建、保存、部署和检查由 OpenAI 托管的网站、仪表盘、内部工具、Web 应用和游戏。ChatGPT Web 和桌面端都有独立 Sites 入口，可以返回项目并管理托管环境变量和机密信息，无需自行组装部署栈。</p>
+<pre class="shiki shiki-themes github-light github-dark code-copy-host has-copy-button" style="background-color:#fff;--shiki-dark-bg:#24292e;color:#24292e;--shiki-dark:#e1e4e8" data-language="text" data-copy-ready="true"><button type="button" class="code-copy-button" data-state="idle" aria-label="复制代码" title="复制代码"></button><code class="language-text"><span class="line"><span>Build a responsive launch dashboard from this project with Sites. Validate it at mobile and desktop sizes, then save a version for review. Do not deploy it until I approve the saved version.</span></span></code></pre><h3 id="通过-amazon-bedrock-使用-codex">通过 Amazon Bedrock 使用 Codex</h3>
+<p>你可以<a href="/docs/amazon-bedrock">通过 Amazon Bedrock 使用 Codex</a>，在本地工作流中使用 AWS 管理的认证、账户控制和计费。iOS 版 Remote 还增加可选应用锁、后续行为设置、diff 自动换行，以及到 Windows 设备的 SSH 连接。桌面应用则加入终端位置控制和配置档案视图中的活动洞察。</p>
+<p><a href="/docs/changelog#month-2026-06">阅读 2026 年 6 月全部发布说明</a>。</p></div> </section><section class="docs-changelog__section doc-content" aria-labelledby="2026-年-5-月-2529-日"> <h2 id="2026-年-5-月-2529-日">2026 年 5 月 25–29 日</h2> <div><h3 id="使用-windows-应用并远程控制-codex">使用 Windows 应用并远程控制 Codex</h3>
+<p><a href="/docs/computer-use#windows-foreground-use">Computer Use</a> 新增查看、点击和输入 Windows 桌面应用的能力。开始前需要安装 Computer Use plugin。在 Windows 上，Codex 使用活动桌面，并在任务运行期间接管前台。远程连接也支持 Windows：在 ChatGPT 移动应用中打开 <strong>Remote</strong>，可以在 Windows 设备上启动工作；也可以连接运行 ChatGPT 桌面应用的 Mac，在其他位置查看进度。</p>
+<pre class="shiki shiki-themes github-light github-dark code-copy-host has-copy-button" style="background-color:#fff;--shiki-dark-bg:#24292e;color:#24292e;--shiki-dark:#e1e4e8" data-language="text" data-copy-ready="true"><button type="button" class="code-copy-button" data-state="idle" aria-label="复制代码" title="复制代码"></button><code class="language-text"><span class="line"><span>Use @Computer to open the Windows app, reproduce the export failure, save a diagnostic file, and summarize the exact steps that trigger the problem.</span></span></code></pre><p>iOS 版 Remote 还加入 Spotlight 与 Shortcuts 入口、归档聊天浏览、<code>/side</code>，以及保存或复制渲染图片的选项。桌面应用加入本地项目与工作树之间的聊天协调、按内容和分支名搜索旧聊天，以及后台子智能体的一致视觉标识。</p>
+<p>参阅 <a href="/docs/changelog#codex-2026-05-25-mobile">5 月 25 日 iOS</a>和<a href="/docs/changelog#codex-2026-05-28-app">5 月 29 日 App</a> 发布说明。</p></div> </section><section class="docs-changelog__section doc-content" aria-labelledby="2026-年-5-月-1822-日"> <h2 id="2026-年-5-月-1822-日">2026 年 5 月 18–22 日</h2> <div><h3 id="使用-appshots-从任意-mac-应用向-codex-提供上下文">使用 Appshots 从任意 Mac 应用向 Codex 提供上下文</h3>
+<p>同时按下左右 Command 键时，<a href="/docs/appshots">Appshots</a> 会把最前方应用窗口的截图和可用文本发送给 Codex。Codex 可以直接获得设计工具、仪表盘、文档和其他应用中的工作上下文，无需你复制、粘贴或用文字描述屏幕内容。</p>
+<pre class="shiki shiki-themes github-light github-dark code-copy-host has-copy-button" style="background-color:#fff;--shiki-dark-bg:#24292e;color:#24292e;--shiki-dark:#e1e4e8" data-language="text" data-copy-ready="true"><button type="button" class="code-copy-button" data-state="idle" aria-label="复制代码" title="复制代码"></button><code class="language-text"><span class="line"><span>Use this appshot as the visual reference. Match the selected screen in the app, then open a preview and compare spacing, typography, and color.</span></span></code></pre><h3 id="持续推进长期目标">持续推进长期目标</h3>
+<p><a href="/docs/prompting#goal-mode">Goal mode</a> 已结束实验状态，可在 Codex App、IDE 扩展和 CLI 中用于耗时数小时或数天的目标。<a href="/docs/computer-use#locked-use">Locked use</a> 允许 Mac 锁定后继续执行已批准的 Computer Use 工作，包括通过 ChatGPT 移动应用中的 <strong>Remote</strong> 继续。ChatGPT Business 工作区还可以<a href="/docs/build-plugins#share-a-local-plugin-with-your-workspace">向工作区成员共享可复用的 plugin 组合包</a>。</p>
+<p><a href="/docs/changelog#codex-2026-05-21">阅读 5 月 21 日发布说明</a>。</p></div> </section><section class="docs-changelog__section doc-content" aria-labelledby="2026-年-5-月-1115-日"> <h2 id="2026-年-5-月-1115-日">2026 年 5 月 11–15 日</h2> <div><h3 id="从移动端继续桌面工作">从移动端继续桌面工作</h3>
+<p>ChatGPT 移动应用中的 <strong>Remote</strong> 可以连接到运行 ChatGPT 桌面应用的 Mac。由于工作仍在连接的主机上运行，从手机继续时，项目、文件、凭据、plugins、skills 和配置仍然可用。参阅<a href="/docs/remote-connections">远程连接</a>，设置主机并从另一台设备继续工作。</p>
+<h3 id="自动化可信工作流">自动化可信工作流</h3>
+<p>Hooks 已正式可用，可以在智能体生命周期的关键节点运行自定义命令。ChatGPT Enterprise 管理员还可以为可信脚本、调度器和私有 CI 运行器启用 <a href="/docs/enterprise/access-tokens">Codex access tokens</a>。企业指南也扩展了 Codex 的受管理设置与控制说明。</p>
+<p><a href="/docs/changelog#codex-2026-05-13-app">阅读 5 月 14 日发布说明</a>。</p></div> </section><section class="docs-changelog__section doc-content" aria-labelledby="2026-年-5-月-48-日"> <h2 id="2026-年-5-月-48-日">2026 年 5 月 4–8 日</h2> <div><h3 id="通过-chrome-extension-跨标签页工作">通过 Chrome extension 跨标签页工作</h3>
+<p><a href="/docs/chrome-extension">Chrome extension</a> 可以在后台并行处理多个标签页，而不接管浏览器。你可以控制 Codex 能访问哪些网站，因此可以在一个任务中组合跨 Web 应用的研究、数据录入和验证。</p>
+<pre class="shiki shiki-themes github-light github-dark code-copy-host has-copy-button" style="background-color:#fff;--shiki-dark-bg:#24292e;color:#24292e;--shiki-dark:#e1e4e8" data-language="text" data-copy-ready="true"><button type="button" class="code-copy-button" data-state="idle" aria-label="复制代码" title="复制代码"></button><code class="language-text"><span class="line"><span>Compare the open product pages, collect the plan limits in a table, cite each source tab, and flag any differences that need a manual check.</span></span></code></pre><p>Codex App 还加入听写清理，以及用于姓名、文件路径和代码符号的自定义词典。ChatGPT Enterprise 工作区所有者可以允许成员创建 <a href="/docs/enterprise/access-tokens">Codex access tokens</a>，用于可信、非交互式本地工作流。</p>
+<p>参阅 <a href="/docs/changelog#codex-2026-05-05-app">5 月 5 日 App</a>、<a href="/docs/changelog#codex-2026-05-05">5 月 5 日 access token</a>和 <a href="/docs/changelog#codex-2026-05-07">Codex for Chrome</a>发布说明。</p></div> </section><section class="docs-changelog__section doc-content" aria-labelledby="2026-年-4-月-2024-日"> <h2 id="2026-年-4-月-2024-日">2026 年 4 月 20–24 日</h2> <div><h3 id="使用-gpt-55-处理复杂工作">使用 GPT-5.5 处理复杂工作</h3>
+<p><a href="/docs/models">GPT-5.5</a> 进入 Codex，成为多数任务的推荐模型，擅长实现、调试、测试、Computer Use、研究和知识工作成品交付。</p>
+<h3 id="让-codex-操作浏览器并评审审批请求">让 Codex 操作浏览器并评审审批请求</h3>
+<p><a href="/docs/browser?surface=app#app-computer-use-in-the-browser">内置浏览器中的 Computer Use</a> 允许 Codex 点击本地开发服务器和基于文件的页面，以复现问题并验证修复。符合条件的审批请求也可以经过<a href="/docs/sandboxing/auto-review">自动审批评审</a>，在操作执行前显示评审状态和风险。</p>
+<pre class="shiki shiki-themes github-light github-dark code-copy-host has-copy-button" style="background-color:#fff;--shiki-dark-bg:#24292e;color:#24292e;--shiki-dark:#e1e4e8" data-language="text" data-copy-ready="true"><button type="button" class="code-copy-button" data-state="idle" aria-label="复制代码" title="复制代码"></button><code class="language-text"><span class="line"><span>Use @Browser to open the local app, reproduce the checkout failure, fix it, and verify the flow end to end.</span></span></code></pre><p><a href="/docs/changelog#codex-2026-04-23">阅读 4 月 23 日发布说明</a>。</p></div> </section><section class="docs-changelog__section doc-content" aria-labelledby="2026-年-4-月-1317-日"> <h2 id="2026-年-4-月-1317-日">2026 年 4 月 13–17 日</h2> <div><h3 id="在一个位置预览并操作工作成果">在一个位置预览并操作工作成果</h3>
+<p><a href="/docs/browser?surface=app">内置浏览器</a>加入实时预览和页面评论；<a href="/docs/computer-use">Computer Use</a> 则让 Codex 查看和操作 macOS 应用。两者结合后，视觉实现和端到端验证可以与代码改动在同一任务中完成。</p>
+<figure class="doc-screenshot" style="--doc-screenshot-max-height: 420px">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="/images/codex/app/in-app-browser-dark.webp">
+    <img src="/images/codex/app/in-app-browser-dark.webp" alt="ChatGPT 界面截图：在内置浏览器中打开本地 Web 页面" loading="lazy" decoding="async" data-docs-light-src="/images/codex/app/in-app-browser-light.webp">
+  </picture>
+</figure>
+
+<h3 id="start-with-a-task-and-keep-it-moving">从聊天开始并持续推进</h3>
+<p><a href="/docs/projects#start-without-a-project">独立聊天</a>允许你不选择项目文件夹就开始工作。同一版本还加入<a href="/docs/automations#schedule-a-task-inside-a-chat">在聊天中安排任务</a>、pull request 上下文、更丰富的文件预览，以及支持跨聊天工作的 <a href="/docs/customization/memories">Memories</a>。</p>
+<p><a href="/docs/changelog#codex-2026-04-16-app">阅读 4 月 16 日 Codex App 发布说明</a>。</p></div> </section><section class="docs-changelog__section doc-content" aria-labelledby="2026-年-4-月-610-日"> <h2 id="2026-年-4-月-610-日">2026 年 4 月 6–10 日</h2> <div><h3 id="在应用中评审并交付-pull-request">在应用中评审并交付 pull request</h3>
+<p>评审体验加入可折叠行内评论、<strong>Inline（行内）</strong> 和 <strong>Detached（分离）</strong> 评审模式，以及更清晰的 Git 和来源上下文。随后，pull request 活动、评论和推送选项也进入应用，并与工作区文件标签页并列，因此无需切换工具即可检查改动并回应反馈。</p>
+<p>参阅 <a href="/docs/changelog#codex-2026-04-09-app">4 月 9 日</a>和<a href="/docs/changelog#codex-2026-04-10-app">4 月 10 日</a> Codex App 发布说明，或了解如何<a href="/docs/code-review?surface=app">在应用中评审改动</a>。</p></div> </section><section class="docs-changelog__section doc-content" aria-labelledby="2026-年-3-月-2327-日"> <h2 id="2026-年-3-月-2327-日">2026 年 3 月 23–27 日</h2> <div><h3 id="把工作流打包为-plugins">把工作流打包为 plugins</h3>
+<p><a href="/docs/plugins">Plugins</a> 作为由 skills、连接器和 MCP server 组成的可安装组合包推出，使完整工作流更易发现、安装和共享；重新设计的 plugin 与 skill 页面也让内容和状态更清晰。同一周还加入了旧聊天搜索。</p>
+<p>参阅<a href="/docs/changelog#codex-2026-03-24-app">任务搜索</a>、<a href="/docs/changelog#codex-2026-03-25">plugins 发布</a>和 <a href="/docs/changelog#codex-2026-03-25-app">Codex App</a> 发布说明。</p></div> </section><section class="docs-changelog__section doc-content" aria-labelledby="2026-年-3-月-1620-日"> <h2 id="2026-年-3-月-1620-日">2026 年 3 月 16–20 日</h2> <div><h3 id="从更早的位置分叉任务并在输入框中选择工具">从更早的位置分叉任务，并在输入框中选择工具</h3>
+<p>你可以从更早的消息分叉出新聊天，在不丢失原路径的情况下尝试新方案。起草消息时也能使用模型和推理命令；已启用的 skills 会出现在 <code>@</code> 菜单中；GPT-5.4 mini 则为较轻量任务和子智能体提供更快选项。</p>
+<p>参阅 <a href="/docs/changelog#codex-2026-03-17">GPT-5.4 mini</a>、<a href="/docs/changelog#codex-2026-03-18-app">聊天控制</a>和 <a href="/docs/changelog#codex-2026-03-19-app">skill 菜单</a> 发布说明。</p></div> </section><section class="docs-changelog__section doc-content" aria-labelledby="2026-年-3-月-913-日"> <h2 id="2026-年-3-月-913-日">2026 年 3 月 9–13 日</h2> <div><h3 id="在合适环境中安排工作">在合适环境中安排工作</h3>
+<p><a href="/docs/automations">定时任务</a>可以在本地或工作树中运行，并显式选择模型和推理强度。可复用模板让常见任务更易配置，自定义主题则让工作区更符合个人偏好。</p>
+<figure class="doc-screenshot" style="--doc-screenshot-max-height: 420px">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="/images/codex/app/codex-automations-dark.webp">
+    <img src="/images/codex/app/codex-automations-dark.webp" alt="ChatGPT 界面截图：ChatGPT 桌面应用中的定时任务设置" loading="lazy" decoding="async" data-docs-light-src="/images/codex/app/codex-automations-light.webp">
+  </picture>
+</figure>
+
+<h3 id="让-codex-检查终端输出">让 Codex 检查终端输出</h3>
+<p>Codex 还可以读取当前聊天的<a href="/docs/integrated-terminal#run-and-validate-your-project">集成终端</a>，直接检查运行中的开发服务器或构建输出，不再需要你手动粘贴。</p>
+<pre class="shiki shiki-themes github-light github-dark code-copy-host has-copy-button" style="background-color:#fff;--shiki-dark-bg:#24292e;color:#24292e;--shiki-dark:#e1e4e8" data-language="text" data-copy-ready="true"><button type="button" class="code-copy-button" data-state="idle" aria-label="复制代码" title="复制代码"></button><code class="language-text"><span class="line"><span>Every weekday, inspect changes from the last 24 hours, find one likely regression, fix it in a worktree, run the smallest relevant tests, and report the evidence.</span></span></code></pre><p>参阅 <a href="/docs/changelog#codex-2026-03-11-app">3 月 11 日</a>和<a href="/docs/changelog#codex-2026-03-12-app">3 月 12 日</a> Codex App 发布说明。</p></div> </section><section class="docs-changelog__section doc-content" aria-labelledby="2026-年-3-月-26-日"> <h2 id="2026-年-3-月-26-日">2026 年 3 月 2–6 日</h2> <div><h3 id="在-windows-上原生运行-codex">在 Windows 上原生运行 Codex</h3>
+<p>Codex App 登陆 <a href="/docs/windows/windows-app">Windows</a>，支持原生 PowerShell 和沙箱，并提供工作树、定时任务和 skills。偏好 Linux 环境的开发者仍可使用 WSL。</p>
+<figure class="doc-screenshot" style="--doc-screenshot-max-height: 420px">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="/images/codex/windows/codex-windows-dark.webp">
+    <img src="/images/codex/windows/codex-windows-dark.webp" alt="ChatGPT 界面截图：在 Windows 上原生运行的 Codex App" loading="lazy" decoding="async" data-docs-light-src="/images/codex/windows/codex-windows-light.webp">
+  </picture>
+</figure>
+
+<h3 id="move-tasks-between-local-and-worktree">在 Local（本地）与 Worktree（工作树）之间移动聊天</h3>
+<p><a href="/docs/environments/git-worktrees#working-between-local-and-worktree">本地与工作树之间的交接</a>允许你移动活跃聊天并保留其上下文。同一周，GPT-5.4 也进入 Codex，用于编码、Computer Use 和更长上下文的工作流。</p>
+<p>参阅 <a href="/docs/changelog#codex-2026-03-04-app">Windows 发布</a>、<a href="/docs/changelog#codex-2026-03-03-app">工作树交接</a>和 <a href="/docs/changelog#codex-2026-03-05">GPT-5.4</a> 发布说明。</p></div> </section><section class="docs-changelog__section doc-content" aria-labelledby="2026-年-2-月-913-日"> <h2 id="2026-年-2-月-913-日">2026 年 2 月 9–13 日</h2> <div><h3 id="实时迭代并分叉出新方案">实时迭代并分叉出新方案</h3>
+<p>GPT-5.3-Codex-Spark 进入研究预览，为实时编码迭代提供近乎即时的响应。应用还加入聊天分叉和悬浮置顶聊天窗口，因此可以探索另一种方案，或让 Codex 始终停留在编辑器或浏览器旁。</p>
+<p>参阅 <a href="/docs/changelog#codex-2026-02-12">Spark</a>和 <a href="/docs/changelog#codex-2026-02-12-app">Codex App</a> 发布说明，也可以查看当前<a href="/docs/models">模型指南</a>。</p></div> </section><section class="docs-changelog__section doc-content" aria-labelledby="2026-年-2-月-26-日"> <h2 id="2026-年-2-月-26-日">2026 年 2 月 2–6 日</h2> <div><h3 id="codex-app-在-macos-上发布">Codex App 在 macOS 上发布</h3>
+<p>Codex App 作为桌面工作区发布，支持并行项目对话、内置 Git 评审、工作树、skills、定时任务和语音听写。这些能力现在位于 <a href="/docs/app">ChatGPT 桌面应用</a>的 Codex 中。</p>
+<figure class="doc-screenshot" style="--doc-screenshot-max-height: 420px">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="/images/codex/app/codex-app-basic-dark.webp">
+    <img src="/images/codex/app/codex-app-basic-dark.webp" alt="ChatGPT 界面截图：在 macOS 上显示并行项目聊天的初代 Codex App" loading="lazy" decoding="async" data-docs-light-src="/images/codex/app/codex-app-basic-light.webp">
+  </picture>
+</figure>
+
+<h3 id="引导进行中的工作并添加文件">引导进行中的工作并添加文件</h3>
+<p>会话轮次中途引导（mid-turn steering）允许你在不停止当前回复的情况下调整 Codex 方向，文件附件也从图片扩展到更多类型。这些模式构成了<a href="/docs/prompting#steering-and-queuing">引导与排队</a>的基础，使后续消息能够携带 Codex 所需上下文。</p>
+<p>参阅 <a href="/docs/changelog#codex-2026-02-02">Codex App 发布说明</a>和 <a href="/docs/changelog#codex-2026-02-05-app">2 月 5 日 App 发布说明</a>。</p></div> </section> </div> <nav class="docs-page-prev-next" aria-label="文档导航" data-pagefind-ignore="all"><a href="/docs/permission-modes" rel="prev" data-astro-prefetch="hover"><span>上一篇</span><strong>权限</strong></a><a href="/docs/models" rel="next" data-astro-prefetch="hover"><span>下一篇</span><strong>模型</strong></a></nav>

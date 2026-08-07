@@ -1,0 +1,50 @@
+---
+title: "Analytics API"
+navTitle: "分析 API"
+description: "了解 Codex Analytics API 的用途和管理边界"
+locale: "zh"
+translationKey: "enterprise/analytics-api"
+section: "explore"
+order: 1100
+draft: false
+translationStatus: complete
+lastUpdated: 2026-08-06
+pageKind: article
+referenceHub: "administration"
+sourceUrl: "https://www.codex-docs.com/docs/enterprise/analytics-api"
+outline:
+  - id: "何时使用-analytics-api"
+    label: "何时使用 Analytics API"
+  - id: "确认管理边界"
+    label: "确认管理边界"
+  - id: "相关文档"
+    label: "相关文档"
+---
+
+Codex Analytics API 为 ChatGPT 工作区提供聚合的 Codex 使用与活动指标。
+
+需要认证的 [Codex Analytics API 参考](https://chatgpt.com/codex/cloud/settings/apireference)是当前访问要求、路由、request 与 response schema、指标、时间语义和分页行为的事实源。
+
+## 何时使用 Analytics API
+
+Analytics API 适用于以下需求：
+
+-   自动生成周期性 Codex 报告。
+-   把聚合 Codex 指标与组织内部数据关联。
+-   为经过批准的受众构建受控报告层。
+-   避免让集成与交互式仪表板紧密耦合。
+
+它不是原始审计日志接口。工作流需要可审计活动记录时，请使用 [Compliance API](/docs/enterprise/compliance-api)。
+
+## 确认管理边界
+
+Analytics API 结果以 ChatGPT 工作区为作用域，但请求使用 Platform 组织 API key 认证。该 API key 所属组织必须与工作区关联的组织一致。
+
+当前 API key 预配、作用域要求、路由、schema、字段、时间语义和分页行为以认证后的参考为准，本页不重复这份契约。
+
+## 相关文档
+
+-   [工作区分析](/docs/enterprise/workspace-analytics)
+-   [管理员发布指南](/docs/enterprise/admin-setup)
+-   [治理](/docs/enterprise/governance)
+-   [Compliance API](/docs/enterprise/compliance-api)

@@ -1,0 +1,46 @@
+---
+title: "Administration"
+description: "Découvrez les principes de Administration et terminez un premier flux pratique et vérifiable."
+locale: "fr"
+translationKey: "administration"
+section: "top"
+order: 5
+draft: false
+translationStatus: needs-review
+lastUpdated: 2026-08-06
+---
+<Callout title="Commencez par un résultat concret">
+
+Indiquez le fichier, la page ou le résultat vérifié que la tâche doit produire.
+
+</Callout>
+
+## Commencer avec Administration
+
+Décrivez d’abord le résultat attendu, puis fournissez les fichiers, le contexte et les contraintes nécessaires. Laissez Codex examiner le vrai projet et vérifier chaque étape importante.
+
+<Example>
+
+« Examine ce site Astro, ajoute le multilingue sans modifier son design et vérifie la version mobile. »
+
+</Example>
+
+## Un flux de travail fiable
+
+1. Décrire le résultat et les critères de validation
+2. Examiner les fichiers et conventions concernés
+3. Effectuer la modification et les contrôles adaptés au risque
+4. Relire le résultat, les différences et la prochaine étape
+
+## En cas de problème
+
+Conservez le message d’erreur complet, vérifiez le dossier de travail et les droits, puis réduisez le problème au plus petit cas reproductible. Préférez les sorties réelles aux suppositions.
+
+```bash
+npm run check
+npm run build
+```
+
+## Vérification finale
+
+<Checklist items={["La page ou la commande produit le résultat attendu","Aucune nouvelle erreur de console ni débordement horizontal","La langue, le thème et la navigation mobile fonctionnent toujours"]} />

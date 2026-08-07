@@ -1,0 +1,142 @@
+---
+title: "评审代码变更的安全性"
+navTitle: "评审代码变更"
+description: "对一个由 Git 支撑的变更集做安全回归评审，而不是展开成全仓库审计。"
+locale: "zh"
+translationKey: "security/plugin/code-changes"
+section: "explore"
+order: 1070
+draft: false
+translationStatus: complete
+lastUpdated: 2026-08-06
+pageKind: article
+referenceHub: "security-administration"
+sourceUrl: "https://www.codex-docs.com/docs/security/plugin/code-changes"
+outline:
+  - id: "运行手动评审"
+    label: "运行手动评审"
+  - id: "在设置中确认变更"
+    label: "在设置中确认变更"
+  - id: "处理发现结果"
+    label: "处理发现结果"
+  - id: "在-cicd-中自动化评审"
+    label: "在 CI/CD 中自动化评审"
+---
+
+运行安全变更评审，查找一个由 Git 支撑的变更集中的安全回归。Codex 会评审每个发生变更的源码类文件及其直接支撑代码，但不会把评审扩展成完整仓库审计。
+
+如果你想扫描完整仓库，而不是某个具体变更，请参见[运行安全扫描](/docs/security/plugin/scans)。
+
+## 运行手动评审
+
+在桌面 App 中打开 **Security（安全）**，选择 **Scans（扫描）**，再选择 **\+ Scan（新建扫描）**。选择仓库，然后选择 **Changes（变更）**。你可以评审未提交变更、单个 commit，或 base 与 head revision。变更扫描不支持 **Deep scan（深度扫描）**。
+
+也可以在 Codex 对话中请求评审未提交变更：
+
+<CodeBlock code={"Use $codex-security:security-diff-scan to review my current uncommitted changes for security regressions."} language="text" />
+
+对于 commit 或 branch range，必要时明确两端：
+
+<CodeBlock code={"Use $codex-security:security-diff-scan to review the changes from origin/main to HEAD for security regressions. Focus on authentication, authorization, input handling, filesystem access, network requests, and secrets."} language="text" />
+
+当 pull request 的 base 和 head revision 在本地 checkout 中可用时，也可以直接指定 pull request。
+
+## 在设置中确认变更
+
+1.  选择 **Changes（变更）**。
+2.  确认已 checkout 的仓库、当前分支和最新 commit。
+3.  在 **Changes to review（待评审改动）** 下选择：
+    -   `Uncommitted changes`：当前 Git 工作区中的未提交改动。
+    -   最新 commit：单个 commit 的评审。
+    -   base revision 和 head revision：分支或 pull request 的修订版本区间。
+4.  确认摘要描述的是你想评审的变更。
+5.  选择 **Start scan（开始扫描）**。
+
+这个工作流不会检出另一个分支，也不会修改选中的 Git 工作区。如果请求的 revision 在本地不可用，请先执行 fetch，或提供一组本地可用的 base revision 和 head revision。
+
+## 处理发现结果
+
+评审结果后，可以[修复并验证已接受的发现](/docs/security/plugin/fix-findings)，或[导出和跟踪发现](/docs/security/plugin/export-findings)。
+
+## 在 CI/CD 中自动化评审
+
+当 CI runner 能以非交互方式调用 Codex CLI 时，可以在 CI 中运行同一个 `$codex-security:security-diff-scan` skill。先安装 CLI 与 plugin，同时避免暴露扫描凭据：
+
+<CodeBlock code={"npm install --global @openai/codex"} language="bash" />
+
+在 CLI 中安装 Codex Security 插件：
+
+<CodeBlock code={"codex plugin add codex-security@openai-curated"} language="bash" />
+
+安装命令使用公开的 Codex CLI plugin marketplace，其版本可能与托管的桌面 App catalog 不同。在 CI 中依赖特定插件版本或功能前，请查看[插件更新日志](/docs/security/plugin/changelog)。
+
+然后，只在扫描期间把 CI secret store 中的 OpenAI API key 作为 `CODEX_SECURITY_API_KEY` 暴露：
+
+<CodeBlock code={"CODEX_API_KEY=\"$CODEX_SECURITY_API_KEY\" codex exec \\\n  --sandbox workspace-write \\\n  \"Use \\$codex-security:security-diff-scan to review changes from $BASE_REVISION to $HEAD_REVISION for security regressions. Do not modify the checkout.\""} language="bash" />
+
+扫描会把输出写入 `$TMPDIR/codex-security-scans/<repository>/<scan-id>/`：
+
+<div className="doc-table-wrap">
+
+| 文件 | 内容 |
+| --- | --- |
+| `report.md` | 完整扫描目录的主要可读入口。 |
+| `findings/<slug>/` | 每项需报告发现对应一份详细漏洞报告；有可用材料时还会包含 PoC 文件。 |
+| `hardening/` | 扫描存在需报告发现时，包含结构性加固方案集及配套提案或图示。 |
+| `findings.json` | 带稳定标识、严重程度、置信度、源码位置与修复建议的发现，可交给已批准的内部安全工作流或下游工具。 |
+| `scan-manifest.json` | 封存的扫描回执，包含评审目标、修订版本和产物 hash。 |
+| `coverage.json` | 已评审与延后处理的范围、排除项和覆盖完整性。 |
+
+</div>
+
+完整结构由 [`findings.json` schema](https://github.com/openai/plugins/blob/main/plugins/codex-security/schemas/findings.schema.json)定义，其中包括以下字段：
+
+<div className="doc-table-wrap">
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| `documentType` | String | 标识文档类型为 `codex-security.findings`。 |
+| `schemaVersion` | String | 标识 findings schema 版本。 |
+| `scanId` | String | 标识生成这些发现的扫描。 |
+| `findings` | Array | 包含零个或多个发现对象。 |
+| `findings[].findingId` | String | 根据发现 fingerprint 派生的稳定发现标识。 |
+| `findings[].occurrenceId` | String | 标识该发现出现在某次具体扫描中的实例。 |
+| `findings[].ruleId` | String | 标识漏洞类别。 |
+| `findings[].identity` | Object | 包含语义锚点和可选的同级实例标识。 |
+| `findings[].fingerprints` | Object | 包含 fingerprint 算法与主要 fingerprint。 |
+| `findings[].title` | String | 简短的发现标题。 |
+| `findings[].summary` | String | 概述漏洞及其影响。 |
+| `findings[].severity` | Object | 包含严重程度等级和可选评分详情。 |
+| `findings[].confidence` | Object | 包含置信度等级和理由。 |
+| `findings[].taxonomy` | Object | 包含漏洞类别与 CWE 标识。 |
+| `findings[].locations` | Array | 列出受影响文件、行号和位置角色。 |
+| `findings[].remediation` | String | 说明建议修复方式。 |
+| `findings[].provenance` | Object | 标识发现来源。 |
+
+</div>
+
+例如，下面的命令会为每项发现输出一行制表符分隔的数据：
+
+<CodeBlock code={"jq -r '\n  .findings[] |\n  [.findingId, .severity.level, .confidence.level, .locations[0].path, .locations[0].startLine, .title] |\n  @tsv\n' findings.json"} language="bash" />
+
+下面的示例假设使用受信任的 Linux runner，并已安装 Node.js 与 `npm`、Git、Python 3、`jq` 以及相应平台的 CLI。`npm` 的全局 package prefix 必须可写。
+
+根据你的 CI provider 选择示例。扫描结果可能包含敏感的漏洞详情。请保持产物私密，只有在评审受众、内容和所需审批后才发布安全发现。
+
+GitHub Actions GitLab CI/CD Azure Pipelines Jenkins
+
+<CodeBlock code={"name: Codex Security review\n\non:\n  pull_request:\n\njobs:\n  security-review:\n    if: github.event.pull_request.head.repo.full_name == github.repository\n    runs-on: ubuntu-latest\n    permissions:\n      contents: read\n    steps:\n      - uses: actions/checkout@v5\n        with:\n          ref: ${{ github.event.pull_request.head.sha }}\n          fetch-depth: 0\n          persist-credentials: false\n\n      - name: Install Codex Security\n        env:\n          CODEX_HOME: ${{ runner.temp }}/codex-home\n        run: |\n          npm install --global @openai/codex\n          codex plugin add codex-security@openai-curated\n\n      - name: Review code changes\n        env:\n          CODEX_SECURITY_API_KEY: ${{ secrets.CODEX_SECURITY_API_KEY }}\n          CODEX_HOME: ${{ runner.temp }}/codex-home\n          TMPDIR: ${{ runner.temp }}/codex-security\n          BASE_SHA: ${{ github.event.pull_request.base.sha }}\n          HEAD_REVISION: ${{ github.event.pull_request.head.sha }}\n        run: |\n          BASE_REVISION=\"$(git merge-base \"$BASE_SHA\" \"$HEAD_REVISION\")\"\n          CODEX_API_KEY=\"$CODEX_SECURITY_API_KEY\" codex exec \\\n            --sandbox workspace-write \\\n            \"Use \\$codex-security:security-diff-scan to review changes from $BASE_REVISION to $HEAD_REVISION for security regressions. Do not modify the checkout.\"\n\n      - uses: actions/upload-artifact@v4\n        if: always()\n        with:\n          name: codex-security-review\n          path: ${{ runner.temp }}/codex-security/codex-security-scans"} language="yaml" />
+
+创建 masked `CODEX_SECURITY_API_KEY` CI/CD variable，并在分享安全发现前私下评审扫描产物。
+
+<CodeBlock code={"codex-security-review:\n  rules:\n    - if: '$CI_PIPELINE_SOURCE == \"merge_request_event\" && $CI_MERGE_REQUEST_SOURCE_PROJECT_ID == $CI_PROJECT_ID'\n  variables:\n    GIT_DEPTH: \"0\"\n  script:\n    - |\n      codex_security_api_key=\"$CODEX_SECURITY_API_KEY\"\n      unset CODEX_SECURITY_API_KEY\n      export CODEX_HOME=\"/tmp/codex-home-$CI_JOB_ID\"\n      export TMPDIR=\"/tmp/codex-security-$CI_JOB_ID\"\n      export BASE_REVISION=\"$CI_MERGE_REQUEST_DIFF_BASE_SHA\"\n      export HEAD_REVISION=\"${CI_MERGE_REQUEST_SOURCE_BRANCH_SHA:-$CI_COMMIT_SHA}\"\n      npm install --global @openai/codex\n      codex plugin add codex-security@openai-curated\n      CODEX_API_KEY=\"$codex_security_api_key\" codex exec \\\n        --sandbox workspace-write \\\n        \"Use \\$codex-security:security-diff-scan to review changes from $BASE_REVISION to $HEAD_REVISION for security regressions. Do not modify the checkout.\"\n  after_script:\n    - |\n      unset CODEX_SECURITY_API_KEY\n      scan_root=\"/tmp/codex-security-$CI_JOB_ID/codex-security-scans\"\n      if [ -d \"$scan_root\" ]; then\n        tar -czf codex-security-artifacts.tar.gz -C \"$scan_root\" .\n      fi\n  artifacts:\n    when: always\n    paths:\n      - codex-security-artifacts.tar.gz"} language="yaml" />
+
+<CodeBlock code={"trigger: none\n\npool:\n  vmImage: ubuntu-latest\n\nsteps:\n  - checkout: self\n    fetchDepth: 0\n\n  - bash: |\n      set -euo pipefail\n      export CODEX_HOME=\"$AGENT_TEMPDIRECTORY/codex-home\"\n      npm install --global @openai/codex\n      codex plugin add codex-security@openai-curated\n    displayName: Install Codex Security\n\n  - bash: |\n      set -euo pipefail\n      export CODEX_HOME=\"$AGENT_TEMPDIRECTORY/codex-home\"\n      export TMPDIR=\"$AGENT_TEMPDIRECTORY/codex-security\"\n      export HEAD_REVISION=\"$SYSTEM_PULLREQUEST_SOURCECOMMITID\"\n      export BASE_REVISION=\"$(git merge-base HEAD^1 \"$HEAD_REVISION\")\"\n      CODEX_API_KEY=\"$CODEX_SECURITY_API_KEY\" codex exec \\\n        --sandbox workspace-write \\\n        \"Use \\$codex-security:security-diff-scan to review changes from $BASE_REVISION to $HEAD_REVISION for security regressions. Do not modify the checkout.\"\n    displayName: Review code changes\n    condition: and(succeeded(), ne(variables['System.PullRequest.IsFork'], 'True'))\n    env:\n      CODEX_SECURITY_API_KEY: $(CODEX_SECURITY_API_KEY)\n\n  - publish: $(Agent.TempDirectory)/codex-security/codex-security-scans\n    artifact: codex-security-review\n    condition: always()"} language="yaml" />
+
+对于 Azure Repos，请配置 **Build validation** branch policy，使该 pipeline 在 pull request 上运行。
+
+<CodeBlock code={"pipeline {\n  agent { label 'linux' }\n  stages {\n    stage('Codex Security review') {\n      when {\n        allOf {\n          changeRequest()\n          expression { !env.CHANGE_FORK?.trim() }\n        }\n      }\n      steps {\n        sh '''#!/usr/bin/env bash\n          set -euo pipefail\n          export CODEX_HOME=\"/tmp/codex-home-$BUILD_TAG\"\n          export TMPDIR=\"/tmp/codex-security-$BUILD_TAG\"\n          mkdir -p \"$TMPDIR\"\n          git fetch --no-tags origin \"$CHANGE_TARGET\"\n          target=\"$(git rev-parse FETCH_HEAD)\"\n          git fetch --no-tags origin \"$CHANGE_BRANCH\"\n          git rev-parse FETCH_HEAD > \"$TMPDIR/head\"\n          git merge-base \"$target\" \"$(cat \"$TMPDIR/head\")\" > \"$TMPDIR/base\"\n          npm install --global @openai/codex\n          codex plugin add codex-security@openai-curated\n        '''\n        withCredentials([string(credentialsId: 'codex-security-api-key', variable: 'CODEX_SECURITY_API_KEY')]) {\n          sh '''#!/usr/bin/env bash\n            set +x\n            set -euo pipefail\n            export CODEX_HOME=\"/tmp/codex-home-$BUILD_TAG\"\n            export TMPDIR=\"/tmp/codex-security-$BUILD_TAG\"\n            export HEAD_REVISION=\"$(cat \"$TMPDIR/head\")\"\n            export BASE_REVISION=\"$(cat \"$TMPDIR/base\")\"\n            CODEX_API_KEY=\"$CODEX_SECURITY_API_KEY\" codex exec \\\n              --sandbox workspace-write \\\n              \"Use \\$codex-security:security-diff-scan to review changes from $BASE_REVISION to $HEAD_REVISION for security regressions. Do not modify the checkout.\"\n          '''\n        }\n      }\n      post {\n        always {\n          sh '''#!/usr/bin/env bash\n            set -euo pipefail\n            scan_root=\"/tmp/codex-security-$BUILD_TAG/codex-security-scans\"\n            if [ -d \"$scan_root\" ]; then\n              tar -czf codex-security-artifacts.tar.gz -C \"$scan_root\" .\n            fi\n          '''\n          archiveArtifacts artifacts: 'codex-security-artifacts.tar.gz', allowEmptyArchive: true\n        }\n      }\n    }\n  }\n}"} language="groovy" />
+
+这些示例会跳过来自 fork 的 pull request。只有受保护的 pipeline 定义，以及可以信任其接触扫描凭据的贡献者，才能运行带凭据的作业。请归档 `codex-security-scans`，把结构化发现、manifest、覆盖产物、`report.md` 及其链接的 `findings/` 与 `hardening/` 输出保存在一起。先以非阻断方式运行，评审覆盖范围和运行时间后，再把作业设为 required check。
+
+API key 处理与沙箱控制请参见[非交互模式](/docs/non-interactive-mode)。如果组织允许使用 [Codex GitHub Action](/docs/github-action)，它可以在运行时安装 CLI，但你仍需先安装 plugin，并让 action 的 `codex-home` 输入指向同一个 `CODEX_HOME`。
