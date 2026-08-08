@@ -1,0 +1,394 @@
+---
+title: "怎样写好一个 Skill：触发、目录与渐进式加载"
+navTitle: "怎样写好一个 Skill"
+description: "从 description、SKILL.md 到 references、scripts 和 assets，学习怎样让 Skill 容易触发、保持精简并按需读取上下文。"
+locale: "zh"
+translationKey: "skills/authoring/write-reliable-skill"
+section: "foundations"
+order: 9007
+draft: false
+translationStatus: complete
+lastUpdated: 2026-08-09
+pageKind: article
+referenceHub: "skills"
+sourceUrl: "https://agentskills.io/skill-creation/best-practices"
+outline:
+  - id: "valid-is-not-reliable"
+    label: "能读取不等于可靠"
+  - id: "three-loading-levels"
+    label: "理解三层加载"
+  - id: "write-the-description"
+    label: "写好 description"
+  - id: "write-the-body"
+    label: "组织 SKILL.md 正文"
+  - id: "split-supporting-files"
+    label: "拆分支持文件"
+  - id: "apply-to-the-example"
+    label: "改进周报 Skill"
+  - id: "review-checklist"
+    label: "发布前检查"
+---
+
+一个 Skill 能被系统读取，不代表它能稳定工作。
+
+很多 Skill 的文件格式完全正确，实际使用时却会出现三种问题：
+
+- 应该触发时没有出现；
+- 不相关的任务也频繁触发；
+- 触发以后，执行方式和没有 Skill 时差不多。
+
+这些问题通常不需要更多华丽术语。
+
+真正需要处理的是三件事：
+
+1. 用 `description` 把触发范围写清楚；
+2. 用 `SKILL.md` 保存真正会改变执行过程的方法；
+3. 用渐进式加载把详细资料放到正确位置。
+
+这篇继续改进上一页创建的 `weekly-ops-review`。
+
+<span id="valid-is-not-reliable"></span>
+
+## 能读取不等于可靠
+
+先看一个格式正确、但几乎没有帮助的 Skill：
+
+```markdown
+---
+name: operations-expert
+description: Help with operations work.
+---
+
+# Operations Expert
+
+Be professional, comprehensive, accurate, and insightful.
+Always provide high-quality analysis and actionable recommendations.
+```
+
+它的问题不是 Markdown 写错了，而是：
+
+- `operations work` 范围太大；
+- 没有说明用户会提供什么；
+- 没有说明哪些相似任务不属于它；
+- 正文只有形容词，没有可执行过程；
+- 无法检查它是否真的被正确执行。
+
+把 Skill 写长也不能自动解决这些问题。
+
+可靠性来自明确的任务边界、工作步骤和验证标准，不来自字数。
+
+<span id="three-loading-levels"></span>
+
+## 理解三层加载
+
+Agent Skills 使用渐进式加载来控制上下文。
+
+可以把它理解成三层：
+
+| 层级 | 什么时候读取 | 应该放什么 |
+| --- | --- | --- |
+| 元数据 | Skill 列表出现时 | `name`、`description` 等用于发现和选择的信息 |
+| 主指令 | Skill 被选择以后 | `SKILL.md` 里的流程、规则、边界和导航 |
+| 支持材料 | 实际任务需要时 | `references/`、`scripts/`、`assets/` 中的详细资料与资源 |
+
+这套结构解决的是一个很现实的问题：
+
+> 如果每个 Skill 都在开始时把所有说明、模板和资料放进上下文，真正的任务很快就没有空间了。
+
+所以每一层有不同职责：
+
+```text
+description：让我知道什么时候应该打开这个 Skill
+SKILL.md：告诉我这项工作应该怎样完成
+支持文件：只在具体步骤需要时提供详细材料
+```
+
+写 Skill 时，经常问自己一句：
+
+> 这段内容是每次都要知道，还是只有某种情况才需要？
+
+如果只有特定情况需要，就不应该默认塞进主文件。
+
+<span id="write-the-description"></span>
+
+## 写好 description
+
+description 是 Skill 的入口。
+
+系统通常先看到它，再判断当前任务是否值得加载完整指令。因此它不是宣传语，而是一条简短的**路由规则**。
+
+一个实用的 description 应该包含：
+
+- 这个 Skill 完成什么任务；
+- 用户通常会提供什么输入；
+- 哪些表达或场景应该触发；
+- 容易混淆时，哪些任务不应该触发。
+
+### 太宽的写法
+
+```yaml
+description: Help users with operations and data.
+```
+
+“运营”和“数据”覆盖范围太大。写周会通知、想活动标题、分析年度财务数据都可能被误判。
+
+### 只有功能，没有场景
+
+```yaml
+description: Generate a professional weekly report.
+```
+
+它没有说明这是一份运营数据周报，也没有说明需要分析什么。
+
+### 更可测试的写法
+
+```yaml
+description: Analyze weekly operations data, identify evidence-backed changes in traffic, conversion, revenue, and ad performance, and produce an action-oriented weekly report. Use for weekly metric reviews, anomaly analysis, and operations reporting; do not use for meeting notices, campaign copy, or general summaries without data analysis.
+```
+
+这段描述仍然不完美，但已经能拿真实 Prompt 测试。
+
+写 description 时注意三点。
+
+### 使用用户真的会说的话
+
+不要只写内部术语。用户更可能说“帮我看这周转化为什么掉了”，而不是“执行 weekly operations diagnostic workflow”。
+
+把真实请求里的高频表达带进描述，触发会更接近实际使用。
+
+### 写清相邻边界
+
+如果两个 Skill 很容易混淆，边界比更多关键词更重要。
+
+例如：
+
+```text
+运营周报 Skill：分析数据变化和原因
+会议纪要 Skill：整理会议结论和待办
+写作 Skill：润色已经形成的周报正文
+```
+
+它们可能都出现“周报”“运营”“总结”，但任务并不相同。
+
+### 不要把完整流程塞进 description
+
+description 负责选择，不负责承载全部工作方法。
+
+过长描述会增加初始上下文成本，也会让真正重要的触发信号被淹没。详细步骤留在正文。
+
+<span id="write-the-body"></span>
+
+## 组织 SKILL.md 正文
+
+Skill 被选中以后，系统才会读取 `SKILL.md` 正文。
+
+正文应该让执行者明确知道：收到输入后先做什么、怎样判断、最终交付什么。
+
+不必追求统一模板，但下面这个结构适合大多数工作流：
+
+```markdown
+# Weekly Operations Review
+
+## Goal
+这项工作最终要解决什么问题。
+
+## Required inputs
+开始前需要哪些文件、字段或上下文；缺失时怎么办。
+
+## Workflow
+按顺序列出工作步骤和中间判断。
+
+## Output contract
+最终交付物包含哪些部分，格式和粒度是什么。
+
+## Quality checks
+提交前必须验证哪些事项。
+
+## Boundaries
+哪些事情不要猜、不要执行，什么时候需要用户确认。
+
+## References
+在什么情况下读取哪一份支持材料。
+```
+
+其中最重要的是把形容词改成动作。
+
+```text
+模糊：深入分析异常。
+
+可执行：计算各核心指标与上一周期的变化；
+按影响程度列出前三项异常；
+每项异常给出对应数据；
+证据不足的原因标记为假设。
+```
+
+同样，边界也要写成可以执行的规则：
+
+```text
+模糊：不要犯错。
+
+可执行：缺少时间范围或关键字段时，不计算环比；
+先列出缺失信息，再说明当前仍可完成的分析。
+```
+
+正文不需要教 AI 已经普遍掌握的常识。
+
+应该优先保留：
+
+- 你的业务定义；
+- 容易遗漏的检查；
+- 真实工作中的顺序依赖；
+- 输出契约；
+- 错误恢复方式；
+- 公司或团队特有的边界。
+
+<span id="split-supporting-files"></span>
+
+## 拆分支持文件
+
+随着使用次数增加，你可能会加入指标口径、报告模板、示例和脚本。
+
+这时不要让 `SKILL.md` 无限增长。
+
+一个常见目录可以是：
+
+```text
+weekly-ops-review/
+├── SKILL.md
+├── references/
+│   ├── metric-definitions.md
+│   └── anomaly-rules.md
+├── scripts/
+│   └── validate-input.py
+└── assets/
+    └── weekly-report-template.md
+```
+
+每个位置负责不同类型的内容：
+
+| 位置 | 适合放什么 | 不适合放什么 |
+| --- | --- | --- |
+| `SKILL.md` | 核心流程、判断、输出、边界和文件导航 | 大量背景资料、所有案例、长篇 API 文档 |
+| `references/` | 指标定义、领域规则、详细说明、检查表 | 必须每次执行的关键步骤 |
+| `scripts/` | 需要确定性、可重复执行的检查或转换 | 只用自然语言就能可靠完成的简单判断 |
+| `assets/` | 模板、示例文件、图片、最终产物要复用的资源 | 给 Agent 阅读的核心指令 |
+
+### references：按需读取的知识
+
+例如只有分析广告数据时，才需要广告指标口径。可以在 `SKILL.md` 中写清读取条件：
+
+```markdown
+当输入包含广告投放数据时，读取 `references/metric-definitions.md`
+中的广告指标部分，再开始计算和比较。
+```
+
+不要只写“更多信息见 references”。要说明**什么时候读、读哪一份、用来做什么**。
+
+支持文件最好从 `SKILL.md` 直接可达，避免让执行者经过多层文件才能找到真正需要的规则。
+
+### scripts：确定性工作
+
+脚本适合处理：
+
+- 输入格式验证；
+- 固定数据转换；
+- 可重复计算；
+- 文件生成；
+- 需要明确退出状态的检查。
+
+如果只是要求先看数据再总结，没有必要为了“显得高级”而增加脚本。
+
+脚本带来依赖、权限、安全和跨平台问题。只有当自然语言执行确实不稳定，或者结果必须可重复计算时，再引入它。
+
+### assets：交付物素材
+
+报告模板、品牌资源和示例文件适合放在 `assets/`。
+
+如果内容是给 Agent 阅读并影响判断的规则，它更适合 `references/`；如果内容是生成结果时要复制或改写的素材，它更适合 `assets/`。
+
+Agent Skills 的创作指南通常建议把主 `SKILL.md` 控制在约 500 行以内。这个数字是提醒你及时拆分的上限，不是必须写满的目标。大多数聚焦单一任务的 Skill 应该短得多。
+
+<span id="apply-to-the-example"></span>
+
+## 改进周报 Skill
+
+现在把上一页的单文件版本升级为：
+
+```text
+weekly-ops-review/
+├── SKILL.md
+├── references/
+│   └── metric-definitions.md
+└── assets/
+    └── weekly-report-template.md
+```
+
+先不增加脚本。
+
+### 第一步：缩小主文件
+
+在 `SKILL.md` 中只保留：
+
+- 输入检查；
+- 核心分析顺序；
+- 事实与假设规则；
+- 输出契约；
+- QA；
+- 何时读取两份支持文件。
+
+### 第二步：把业务口径放入 reference
+
+`metric-definitions.md` 可以记录：
+
+```markdown
+# Metric definitions
+
+## Conversion rate
+订单数 / 有效访问数。不同来源的数据必须先确认分母口径一致。
+
+## Ad return
+归因收入 / 广告投入。报告中同时注明归因窗口。
+```
+
+这类内容对分析很重要，但不需要在每次 Skill 被加载时全部出现。
+
+### 第三步：把交付格式放入 asset
+
+`weekly-report-template.md` 可以保存固定标题和表格结构。Skill 需要输出正式周报时使用它；只回答一个局部异常问题时，不必强行生成整份模板。
+
+### 第四步：重新检查 description
+
+加入支持文件不会自动改善触发。最后仍要回到 description，确认它描述的是“什么时候用这个 Skill”，而不是目录里有哪些文件。
+
+<span id="review-checklist"></span>
+
+## 发布前检查
+
+在进入系统测试前，先做一次静态检查。
+
+### 触发
+
+- name 是否具体、稳定、容易识别；
+- description 是否写清任务、输入和典型场景；
+- 是否说明容易混淆的非适用任务；
+- 是否使用了用户真实会说的表达。
+
+### 正文
+
+- 是否有明确输入、步骤、判断和输出；
+- 是否把形容词改成可执行动作；
+- 缺少输入和遇到异常时是否知道怎么办；
+- QA 和边界是否可以检查；
+- 是否删除了不会改变执行方式的废话。
+
+### 文件
+
+- 主文件是否只保留每次都重要的内容；
+- reference 是否写清读取条件；
+- 支持文件是否能从 `SKILL.md` 直接找到；
+- scripts 是否真的用于确定性工作；
+- 有没有绝对路径、过期链接或只在作者电脑上存在的依赖。
+
+完成这些检查后，Skill 只是“设计上更合理”，还不能证明它真的可靠。
+
+下一篇会使用成组的真实任务，分别测试触发准确性和输出质量，并建立一个可以持续迭代的评估记录。

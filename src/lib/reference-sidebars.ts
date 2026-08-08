@@ -258,8 +258,22 @@ const zhReferenceSidebars: Record<string, ReferenceSidebar> = {
         ],
       },
       {
-        title: '工作流',
+        title: '从工作出发',
         items: [item('6 类最常用 Skill 工作流', '/docs/skills/workflow-playbook')],
+      },
+      {
+        title: '第一次动手',
+        items: [
+          item('第一次使用 Skill', '/docs/skills/getting-started/use-first-skill'),
+          item('创建第一个 Skill', '/docs/skills/getting-started/create-first-skill'),
+        ],
+      },
+      {
+        title: '写得可靠',
+        items: [
+          item('怎样写好一个 Skill', '/docs/skills/authoring/write-reliable-skill'),
+          item('测试与迭代 Skill', '/docs/skills/authoring/test-and-iterate'),
+        ],
       },
       {
         title: 'Skill 推荐',
