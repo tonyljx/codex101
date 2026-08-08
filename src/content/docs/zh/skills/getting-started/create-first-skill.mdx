@@ -12,21 +12,6 @@ lastUpdated: 2026-08-09
 pageKind: article
 referenceHub: "skills"
 sourceUrl: "https://openai.com/academy/skills/"
-outline:
-  - id: "what-we-are-building"
-    label: "这次要做什么"
-  - id: "extract-the-method"
-    label: "提取稳定方法"
-  - id: "create-with-skill-creator"
-    label: "让 skill-creator 创建"
-  - id: "inspect-the-skill"
-    label: "检查生成结果"
-  - id: "run-the-first-test"
-    label: "完成第一次运行"
-  - id: "make-one-improvement"
-    label: "只改进一个问题"
-  - id: "definition-of-done"
-    label: "完成标准"
 ---
 
 上一页我们使用了一个现成 Skill。
@@ -40,8 +25,6 @@ outline:
 更好的起点是一项你已经做过的真实工作。
 
 我们继续使用贯穿整个系列的例子：**运营周报**。
-
-<span id="what-we-are-building"></span>
 
 ## 这次要做什么
 
@@ -75,8 +58,6 @@ weekly-ops-review/
 - 你最近一次要求 AI 修改周报时给出的反馈。
 
 这些真实材料比“请写得专业一些”更能说明你真正需要什么。
-
-<span id="extract-the-method"></span>
 
 ## 提取稳定方法
 
@@ -120,8 +101,6 @@ weekly-ops-review/
 
 - **常识性废话**：例如“保持专业”“确保高质量”；
 - **不存在的流程**：例如你的周报从来不看库存，却被自动加入库存预测。
-
-<span id="create-with-skill-creator"></span>
 
 ## 让 skill-creator 创建
 
@@ -178,8 +157,6 @@ $skill-creator 创建一个名为 weekly-ops-review 的 Skill。
 证据不足的原因标记为“假设”；
 每个下周动作必须对应一个已发现的问题。
 ```
-
-<span id="inspect-the-skill"></span>
 
 ## 检查生成结果
 
@@ -240,8 +217,6 @@ description 不能只写“运营专家”。它至少要说明：
 
 Skill 在 Codex 中的实际保存位置可能属于当前目录、仓库、个人或管理员范围。需要确认作用范围时，查看[技能的保存位置](/docs/build-skills#where-to-save-skills)。
 
-<span id="run-the-first-test"></span>
-
 ## 完成第一次运行
 
 先显式调用刚创建的 Skill：
@@ -271,8 +246,6 @@ Skill 在 Codex 中的实际保存位置可能属于当前目录、仓库、个�
 
 它们会成为后续测试的基线。
 
-<span id="make-one-improvement"></span>
-
 ## 只改进一个问题
 
 第一次测试几乎一定会发现问题。
@@ -298,8 +271,6 @@ Skill 在 Codex 中的实际保存位置可能属于当前目录、仓库、个�
 | v0.2 | 输入缺失时仍继续推测 | 增加输入检查和停止条件 | 会先列出缺失字段 |
 
 不要一开始追求精确版本系统。先保留“为什么改、改了什么、是否有效”这三项事实。
-
-<span id="definition-of-done"></span>
 
 ## 完成标准
 

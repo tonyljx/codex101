@@ -12,19 +12,6 @@ lastUpdated: 2026-08-09
 pageKind: article
 referenceHub: "skills"
 sourceUrl: "https://developers.openai.com/codex/build-skills"
-outline:
-  - id: "complete-one-task"
-    label: "先完整做一次"
-  - id: "choose-a-skill"
-    label: "选择第一个 Skill"
-  - id: "invoke-explicitly"
-    label: "先显式调用"
-  - id: "verify-the-result"
-    label: "检查是否真的有用"
-  - id: "test-triggering"
-    label: "再测试自动触发"
-  - id: "common-problems"
-    label: "常见问题"
 ---
 
 理解 Skill 的概念以后，最有效的下一步不是立刻写一个 `SKILL.md`。
@@ -42,8 +29,6 @@ outline:
 完成以后，你应该能回答：
 
 > 我怎样让 AI 明确使用某个 Skill，又怎样判断它不是只在普通聊天？
-
-<span id="complete-one-task"></span>
 
 ## 先完整做一次
 
@@ -71,8 +56,6 @@ outline:
 
 任务越大，你越难判断问题到底出在 Skill、输入、工具，还是目标本身。
 
-<span id="choose-a-skill"></span>
-
 ## 选择第一个 Skill
 
 选择时先看三件事：
@@ -92,8 +75,6 @@ outline:
 在 ChatGPT 或 Codex 的 Skill 选择器中，你通常可以先看到名称和描述。先用这两项判断它是否匹配任务；需要安装第三方 Skill 时，再进一步检查来源与文件内容。
 
 这次示例假设你已经有一个可以处理表格的 Skill，并准备了一份本周运营数据。
-
-<span id="invoke-explicitly"></span>
 
 ## 先显式调用
 
@@ -134,8 +115,6 @@ Skill：负责稳定的分析方法
 Prompt：负责本次目标和材料
 文件 / App：提供真实数据
 ```
-
-<span id="verify-the-result"></span>
 
 ## 检查是否真的有用
 
@@ -180,8 +159,6 @@ Prompt：负责本次目标和材料
 - 输入材料不够：补充文件或上下文；
 - Skill 方法正确但执行不稳定：记录下来，后面通过测试和迭代解决。
 
-<span id="test-triggering"></span>
-
 ## 再测试自动触发
 
 显式调用跑通以后，再尝试不写 Skill 名称，只描述任务：
@@ -204,8 +181,6 @@ Prompt：负责本次目标和材料
 第三种测试尤其重要。
 
 一个 Skill 不是“触发得越多越好”。真正可靠的 Skill，既要在需要时出现，也要在不相关时保持沉默。
-
-<span id="common-problems"></span>
 
 ## 常见问题
 

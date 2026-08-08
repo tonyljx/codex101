@@ -12,21 +12,6 @@ lastUpdated: 2026-08-09
 pageKind: article
 referenceHub: "skills"
 sourceUrl: "https://agentskills.io/skill-creation/best-practices"
-outline:
-  - id: "valid-is-not-reliable"
-    label: "能读取不等于可靠"
-  - id: "three-loading-levels"
-    label: "理解三层加载"
-  - id: "write-the-description"
-    label: "写好 description"
-  - id: "write-the-body"
-    label: "组织 SKILL.md 正文"
-  - id: "split-supporting-files"
-    label: "拆分支持文件"
-  - id: "apply-to-the-example"
-    label: "改进周报 Skill"
-  - id: "review-checklist"
-    label: "发布前检查"
 ---
 
 一个 Skill 能被系统读取，不代表它能稳定工作。
@@ -46,8 +31,6 @@ outline:
 3. 用渐进式加载把详细资料放到正确位置。
 
 这篇继续改进上一页创建的 `weekly-ops-review`。
-
-<span id="valid-is-not-reliable"></span>
 
 ## 能读取不等于可靠
 
@@ -76,8 +59,6 @@ Always provide high-quality analysis and actionable recommendations.
 把 Skill 写长也不能自动解决这些问题。
 
 可靠性来自明确的任务边界、工作步骤和验证标准，不来自字数。
-
-<span id="three-loading-levels"></span>
 
 ## 理解三层加载
 
@@ -108,8 +89,6 @@ SKILL.md：告诉我这项工作应该怎样完成
 > 这段内容是每次都要知道，还是只有某种情况才需要？
 
 如果只有特定情况需要，就不应该默认塞进主文件。
-
-<span id="write-the-description"></span>
 
 ## 写好 description
 
@@ -176,8 +155,6 @@ description 负责选择，不负责承载全部工作方法。
 
 过长描述会增加初始上下文成本，也会让真正重要的触发信号被淹没。详细步骤留在正文。
 
-<span id="write-the-body"></span>
-
 ## 组织 SKILL.md 正文
 
 Skill 被选中以后，系统才会读取 `SKILL.md` 正文。
@@ -241,8 +218,6 @@ Skill 被选中以后，系统才会读取 `SKILL.md` 正文。
 - 输出契约；
 - 错误恢复方式；
 - 公司或团队特有的边界。
-
-<span id="split-supporting-files"></span>
 
 ## 拆分支持文件
 
@@ -308,8 +283,6 @@ weekly-ops-review/
 
 Agent Skills 的创作指南通常建议把主 `SKILL.md` 控制在约 500 行以内。这个数字是提醒你及时拆分的上限，不是必须写满的目标。大多数聚焦单一任务的 Skill 应该短得多。
 
-<span id="apply-to-the-example"></span>
-
 ## 改进周报 Skill
 
 现在把上一页的单文件版本升级为：
@@ -359,8 +332,6 @@ weekly-ops-review/
 ### 第四步：重新检查 description
 
 加入支持文件不会自动改善触发。最后仍要回到 description，确认它描述的是“什么时候用这个 Skill”，而不是目录里有哪些文件。
-
-<span id="review-checklist"></span>
 
 ## 发布前检查
 

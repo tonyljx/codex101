@@ -43,7 +43,7 @@ src/
 ├── content/special/zh/        # 确定性生成的复杂参考页 HTML 片段
 ├── components/docs/           # MDX 可使用的受控视觉组件
 ├── lib/docs.ts                # 集合查询、导航与文档 UI 标签
-├── lib/reference-sidebars.ts  # 五个产品上下文 Hub 的源站信息架构
+├── lib/reference-sidebars.ts  # 五个产品上下文 Hub 与中文 Skills 专题的信息架构
 ├── lib/site.ts                # 站点级和界面级短文案
 ├── pages/docs/                # 默认语言静态路由
 ├── pages/[lang]/docs/         # 其他语言静态路由
@@ -94,7 +94,7 @@ outline:
 - `translationStatus`：`complete`、`needs-review` 或 `outdated`。
 - `lastUpdated`：内容最后修改日期，不代表构建日期。
 - `pageKind`：`article`、`hub`、`product` 或 `special`；未填写时默认 `article`。
-- `referenceHub`：可选。用于归属“功能 / 配置 / 开发者 / 安全 / 管理”五个源站上下文；这类页面不进入普通文档概览，但仍进入搜索。
+- `referenceHub`：可选。用于归属“功能 / 配置 / 开发者 / 安全 / 管理”五个源站上下文，以及中文 Skills 专题；这类页面不进入普通文档概览，但仍进入搜索。
 - `sourceUrl`：可选。记录迁移内容的来源页面，便于审校和后续有意同步；它不是运行时依赖。
 - `outline`：可选。只在正文使用 JSX 结构、Astro 无法自动提取二级标题时声明；普通 Markdown 标题仍自动生成目录。
 
@@ -281,12 +281,12 @@ compare-{slug}-{viewport}.png
 
 因此，调整标题、导航标题或排序只修改 MDX frontmatter；不需要同步修改 React、侧栏或路由文件。
 
-五个中文上下文 Hub 是明确的内容分区。源站“功能 / 配置 / 开发者 / 安全 / 管理”的 105 个可见详情路由已迁移为分层 MDX；另外迁移两篇只被正文引用的补充页面，避免文章内部链接再次产生 404。
+六个中文上下文 Hub 是明确的内容分区。源站“功能 / 配置 / 开发者 / 安全 / 管理”的 105 个可见详情路由已迁移为分层 MDX；Skills 则承载本站原创的中文学习路径。另外迁移两篇只被正文引用的补充页面，避免文章内部链接再次产生 404。
 
-- `src/lib/reference-sidebars.ts` 只保存源站可见的信息架构，同时供桌面侧栏和移动抽屉消费。
+- `src/lib/reference-sidebars.ts` 保存五个源站参考树和中文 Skills 专题树，同时供桌面侧栏和移动抽屉消费。
 - 详情 MDX 通过 `referenceHub` 声明归属。普通文档概览和上一篇/下一篇不会被 100 多篇参考页淹没，但搜索包含全部内容。
 - 参考详情页的侧栏、顶部当前上下文和上一篇/下一篇都从同一个 reference tree 推导；不能再单独维护第三份路径数组。
-- `npm run build` 会在 Astro 构建后执行 `check:reference-routes`，同时检查 110 个可见导航路由和全部中文正文站内链接；任何缺页都会让构建失败。
+- `npm run build` 会在 Astro 构建后执行 `check:reference-routes`，同时检查 123 个可见导航路由和全部中文正文站内链接；任何缺页都会让构建失败。
 
 源站快照迁移入口是：
 
@@ -307,6 +307,8 @@ npm run migrate:reference-docs -- --write
 核心教程采用镜像目录，每个 `translationKey` 应有 13 个对应文件。当前非中英文初始内容标记为 `needs-review`，表示页面可用但仍需要母语审校。
 
 五个参考 Hub 的详情语料来自中文源站，当前以简体中文作为唯一可审校的 canonical snapshot。详情页切换到其他语言时落到目标语言对应 Hub，而不是生成一个不存在的翻译 URL 或展示伪翻译。某个参考详情完成母语翻译后，再在目标语言目录创建相同 `translationKey`，并把语言切换策略升级为基于 collection 实际可用性选择同页链接。
+
+Skills 专题同样以简体中文作为当前唯一 canonical 内容，但它属于本站原创学习路径，不算入需要 13 份镜像的核心迁移教程。Skills 详情页通过 `referenceHub: skills` 进入专题导航；切换到尚无对应专题的语言时回到目标语言文档概览，不生成伪翻译 URL。完成某种语言的人工翻译后，再创建相同 `translationKey` 并为该语言开放同页切换。
 
 翻译流程：
 

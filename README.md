@@ -210,7 +210,7 @@ sourceUrl: https://example.com/source
 - `translationStatus`：使用 `complete`、`needs-review` 或 `outdated` 标记翻译状态。
 - `lastUpdated`：内容实际更新日期。
 - `pageKind`：支持 `article`、`hub`、`product` 和 `special`。
-- `referenceHub`：用于 features、configuration、developers、security-administration、administration 等参考栏目。
+- `referenceHub`：用于 features、configuration、developers、security-administration、administration 和中文 Skills 专题等上下文栏目。
 
 ### 内容维护原则
 

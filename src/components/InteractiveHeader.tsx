@@ -104,7 +104,7 @@ export default function InteractiveHeader({ locale, currentPath, kind, navigatio
   const referenceSidebar = getReferenceSidebar(locale, currentSlug);
   const referenceHub = getReferenceHubKey(locale, currentSlug);
   const languageHref = (target: Locale) => referenceHub && target !== defaultLocale
-    ? localizedPath(target, `/docs/${referenceHub}`)
+    ? localizedPath(target, referenceHub === 'skills' ? '/docs' : `/docs/${referenceHub}`)
     : localizedPath(target, basePath);
   const closeAll = () => {
     setMenuOpen(false);

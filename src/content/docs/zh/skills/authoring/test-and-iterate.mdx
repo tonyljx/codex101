@@ -12,23 +12,6 @@ lastUpdated: 2026-08-09
 pageKind: article
 referenceHub: "skills"
 sourceUrl: "https://agentskills.io/skill-creation/evaluating-skills"
-outline:
-  - id: "test-two-things"
-    label: "分开测试两件事"
-  - id: "build-a-test-set"
-    label: "建立测试集"
-  - id: "record-a-baseline"
-    label: "先记录基线"
-  - id: "run-the-tests"
-    label: "运行并记录结果"
-  - id: "write-assertions"
-    label: "用断言检查输出"
-  - id: "diagnose-failures"
-    label: "从失败定位问题"
-  - id: "iterate-with-evidence"
-    label: "根据证据迭代"
-  - id: "definition-of-done"
-    label: "什么时候算完成"
 ---
 
 Skill 创建完成以后，最常见的验收方式是：
@@ -48,8 +31,6 @@ Skill 创建完成以后，最常见的验收方式是：
 一个 Skill 要进入长期使用，至少需要一套小而真实的测试集。
 
 这篇会为 `weekly-ops-review` 建立第一版评估记录。
-
-<span id="test-two-things"></span>
 
 ## 分开测试两件事
 
@@ -80,8 +61,6 @@ Skill 被选中以后，是否按照预期完成了工作？
 这两类问题不能混在一起。
 
 如果 Skill 根本没有触发，应该先修改 description 或调用方式；如果已经触发但结果仍然不好，问题更可能在正文、支持材料、输入或脚本。
-
-<span id="build-a-test-set"></span>
 
 ## 建立测试集
 
@@ -127,8 +106,6 @@ Skill 被选中以后，是否按照预期完成了工作？
 
 如果生产环境经常收到缺字段的表格，测试里只有完美 CSV，就无法预测真正的表现。
 
-<span id="record-a-baseline"></span>
-
 ## 先记录基线
 
 在评估 Skill 之前，选择三项代表性任务，先在**不使用 Skill**的情况下运行一次。
@@ -160,8 +137,6 @@ Skill 被选中以后，是否按照预期完成了工作？
 如果使用 Skill 后只是标题更整齐，核心判断没有改善，就不能说它已经有效。
 
 基线还有另一个作用：防止把模型本来就会做的事情误认为 Skill 的贡献。
-
-<span id="run-the-tests"></span>
 
 ## 运行并记录结果
 
@@ -198,8 +173,6 @@ Skill 被选中以后，是否按照预期完成了工作？
 | P1 | 是 | 4/6 | 没有检查时间范围 | 修改输入检查 |
 | P2 | 不稳定 | — | 两次只识别为普通问答 | 修改 description |
 | N5 | 否 | — | 无 | 保留 |
-
-<span id="write-assertions"></span>
 
 ## 用断言检查输出
 
@@ -238,8 +211,6 @@ A7. 最终输出包含结论、异常、原因和动作四部分。
 - 输出结构；
 - 安全与边界。
 
-<span id="diagnose-failures"></span>
-
 ## 从失败定位问题
 
 测试失败后，不要立刻重写整个 Skill。
@@ -269,8 +240,6 @@ A7. 最终输出包含结论、异常、原因和动作四部分。
 并不是所有波动都要用脚本解决。
 
 先看能否通过更明确的输入、判断和输出规则改善。只有固定计算、格式验证或数据转换确实需要可重复结果时，再加入脚本。
-
-<span id="iterate-with-evidence"></span>
 
 ## 根据证据迭代
 
@@ -307,8 +276,6 @@ and questions about why operational metrics changed across periods.
 不要为了让一个测试通过，加入只针对那一句话的特殊规则。
 
 如果修改后只会识别测试集里的固定措辞，却无法处理真实用户的其他表达，这就是过拟合。持续加入新近出现的真实任务，并保留一部分没有参与修改的验证 Prompt。
-
-<span id="definition-of-done"></span>
 
 ## 什么时候算完成
 
