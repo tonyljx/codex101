@@ -1,7 +1,7 @@
 ---
 title: "Skill 推荐：AI 网站开发"
 navTitle: "AI 网站开发 Skill"
-description: "从前端设计、浏览器验证、支付、数据库到部署，挑选适合 AI 网站开发的 Skill / Plugin 组合。"
+description: "从界面设计、React 工程规范、浏览器验证、支付、数据库到部署，组合一套来源清楚、边界明确的 AI 网站开发 Skill 栈。"
 locale: "zh"
 translationKey: "skills/recommendations/ai-web-development"
 section: "foundations"
@@ -11,177 +11,232 @@ translationStatus: complete
 lastUpdated: 2026-08-08
 pageKind: article
 referenceHub: "skills"
-sourceUrl: "https://github.com/openai/plugins"
+sourceUrl: "https://github.com/vercel-labs/agent-skills"
 outline:
   - id: "who-is-this-for"
     label: "适合谁"
+  - id: "selection-model"
+    label: "先分清 Skill、工具与 Plugin"
+  - id: "quick-pick"
+    label: "快速选择"
   - id: "recommended-stack"
     label: "推荐组合"
   - id: "workflow"
-    label: "一个实用开发工作流"
+    label: "可落地的开发工作流"
   - id: "custom-skills"
     label: "最值得自己做的 Skill"
 ---
 
-如果你在用 Codex、Claude Code 或其他 Agent 做 AI 网站，真正能拉开效率差距的通常不是“再写一个更长的 Prompt”，而是让不同 Skill 各自负责一段稳定工作流。
+如果你在用 Codex、Claude Code、Cursor 或其他 Agent 做网站，真正能拉开效率差距的通常不是“再写一个更长的 Prompt”，而是让不同 Skill 各自负责一段稳定工作流，并且让浏览器、数据库、支付和部署工具提供真实执行能力。
+
+本文优先推荐由相关厂商维护的公开仓库。社区 Skill 可以作为灵感，但涉及支付、鉴权、数据和生产部署时，应优先核对官方文档与项目当前代码。
 
 <span id="who-is-this-for"></span>
 
 ## 适合谁
 
-这一套适合：
+这套组合适合：
 
-- 独立开发者；
-- AI SaaS 创业者；
-- 做 SEO / 工具站的人；
-- PM + AI 协作开发；
-- 不想自己写大量前端，但需要稳定交付页面的人。
+- 用 Astro、React、Next.js 等框架交付网站的独立开发者；
+- 需要支付、登录、数据库和后台任务的 AI SaaS 团队；
+- 经常做 Landing Page、SEO 工具站或 Dashboard 的产品团队；
+- 有设计稿，但缺少稳定设计还原与视觉验收流程的人；
+- 希望把“开发完成”推进到“线上可用”的 Agent 用户。
+
+<span id="selection-model"></span>
+
+## 先分清 Skill、工具与 Plugin
+
+这三个概念经常被混在一起，但它们解决的问题不同：
+
+| 类型 | 主要作用 | 不能替代什么 |
+| --- | --- | --- |
+| Skill | 保存步骤、判断标准、规范和检查清单 | 不能凭空访问浏览器、数据库或支付账户 |
+| Tool / MCP | 读取或修改真实外部系统 | 不会自动理解你的产品规范与验收标准 |
+| Plugin | 把一组 Skill、工具和配置打包 | 仍然需要权限、密钥和人工确认高风险操作 |
+
+例如，“支付实现必须以服务端确认的状态为准”适合写进 Skill；创建 Stripe 对象、读取事件和部署环境变量，则需要实际工具和账户权限。
+
+<span id="quick-pick"></span>
+
+## 快速选择
+
+| 任务层 | 优先选择 | 来源 | 最适合解决 |
+| --- | --- | --- | --- |
+| 视觉与页面实现 | `frontend-design` | [Anthropic Skills](https://github.com/anthropics/skills/tree/main/skills/frontend-design) | 从需求到有明确视觉方向的前端页面 |
+| UI 规范审查 | `web-design-guidelines` | [Vercel Labs](https://github.com/vercel-labs/agent-skills/tree/main/skills/web-design-guidelines) | 可访问性、表单、交互和界面规范检查 |
+| React 性能 | `react-best-practices` | [Vercel Labs](https://github.com/vercel-labs/agent-skills/tree/main/skills/react-best-practices) | 组件、渲染、数据获取和包体积审查 |
+| 浏览器验收 | `webapp-testing` + 浏览器工具 | [Anthropic Skills](https://github.com/anthropics/skills/tree/main/skills/webapp-testing) | 实际点击、截图、断点和回归验证 |
+| 支付 | `stripe-best-practices` | [Stripe AI](https://github.com/stripe/ai/tree/main/skills/stripe-best-practices) | Checkout、订阅、Webhook 与安全边界 |
+| 数据库 | `supabase` + `supabase-postgres-best-practices` | [Supabase Agent Skills](https://github.com/supabase/agent-skills/tree/main/skills) | Auth、RLS、Schema、SQL 与性能 |
+| Cloudflare 部署 | `workers-best-practices` / `wrangler` | [Cloudflare Skills](https://github.com/cloudflare/skills/tree/main/skills) | Workers 运行时、绑定、配置与部署 |
+| Vercel 部署 | `deploy-to-vercel` | [Vercel Labs](https://github.com/vercel-labs/agent-skills/tree/main/skills/deploy-to-vercel) | 构建、部署、预览 URL 与上线检查 |
+
+这张表不是“全部安装清单”。先从当前任务对应的一到两个 Skill 开始，比一次加入一个巨大 Skill 包更容易触发准确，也更容易审计。
 
 <span id="recommended-stack"></span>
 
 ## 推荐组合
 
-### 1. Build Web Apps / Frontend App Builder
+### 1. Frontend Design + Web Design Guidelines
 
 **推荐指数：★★★★★**
 
-OpenAI 当前的 `build-web-apps` Plugin 把前端设计、浏览器测试、支付和数据库工作流放在一起；其中 `frontend-app-builder` 专门负责从需求到完整前端实现和视觉 QA。
+`frontend-design` 更偏向创建：理解产品目标、建立视觉方向并完成页面；`web-design-guidelines` 更偏向审查：检查已有界面的可用性、一致性和可访问性。两者组合比“帮我美化一下”更可控。
 
 适合：
 
-- Landing Page；
-- Dashboard；
-- SaaS 前端；
-- 现有页面重设计；
-- 从视觉方案落到代码。
+- Landing Page、Dashboard 和 SaaS 工作台；
+- 从截图或设计稿还原页面；
+- 建立一套不依赖单个页面的视觉语言；
+- 对现有 UI 做系统性质量检查。
 
-参考：[OpenAI Plugins · Build Web Apps](https://github.com/openai/plugins/tree/main/plugins/build-web-apps)
+建议验收：页面不是只在默认桌面宽度看起来正确；导航、表单、焦点状态、空状态、错误状态和移动端都应被实际检查。
 
-### 2. Browser / Web App Testing
-
-**推荐指数：★★★★★**
-
-Agent 写完代码后最容易出现的问题是：代码能编译，但页面实际不好用。
-
-浏览器测试类 Skill 应该承担：
-
-- 打开本地页面；
-- 检查 Console；
-- 点击核心流程；
-- 验证移动端；
-- 截图检查；
-- 找出视觉和交互回归。
-
-它适合作为所有“写完代码之后”的固定 QA Skill。
-
-### 3. Figma Skills
+### 2. React Best Practices
 
 **推荐指数：★★★★☆**
 
-OpenAI 的 Figma Plugin 已经包含从读取设计、生成设计系统，到 Code Connect 等一系列 Skill。
+Vercel 的 React Skill 把性能规则按优先级组织起来，适合在功能完成后做针对性审查。它对 Astro 项目里的 React Islands 同样有参考价值，但不能把 Next.js 专属建议直接照搬到 Astro。
 
-适合：
+重点检查：
 
-- Figma → Code；
-- Code → Figma；
-- 维护设计系统；
-- 检查设计与代码是否一致。
+- 是否加载了不必要的客户端 JavaScript；
+- 组件边界是否导致重复渲染；
+- 数据请求是否串行或重复；
+- 大型依赖是否可以延迟或按需加载；
+- 交互组件是否真的需要 hydration。
 
-参考：[OpenAI Plugins · Figma](https://github.com/openai/plugins/tree/main/plugins/figma)
+Astro 项目最好再补一个项目自有的 `astro-project-rules`，把 Content Collections、i18n、路由、Island 指令和部署适配写清楚。
+
+### 3. Web App Testing + 真实浏览器
+
+**推荐指数：★★★★★**
+
+测试 Skill 提供“怎么验收”的流程，浏览器工具负责真的打开页面、点击和截图。只运行 `build` 无法发现菜单遮挡、路由 404、移动端溢出或动画导致的布局问题。
+
+一个合格的浏览器验收至少应覆盖：
+
+```text
+打开本地或预览地址
+→ 检查 Console 与失败请求
+→ 点击核心导航和 CTA
+→ 验证表单成功 / 失败状态
+→ 检查桌面、平板、手机断点
+→ 检查浅色 / 深色主题（如有）
+→ 截图对比关键页面
+```
+
+视觉工具只能证明“页面现在长什么样”，不能替代单元测试、接口测试和支付状态校验。
 
 ### 4. Stripe Best Practices
 
+**推荐指数：★★★★★**
+
+Stripe 官方仓库的 Skill 会持续同步其面向 Agent 的集成指导，适合处理 Checkout、订阅、Connect、升级与 API 文档检索。
+
+支付 Skill 应至少约束：
+
+- 金额和 Price ID 由服务端决定，不信任客户端提交；
+- Webhook 验签，并对重复投递保持幂等；
+- 只有服务端确认的已支付状态才能发放权益；
+- 测试环境和生产环境的密钥、产品与回调地址分离；
+- 部署后用真实测试模式走完整支付与退款路径。
+
+参考：[Stripe Agent Skills](https://github.com/stripe/ai/tree/main/skills)。
+
+### 5. Supabase + Postgres Best Practices
+
+**推荐指数：★★★★★**
+
+Supabase 官方仓库目前把产品使用规范和 Postgres 最佳实践拆成两个 Skill：前者覆盖数据库、Auth、Storage、Edge Functions 等产品能力，后者聚焦查询、连接、Schema、并发、安全与诊断。
+
+最适合沉淀：
+
+- 所有业务表的 RLS 与所有权模型；
+- 服务端与客户端使用哪种凭据；
+- Migration 的生成、审查、回滚和上线顺序；
+- 索引、连接池和慢查询排查；
+- Auth 用户与业务数据之间的边界。
+
+注意：Skill 可以提醒你检查 RLS，但是否真的安全，仍需对实际策略、角色和查询路径进行验证。
+
+### 6. Cloudflare / Vercel 部署 Skill
+
 **推荐指数：★★★★☆**
 
-如果你做的是付费 AI 产品，支付逻辑非常适合使用专门 Skill，而不是每次重新让模型判断 Checkout、订阅、Connect 或 PaymentIntent。
+部署 Skill 不只是运行一条命令，而应该把构建、配置、发布、日志和冒烟测试串起来。
 
-OpenAI `build-web-apps` 中已经提供 Stripe 最佳实践 Skill。
-
-适合：
-
-- 一次性付款；
-- SaaS 订阅；
-- Payment Element；
-- Marketplace / Connect；
-- 支付上线前检查。
-
-### 5. Supabase / Database Skill
-
-**推荐指数：★★★★☆**
-
-数据库相关工作最好沉淀：
-
-- Schema 设计规则；
-- RLS 安全检查；
-- 索引 / SQL 性能；
-- Migration 流程；
-- Auth 约定。
-
-对于经常用同一套技术栈的人，这类 Skill 的长期价值非常高。
-
-### 6. Deploy Skill：Vercel / Cloudflare / Netlify
-
-**推荐指数：★★★★☆**
-
-部署 Skill 不只是运行一个命令，而应该包含：
+Cloudflare 官方仓库提供 Workers、Wrangler、Agents SDK 等 Skill；Vercel 官方仓库提供 `deploy-to-vercel`。平台二选一即可，不必为了“Skill 更多”同时维护两套生产环境。
 
 ```text
-构建检查
-→ 环境变量检查
-→ 部署
-→ 查看日志
-→ 打开线上页面
-→ 冒烟测试
-→ 确认域名 / HTTPS
+检查工作区和构建产物
+→ 核对运行时与环境变量
+→ 部署到预览或生产
+→ 读取部署日志
+→ 打开线上 URL
+→ 验证首页、关键路由、API 和静态资源
+→ 记录版本与回滚入口
 ```
-
-OpenAI Plugin 仓库目前已经有 Netlify 等部署工作流；如果你的项目长期使用 Vercel 或 Cloudflare，更值得自己维护一个团队专属部署 Skill。
 
 <span id="workflow"></span>
 
-## 一个实用的 AI 网站开发工作流
+## 可落地的开发工作流
 
-你不需要让一个 Skill 包办全部事情。
-
-更好的组合是：
+### Astro + React 内容站
 
 ```text
-需求 / PRD
-↓
-设计与信息架构 Skill
-↓
-Frontend App Builder
-↓
-数据库 / 支付 Skill
-↓
-Browser QA Skill
-↓
-Deploy Skill
-↓
-Production Smoke Test
+需求与内容结构
+→ Frontend Design 建立页面方向
+→ 自定义 Astro Skill 约束路由、MDX、i18n 与 Islands
+→ Web Design Guidelines 审查界面
+→ Browser QA 验证断点、路由和动效
+→ Cloudflare / Vercel 部署
+→ 线上路由与 404 冒烟测试
 ```
 
-这样每个 Skill 有清楚边界，也更容易替换和优化。
+### 带登录和支付的 AI SaaS
+
+```text
+先写业务状态与权限边界
+→ Supabase / Postgres Skill 设计数据和 RLS
+→ Stripe Skill 实现支付状态机
+→ Frontend Design 完成交互
+→ React Best Practices 做性能检查
+→ Browser QA + API / Webhook 测试
+→ 部署并完成生产冒烟测试
+```
+
+每一步都应该有可验证输出。比如“浏览器 QA 完成”应对应已检查的 URL、视口、交互和截图，而不是一句“页面看起来没问题”。
+
+### 安装前检查
+
+无论来源多有名，加入 Skill 前都建议检查：
+
+1. 读完整 `SKILL.md`，确认触发范围是否过宽；
+2. 检查 `scripts/`、依赖和允许调用的工具；
+3. 确认它是否会修改外部系统、部署或发送数据；
+4. 查看许可证、维护者和最近更新；
+5. 先在测试分支或非生产账户验证；
+6. 对项目约定冲突的部分做本地覆盖，而不是静默接受。
 
 <span id="custom-skills"></span>
 
 ## 最值得自己做的 Skill
 
-公开 Skill 解决通用问题，但网站开发最有价值的通常是**你的项目规则**。
+公开 Skill 解决通用方法，你的项目 Skill 才负责长期一致性。
 
-建议优先沉淀：
-
-| 自定义 Skill | 应该包含什么 |
-| --- | --- |
-| `new-page` | 页面目录、SEO、Metadata、组件规范、埋点 |
-| `new-model-page` | AI 模型页面模板、定价字段、FAQ、结构化数据 |
-| `payment-integration` | 你的 Stripe 产品 / Credit / Subscription 约定 |
-| `release-check` | build、lint、浏览器 QA、核心支付流程 |
-| `seo-content-page` | 关键词、标题规则、内链、FAQ、CTA、Schema |
-| `db-migration` | Migration 命名、回滚、安全检查、部署流程 |
+| 自定义 Skill | 应该包含什么 | 建议验收 |
+| --- | --- | --- |
+| `astro-project-rules` | Content Collections、MDX、i18n、路由、Islands、样式入口 | 新页面能构建且所有语言路由可访问 |
+| `new-page` | 页面目录、SEO、Metadata、埋点、组件约束 | Metadata、canonical、移动端和 CTA 完整 |
+| `new-model-page` | AI 模型页面模板、定价字段、FAQ、结构化数据 | 数据来自单一配置源，无页面级硬编码 |
+| `payment-integration` | 产品、Credit、Subscription、Webhook 与退款约定 | 重复事件不重复发权益，失败可恢复 |
+| `release-check` | build、lint、路由、浏览器 QA、日志和回滚 | 输出可追踪的版本、URL 和检查结果 |
+| `seo-content-page` | 关键词、标题、内链、FAQ、CTA、Schema | 页面可索引且不生成重复语言版本 |
 
 判断标准很简单：
 
-> **如果你每开一个新站或新页面，都要重新向 AI 解释一次项目规范，那些规范就应该进入 Skill。**
+> 如果每开一个新站或新页面，都要重新向 AI 解释一次同样的项目规范，那些规范就应该进入 Skill。
 
 下一步可以继续看 [文章撰写 Skill 推荐](/docs/skills/recommendations/writing)，或者回到 [Skills 专区](/docs/skills)。

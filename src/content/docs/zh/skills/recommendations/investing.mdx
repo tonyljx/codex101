@@ -1,7 +1,7 @@
 ---
 title: "Skill 推荐：股票研究与投资分析"
 navTitle: "股票研究 Skill"
-description: "把公司研究、财报分析、估值、催化剂和 thesis tracking 做成可复用的投资研究 Skill，而不是让 AI 直接给买卖结论。"
+description: "基于公开的一手金融 Skill，搭建公司研究、财报、估值、催化剂与 Thesis Tracking 工作流，并明确数据来源和投资边界。"
 locale: "zh"
 translationKey: "skills/recommendations/investing"
 section: "foundations"
@@ -15,8 +15,12 @@ sourceUrl: "https://github.com/anthropics/financial-services"
 outline:
   - id: "what-skills-are-good-for"
     label: "投资里 Skill 最适合做什么"
+  - id: "quick-pick"
+    label: "先看结论"
   - id: "recommended-skills"
     label: "推荐 Skill"
+  - id: "source-contract"
+    label: "先建立数据来源契约"
   - id: "workflow"
     label: "推荐研究工作流"
   - id: "custom-skills"
@@ -25,7 +29,9 @@ outline:
     label: "边界：不要做自动喊单 Skill"
 ---
 
-股票研究很适合 Skill，但适合沉淀的是**研究流程**，不是“明天买什么”的答案。
+股票研究很适合 Skill，但适合沉淀的是**研究流程、数据来源、公式和复核标准**，不是“明天买什么”的答案。
+
+目前公开资料里，Anthropic 的 [Financial Services](https://github.com/anthropics/financial-services) 仓库提供了较完整的一手实现：权益研究、财报分析、催化剂、Thesis Tracker、DCF、Comps、三表和 Excel 审计等都被拆成独立 Skill。它适合作为方法参考，但其中部分 Partner-built Skill 仍依赖 LSEG、S&P Global 等授权数据源，不能只安装 `SKILL.md` 就获得市场数据。
 
 <span id="what-skills-are-good-for"></span>
 
@@ -33,119 +39,192 @@ outline:
 
 高价值方向包括：
 
-- 公司基础研究；
-- 财报拆解；
+- 公司与行业基础研究；
 - Earnings Preview / Review；
-- 同行比较；
-- DCF / Comps；
-- 催化剂日历；
-- Thesis Tracking；
-- 风险清单；
-- 组合暴露分析；
-- 研究报告写作。
+- 历史财务、三表和模型更新；
+- 同行比较、DCF 和情景分析；
+- 催化剂日历和持仓事件跟踪；
+- Thesis Tracking 与反证记录；
+- 组合暴露、风险清单和研究报告写作。
 
-这些任务的共同点是：每家公司不同，但研究框架可以重复。
+这些任务的共同点是：每家公司和数据不断变化，但研究顺序、输出结构和质量检查可以重复。
+
+不太适合直接交给 Skill 的是：无人监督的实时交易、只凭新闻标题生成买卖信号、没有来源日期的目标价，以及对个人风险承受能力作出推断。
+
+<span id="quick-pick"></span>
+
+## 先看结论
+
+| 任务 | 优先参考 | 来源 | 关键前置条件 |
+| --- | --- | --- | --- |
+| 第一次完整覆盖一家公司 | `initiating-coverage` | [Anthropic](https://github.com/anthropics/financial-services/tree/main/plugins/vertical-plugins/equity-research/skills/initiating-coverage) | 公司资料、历史财务、估值输入和逐阶段复核 |
+| 财报前预期与关注点 | `earnings-preview` | [Anthropic](https://github.com/anthropics/financial-services/tree/main/plugins/vertical-plugins/equity-research/skills/earnings-preview) | 最新一致预期、公司指引与历史 KPI |
+| 财报后更新 | `earnings-analysis` + `model-update` | [Anthropic](https://github.com/anthropics/financial-services/tree/main/plugins/vertical-plugins/equity-research/skills) | 财报、10-Q / 10-K、电话会、预期来源和旧模型 |
+| 相对估值 | `comps-analysis` | [Anthropic](https://github.com/anthropics/financial-services/tree/main/plugins/vertical-plugins/financial-analysis/skills/comps-analysis) | 合理同行、统一口径、当前市场数据 |
+| 绝对估值 | `dcf-model` | [Anthropic](https://github.com/anthropics/financial-services/tree/main/plugins/vertical-plugins/financial-analysis/skills/dcf-model) | 可复算模型、WACC、终值与敏感性假设 |
+| 持仓逻辑跟踪 | `thesis-tracker` | [Anthropic](https://github.com/anthropics/financial-services/tree/main/plugins/vertical-plugins/equity-research/skills/thesis-tracker) | 原始 thesis、可证伪条件和持续更新记录 |
+| 事件管理 | `catalyst-calendar` | [Anthropic](https://github.com/anthropics/financial-services/tree/main/plugins/vertical-plugins/equity-research/skills/catalyst-calendar) | 覆盖池、可靠日期来源和定期复核 |
+| 模型与表格交付 | `xlsx` / `xlsx-author` / `audit-xls` | [Anthropic Skills](https://github.com/anthropics/skills/tree/main/skills/xlsx) | 公式、来源注释、重算与错误检查 |
+
+这里的“推荐”是推荐研究模块，不是建议把整个仓库全部安装。个人投资者通常从 `earnings-analysis`、`thesis-tracker` 和一个表格 Skill 开始就足够。
 
 <span id="recommended-skills"></span>
 
 ## 推荐 Skill
 
-### 1. Company Tearsheet / Company Research
+### 1. Initiating Coverage
+
+**推荐指数：★★★★★（完整研究）**
+
+官方 Skill 把首次覆盖拆成公司研究、财务建模、估值、图表和报告组装五个阶段，并要求在进入下一个阶段前验证输入。这个设计非常值得借鉴：不要让 Agent 从一个股票代码直接跳到几十页报告。
+
+适合：
+
+- 第一次系统研究一家公司；
+- 建立后续财报更新所需的基础模型；
+- 把公司、行业、估值、风险和催化剂放进统一框架；
+- 需要可复核中间产物，而不是只读最终结论。
+
+最小验收：历史数据有来源与日期；模型假设单独列示；DCF / Comps 能复算；报告里的数字能回到模型或原始文件。
+
+参考：[Initiating Coverage Skill](https://github.com/anthropics/financial-services/blob/main/plugins/vertical-plugins/equity-research/skills/initiating-coverage/SKILL.md)。
+
+### 2. Earnings Preview + Earnings Analysis
 
 **推荐指数：★★★★★**
 
-先把最基础的公司研究做标准化。
+财报 Skill 不应只总结收入和 EPS。Anthropic 的财报后分析强调：实际结果相对一致预期的差异、原因、指引变化、模型更新和 thesis 影响，并要求表格和图表附具体来源。
 
-建议固定覆盖：
-
-- 公司做什么；
-- 收入和利润来自哪里；
-- 核心产品；
-- 客户；
-- 竞争格局；
-- 财务趋势；
-- 估值；
-- 关键风险；
-- 近期催化剂。
-
-这类 Skill 很适合作为所有深入研究的入口。
-
-### 2. Earnings Deep Dive
-
-**推荐指数：★★★★★**
-
-财报 Skill 不应该只总结收入和 EPS。
-
-更好的流程：
+建议固定流程：
 
 ```text
-实际结果 vs 市场预期
-→ 指引变化
-→ 核心 KPI
-→ 管理层解释
-→ 电话会新增信息
-→ 模型影响
-→ Thesis 影响
-→ 下一季度要跟踪什么
+财报前记录市场预期、公司指引和关键 KPI
+→ 财报后核对实际值与口径
+→ 量化 beat / miss，而不是只写“超预期”
+→ 阅读电话会与补充材料
+→ 区分一次性因素和经营趋势
+→ 更新模型、估值和 thesis
+→ 记录下季度要验证的指标
 ```
 
-如果每个季度都按同一框架分析，研究质量会更容易比较。
+一致预期必须注明提供商和时间点；不同数据商的口径可能不同，不能把搜索摘要当作机构一致预期。
 
-### 3. Comps / DCF
+参考：[Earnings Analysis Skill](https://github.com/anthropics/financial-services/blob/main/plugins/vertical-plugins/equity-research/skills/earnings-analysis/SKILL.md)。
 
-**推荐指数：★★★★☆**
-
-估值 Skill 适合标准化：
-
-- 同行怎么选；
-- 用哪些 Multiples；
-- EV 到 Equity 的桥接；
-- WACC / Terminal Value；
-- 情景分析；
-- 敏感性；
-- 假设来源。
-
-Anthropic 已公开一套 Financial Services 插件，其中包括 Comps、DCF、三表、Earnings、Equity Research 等工作流，可以作为复杂金融 Skill 的参考实现。
-
-参考：[Anthropic Financial Services](https://github.com/anthropics/financial-services)
-
-OpenAI 的 Codex 插件生态中也已经出现面向 Public Equity Investing 的专门能力，这说明“按岗位打包研究工作流”正在成为 Skill / Plugin 的重要方向。
-
-### 4. Catalyst Calendar
+### 3. Comps Analysis
 
 **推荐指数：★★★★☆**
 
-很多研究不是判断长期好坏，而是知道：**接下来什么事情可能改变市场认知？**
+Comps 最容易出现的错误不是公式，而是同行选择和口径不一致。官方 Skill 明确把机构数据源放在普通网页搜索之前，并要求根据行业、受众和决策问题调整指标。
 
-Skill 可以固定追踪：
+必须记录：
 
-- 财报；
-- 产品发布；
-- 监管节点；
-- 行业会议；
-- 锁定期；
-- 指数调整；
-- 资本市场活动；
-- 宏观数据。
+- 为什么选择这些同行，为什么排除其他公司；
+- 市值、企业价值、净债务和股价的时间点；
+- LTM、NTM、FY1、FY2 等期间口径；
+- Revenue、EBITDA、ARR、GMV 等指标定义；
+- 负值、异常值和缺失值如何处理；
+- 中位数、四分位和隐含估值的公式。
+
+Comps 不适合强行套在没有可比公司的独特商业模式、困境企业或前收入项目上。
+
+### 4. DCF Model
+
+**推荐指数：★★★★☆**
+
+DCF Skill 的价值是让模型可复算，而不是自动给出一个看起来精确的目标价。官方实现强调公式优先、阶段性确认和奇数行列的敏感性表，中心格必须等于 Base Case。
+
+建议验收：
+
+- 历史值、假设和公式使用不同格式；
+- Revenue、Margin、Tax、CapEx、D&A、NWC 到 FCF 的桥接完整；
+- WACC 输入有来源，债务 / 现金 / 股数时间点一致；
+- 终值同时检查永续增长与退出倍数的合理性；
+- EV 到 Equity Value 再到每股价值的桥接可追踪；
+- WACC × Terminal Growth / Multiple 敏感性表可以重算；
+- 改一个假设后，下游值会通过公式更新。
+
+参考：[DCF Model Skill](https://github.com/anthropics/financial-services/blob/main/plugins/vertical-plugins/financial-analysis/skills/dcf-model/SKILL.md)。
 
 ### 5. Thesis Tracker
 
-**推荐指数：★★★★★**
+**推荐指数：★★★★★（个人投资者）**
 
-这是个人投资者特别值得做的 Skill。
+这是个人投资者最值得长期维护的 Skill。官方实现要求 thesis 可证伪，并持续记录支持和反对证据，而不是只在价格变化后补理由。
 
-建议每次更新都回答：
+建议结构：
 
 ```text
-原始 thesis 是什么？
-→ 哪些证据支持？
-→ 哪些证据反驳？
-→ 哪个核心假设发生变化？
-→ 估值是否变化？
-→ 接下来验证点是什么？
+1–2 句核心 thesis
+→ 3–5 个支柱
+→ 每个支柱的验证指标与截止时间
+→ 失效条件和关键风险
+→ 新数据对支柱的加强 / 削弱 / 中性影响
+→ 下一验证点
 ```
 
-它能帮助你避免只在股价上涨时找利好、下跌时找理由。
+可以记录仓位动作，但不要让 Skill 自动执行。更重要的是保存当时的证据与假设，避免事后重写历史。
+
+参考：[Thesis Tracker Skill](https://github.com/anthropics/financial-services/blob/main/plugins/vertical-plugins/equity-research/skills/thesis-tracker/SKILL.md)。
+
+### 6. Catalyst Calendar
+
+**推荐指数：★★★★☆**
+
+催化剂日历适合追踪财报、Investor Day、产品发布、监管节点、行业会议和宏观事件。官方 Skill 还要求归档事件的实际结果，这比只列日期更有价值。
+
+建议每条记录包含：
+
+- 日期、时区和是否已确认；
+- 事件类型、公司 / 行业与影响等级；
+- 市场预期与自己的关键观察项；
+- 日期来源和最后验证时间；
+- 事件发生后的实际结果与 thesis 影响。
+
+财报和监管日期会改变，因此日历应接入可靠来源并在临近事件时复核，不能把第一次搜索结果永久保存。
+
+参考：[Catalyst Calendar Skill](https://github.com/anthropics/financial-services/blob/main/plugins/vertical-plugins/equity-research/skills/catalyst-calendar/SKILL.md)。
+
+### 7. XLSX / Model Audit
+
+**推荐指数：★★★★★**
+
+研究报告的可信度取决于底层模型是否可追踪。表格 Skill 适合创建和编辑模型，`audit-xls` 一类 Skill 则适合检查公式错误、硬编码、断链和异常值。
+
+建议把“分析”和“审计”拆开：先由模型 Skill 完成文件，再用独立审计流程检查公式、来源注释、重算结果和关键平衡关系。不要让同一个生成步骤同时宣布自己完全正确。
+
+<span id="source-contract"></span>
+
+## 先建立数据来源契约
+
+金融 Skill 的能力上限由数据质量决定。推荐明确来源优先级：
+
+```text
+监管文件与公司原始披露
+→ 公司 IR 的财报、演示和电话会材料
+→ 有授权、可审计的金融数据提供商
+→ 交易所、央行和统计机构
+→ 可信新闻与行业资料
+→ 搜索结果与社交内容（只作线索，不作最终数字来源）
+```
+
+美国公司可优先使用 [SEC Developer Resources](https://www.sec.gov/about/developer-resources) 提供的 submissions 与 XBRL 数据接口，再回到具体 10-K、10-Q、8-K 原文核对。其他市场应换成对应监管机构和交易所的一手来源。
+
+每个数字最好携带这些字段：
+
+| 字段 | 示例 |
+| --- | --- |
+| `source` | 2026 Q2 10-Q / 公司 Earnings Release |
+| `url` | 可直接打开的文件或数据页面 |
+| `published_at` | 文件发布或提交日期 |
+| `retrieved_at` | 实际获取日期与时区 |
+| `period` | FY2025、LTM、2026E 等 |
+| `unit` | USD、百万美元、百分比、股数 |
+| `status` | reported / consensus / estimate / assumption |
+
+必须把 reported、consensus、estimate 和 assumption 分开。只要其中一个被误当作另一个，后续模型即使公式正确，结论也会失真。
+
+同时检查数据许可：Partner-built Skill 可能依赖 LSEG、S&P Global、FactSet 等账户和使用权。公开的 Skill 指令不等于公开的数据许可证。
 
 <span id="workflow"></span>
 
@@ -154,58 +233,64 @@ Skill 可以固定追踪：
 ### 新公司研究
 
 ```text
-Company Tearsheet
-→ 行业 / 竞争格局
-→ 历史财务
-→ Earnings / Transcript
-→ Comps
-→ DCF / Scenario
-→ Thesis + Risks
-→ Catalyst Calendar
+定义研究问题与截止日期
+→ 收集监管文件、IR 材料和行业一手来源
+→ Company Research / Sector Overview
+→ 清洗历史财务并核对口径
+→ 构建可复算模型
+→ Comps 与 DCF / Scenario
+→ 写 Thesis、反证、风险与 Catalysts
+→ 独立审计数字、公式和引用
+→ 保存带日期的研究快照
 ```
 
 ### 财报季
 
 ```text
-Earnings Preview
-→ 结果 vs 预期
-→ Earnings Deep Dive
-→ 更新模型
-→ 更新估值
-→ 更新 Thesis Tracker
+Earnings Preview 冻结预期与关键 KPI
+→ 获取财报、监管文件、电话会和补充材料
+→ Earnings Analysis 量化差异和原因
+→ Model Update
+→ 更新 Comps / DCF
+→ 更新 Thesis Tracker 与 Catalyst Calendar
+→ 记录哪些原假设被证实或证伪
 ```
 
 ### 持仓跟踪
 
 ```text
-新闻 / 公告变化
-→ 判断是否影响核心假设
-→ 更新 Catalyst
-→ 更新 Thesis
-→ 检查组合风险
+监控公告、IR、监管与已定义事件
+→ 判断新信息影响哪个 thesis 支柱
+→ 记录支持、反对或中性证据
+→ 更新模型和失效条件
+→ 检查组合集中度与事件暴露
+→ 人工决定是否采取仓位动作
 ```
+
+如果使用 Firecrawl 等网页工具，应把它用于发现与抓取公开来源，并保留 URL 和时间；关键财务数字仍要回到监管文件、公司披露或授权数据源核验。
 
 <span id="custom-skills"></span>
 
 ## 最值得自己做的 Skill
 
-| 自定义 Skill | 适合沉淀什么 |
-| --- | --- |
-| `company-research` | 你的公司研究框架 |
-| `earnings-review` | 你最关注的 KPI 和财报顺序 |
-| `valuation-check` | 你习惯使用的估值方法和情景 |
-| `thesis-tracker` | thesis、证据、反证、验证点 |
-| `catalyst-calendar` | 事件分类和重要程度 |
-| `portfolio-review` | 行业、因子、单股集中度、事件暴露 |
+| 自定义 Skill | 适合沉淀什么 | 最小验收标准 |
+| --- | --- | --- |
+| `company-research` | 你的公司、行业和竞争框架 | 所有关键结论有来源和截止日期 |
+| `earnings-review` | 重点 KPI、预期来源和财报顺序 | beat / miss 可复算，口径一致 |
+| `valuation-check` | 同行选择、DCF 假设和情景区间 | 公式、来源、敏感性与桥接完整 |
+| `thesis-tracker` | 支柱、反证、失效条件和验证点 | 保留历史快照，不事后覆盖原判断 |
+| `catalyst-calendar` | 事件分类、确认状态和影响等级 | 日期带来源，临近事件重新验证 |
+| `portfolio-review` | 行业、因子、单股和事件暴露 | 数据同一时间点，动作需人工确认 |
+| `source-audit` | 来源优先级、日期、单位和许可 | reported / estimate / assumption 明确分开 |
 
-如果你长期关注某一条产业链，还可以做行业专属 Skill，例如：
+如果你长期关注一条产业链，还可以做行业专属 Skill：
 
-- 半导体：库存、ASP、CapEx、利用率；
-- SaaS：ARR、NRR、RPO、S&M 效率；
-- 电商：GMV、Take Rate、广告收入；
-- AI 基础设施：GPU、网络、存储、CapEx、订单和产能。
+- 半导体：库存、ASP、CapEx、利用率与订单；
+- SaaS：ARR、NRR、RPO、销售效率与 Stock-based Compensation；
+- 电商：GMV、Take Rate、广告收入和履约成本；
+- AI 基础设施：GPU、网络、存储、CapEx、产能和供应约束。
 
-真正有价值的地方是把“你看公司时最关心什么”沉淀下来。
+行业 Skill 的价值不是塞入更多术语，而是定义“哪些指标最能证实或证伪 thesis，以及从哪里取数”。
 
 <span id="boundary"></span>
 
@@ -213,25 +298,24 @@ Earnings Preview
 
 投资 Skill 更适合：
 
-> **提高研究的一致性、完整性和可追踪性。**
+> 提高研究的一致性、完整性、可复算性和可追踪性。
 
 不适合把它设计成：
 
 ```text
-输入股票代码 → 自动输出 BUY / SELL
+输入股票代码 → 自动输出 BUY / SELL → 自动交易
 ```
-
-因为市场数据会变化，估值依赖假设，风险承受能力也因人而异。
 
 更好的输出是：
 
-- 当前证据；
-- 核心假设；
-- 估值区间；
-- 上下行情景；
-- 风险；
-- 哪些条件会让 thesis 失效。
+- 数据截止日期与来源；
+- 当前证据和反证；
+- 核心假设与哪些条件会使其失效；
+- Base / Bull / Bear 情景及概率是否由用户提供；
+- 估值区间与敏感性；
+- 未解决问题、数据缺口和下一验证点；
+- 明确说明这不是个性化投资建议。
 
-这样 Skill 帮你**保持研究纪律**，而不是替你承担投资决策。
+市场数据会变化，估值依赖假设，风险承受能力也因人而异。Skill 应帮助你保持研究纪律，而不是替你承担投资决策或交易责任。
 
 回到 [Skills 专区](/docs/skills)，或者先阅读 [6 类最常用 Skill 工作流](/docs/skills/workflow-playbook)。
