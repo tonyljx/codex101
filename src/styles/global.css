@@ -3821,15 +3821,15 @@ html.dark .docs-page-content > .doc-content .doc-screenshot img {
   content: "";
 }
 
-.docs-page-content > .doc-content pre.shiki {
+.docs-page-content > .doc-content pre:is(.shiki, .astro-code) {
   position: relative;
   margin: 1.71429em 0;
   padding: 1rem 3.5rem 1rem 1.25rem;
   overflow: hidden auto;
   border: 1px solid #e4e4e7;
   border-radius: 1.25rem;
-  color: #18181b;
-  background: #fafafa;
+  color: #18181b !important;
+  background: #fafafa !important;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
   font-size: 1.04rem;
   font-weight: 400;
@@ -3838,7 +3838,7 @@ html.dark .docs-page-content > .doc-content .doc-screenshot img {
   overflow-wrap: anywhere;
 }
 
-.docs-page-content > .doc-content h3 + pre.shiki {
+.docs-page-content > .doc-content h3 + pre:is(.shiki, .astro-code) {
   margin-top: 0;
 }
 
@@ -3914,7 +3914,7 @@ html.dark .docs-page-content > .doc-content .doc-screenshot img {
   }
 }
 
-.docs-page-content > .doc-content pre.shiki code {
+.docs-page-content > .doc-content pre:is(.shiki, .astro-code) code {
   display: block;
   padding: 0;
   border-radius: 0.25rem;
@@ -3928,23 +3928,34 @@ html.dark .docs-page-content > .doc-content .doc-screenshot img {
   overflow-wrap: anywhere;
 }
 
-.docs-page-content > .doc-content pre.shiki .line {
+.docs-page-content > .doc-content pre:is(.shiki, .astro-code) .line {
   display: block;
   line-height: inherit;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
 
-.docs-page-content > .doc-content .doc-workflow-steps pre.shiki {
+.docs-page-content > .doc-content pre.astro-code[data-language="text"] {
+  font-family: inherit;
+  font-size: 0.96rem;
+  line-height: 1.75rem;
+}
+
+.docs-page-content > .doc-content pre.astro-code[data-language="text"] code {
+  font-size: 1em;
+  font-weight: 400;
+}
+
+.docs-page-content > .doc-content .doc-workflow-steps pre:is(.shiki, .astro-code) {
   margin-top: 0.65rem;
   margin-bottom: 0;
 }
 
-.docs-page-content > .doc-content .doc-workflow-steps pre.shiki code {
+.docs-page-content > .doc-content .doc-workflow-steps pre:is(.shiki, .astro-code) code {
   font-size: 0.95em;
 }
 
-.docs-page-content > .doc-content .doc-workflow-steps pre.shiki code.language-bash {
+.docs-page-content > .doc-content .doc-workflow-steps pre:is(.shiki, .astro-code) code.language-bash {
   font-size: 0.95rem;
   line-height: 1.85;
 }
@@ -3985,6 +3996,19 @@ html.dark .docs-page-content > .doc-content .doc-screenshot img {
 
 .docs-page-content > .doc-content .code-copy-button[data-state="copied"]::before {
   mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5 9.5 17 19 7.5'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+@media (max-width: 767px) {
+  .docs-page-content > .doc-content pre:is(.shiki, .astro-code) {
+    padding-right: 4rem;
+  }
+
+  .docs-page-content > .doc-content .code-copy-button {
+    top: 0.5rem;
+    right: 0.5rem;
+    width: 2.75rem;
+    height: 2.75rem;
+  }
 }
 
 .docs-page-content > .doc-content .doc-prompt-card {
@@ -4049,10 +4073,10 @@ html.dark .docs-page-content > .doc-content .doc-screenshot img {
   line-height: 1.45;
 }
 
-html.dark .docs-page-content > .doc-content pre.shiki {
+html.dark .docs-page-content > .doc-content pre:is(.shiki, .astro-code) {
   border-color: rgb(255 255 255 / 8%);
-  color: #f3f3f3;
-  background: #111;
+  color: #f3f3f3 !important;
+  background: #111 !important;
 }
 
 html.dark .docs-page-content > .doc-content code {
@@ -4060,13 +4084,25 @@ html.dark .docs-page-content > .doc-content code {
   background: #212121;
 }
 
-html.dark .docs-page-content > .doc-content pre.shiki code {
+html.dark .docs-page-content > .doc-content pre:is(.shiki, .astro-code) code {
   color: inherit;
   background: transparent;
 }
 
-html.dark .docs-page-content > .doc-content pre.shiki .line {
+html.dark .docs-page-content > .doc-content pre:is(.shiki, .astro-code) .line {
   color: #e1e4e8;
+}
+
+.docs-page-content > .doc-content pre.astro-code span {
+  background-color: transparent !important;
+}
+
+html.dark .docs-page-content > .doc-content pre.astro-code span {
+  color: var(--shiki-dark, inherit) !important;
+  background-color: transparent !important;
+  font-style: var(--shiki-dark-font-style, inherit) !important;
+  font-weight: var(--shiki-dark-font-weight, inherit) !important;
+  text-decoration: var(--shiki-dark-text-decoration, inherit) !important;
 }
 
 html.dark .docs-page-content > .doc-content kbd {

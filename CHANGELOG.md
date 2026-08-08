@@ -6,6 +6,7 @@
 
 - Add a top-level `Skills 技能` documentation entry and a dedicated Skills sidebar for tutorials, workflows, and recommendations.
 - Remove Skills articles from the general `基础` navigation sequence while preserving their existing URLs and content.
+- Improve Markdown code fences with matched light/dark themes, readable plain-text examples, copy affordances, and touch-friendly mobile controls.
 
 ### Fixed
 

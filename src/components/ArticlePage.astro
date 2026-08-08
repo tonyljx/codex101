@@ -134,13 +134,51 @@ const contentComponents = isQuickstart
 </DocsLayout>
 
 <script>
+  const copyDocText = async (text: string) => {
+    if (!navigator.clipboard || !window.isSecureContext) throw new Error('Clipboard API is unavailable');
+
+    let timeoutId: number | undefined;
+    try {
+      await Promise.race([
+        navigator.clipboard.writeText(text),
+        new Promise<never>((_, reject) => {
+          timeoutId = window.setTimeout(() => reject(new Error('Clipboard request timed out')), 600);
+        }),
+      ]);
+    } finally {
+      if (timeoutId !== undefined) window.clearTimeout(timeoutId);
+    }
+  };
+
   const prepareDocCopyButtons = () => {
+    document.querySelectorAll<HTMLPreElement>('.docs-page-content > .doc-content pre.astro-code').forEach((pre) => {
+      if (pre.dataset.copyEnhanced === 'true') return;
+      const code = pre.querySelector('code');
+      if (!code) return;
+
+      pre.dataset.copyEnhanced = 'true';
+      pre.classList.add('code-copy-host', 'has-copy-button');
+
+      const button = document.createElement('button');
+      const isPlainText = pre.dataset.language === 'text';
+      const copyLabel = document.documentElement.lang.startsWith('zh')
+        ? (isPlainText ? '复制示例' : '复制代码')
+        : (isPlainText ? 'Copy example' : 'Copy code');
+      button.type = 'button';
+      button.className = 'code-copy-button';
+      button.dataset.copyPrompt = code.textContent ?? '';
+      button.dataset.state = 'idle';
+      button.setAttribute('aria-label', copyLabel);
+      button.title = copyLabel;
+      pre.prepend(button);
+    });
+
     document.querySelectorAll<HTMLButtonElement>('[data-copy-prompt]').forEach((button) => {
       if (button.dataset.ready === 'true') return;
       button.dataset.ready = 'true';
       button.addEventListener('click', async () => {
         try {
-          await navigator.clipboard.writeText(button.dataset.copyPrompt ?? '');
+          await copyDocText(button.dataset.copyPrompt ?? '');
           button.dataset.state = 'copied';
           window.setTimeout(() => { button.dataset.state = 'idle'; }, 1600);
         } catch {
