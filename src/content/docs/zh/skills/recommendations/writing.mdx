@@ -1,0 +1,175 @@
+---
+title: "Skill 推荐：文章撰写与内容工作"
+navTitle: "文章撰写 Skill"
+description: "从调研、结构、写作、编辑到发布，搭一套适合公众号、博客、PRD 和内容团队的 Skill 工作流。"
+locale: "zh"
+translationKey: "skills/recommendations/writing"
+section: "foundations"
+order: 9011
+draft: false
+translationStatus: complete
+lastUpdated: 2026-08-08
+pageKind: article
+sourceUrl: "https://github.com/anthropics/skills"
+outline:
+  - id: "writing-is-a-workflow"
+    label: "写作不是一个 Prompt"
+  - id: "recommended-skills"
+    label: "推荐 Skill"
+  - id: "workflow"
+    label: "推荐组合工作流"
+  - id: "custom-skills"
+    label: "最值得自己做的 Skill"
+---
+
+写作是最容易被误解成“一条万能 Prompt”的工作。
+
+真正稳定的内容生产，通常包含选题、研究、结构、成稿、编辑、事实检查和发布适配多个步骤。
+
+<span id="writing-is-a-workflow"></span>
+
+## 写作不是一个 Prompt
+
+例如一篇公众号长文，更合理的过程是：
+
+```text
+确定读者和目标
+→ 收集材料
+→ 找核心观点
+→ 设计结构
+→ 写初稿
+→ 编辑删减
+→ 事实 / 引用检查
+→ 标题与摘要
+→ 发布格式适配
+```
+
+Skill 最适合做的，就是把这些长期稳定的方法保存下来。
+
+<span id="recommended-skills"></span>
+
+## 推荐 Skill
+
+### 1. Doc Co-authoring
+
+**推荐指数：★★★★★**
+
+Anthropic 公开的 `doc-coauthoring` Skill 把文档协作拆成三个阶段：上下文收集、结构与迭代、读者测试。
+
+特别适合：
+
+- PRD；
+- 方案；
+- 技术文档；
+- 决策文档；
+- 深度文章。
+
+它值得学习的不是具体措辞，而是“先把作者脑中的上下文转移给 AI，再写”的流程设计。
+
+参考：<https://github.com/anthropics/skills/tree/main/skills/doc-coauthoring>
+
+### 2. Notion Plugin
+
+**推荐指数：★★★★☆**
+
+OpenAI 当前 Plugin 示例里，Notion 覆盖规划、研究、会议和知识沉淀。
+
+如果内容团队大量资料本来就存在 Notion，它可以承担“找资料 + 整理知识”的上游步骤，而写作 Skill 专注于表达。
+
+参考：<https://github.com/openai/plugins/tree/main/plugins/notion>
+
+### 3. PDF / DOCX Skill
+
+**推荐指数：★★★★☆**
+
+很多写作输入并不是网页，而是报告、白皮书、PDF、Word。
+
+文档 Skill 适合负责：
+
+- 提取原始材料；
+- 读取表格和章节；
+- 修改已有文档；
+- 最终输出正式文件。
+
+Anthropic 的公开 Skills 仓库提供了 PDF、DOCX、PPTX、XLSX 等生产级 Skill 作为参考。
+
+### 4. Internal Comms / 固定写作规范
+
+**推荐指数：★★★★☆**
+
+企业写作最适合沉淀的往往不是“文采”，而是组织自己的规则：
+
+- 周报怎么写；
+- 公告怎么写；
+- 对外邮件用什么语气；
+- 哪些词不能用；
+- 高管摘要必须多长。
+
+这类 Skill 可以让团队表达更一致。
+
+### 5. Skill Creator
+
+**推荐指数：★★★★★**
+
+当你已经和 AI 打磨出一套满意的写作过程，可以直接用 Skill Creator 把这段协作方式沉淀下来。
+
+真正值得保存的是你不断说过的这些反馈：
+
+> “开头太虚，直接讲问题。”
+
+> “不要重复背景，给证据。”
+
+> “每一节只表达一个中心观点。”
+
+这些反复出现的修改意见，本质上就是你的编辑 Skill。
+
+<span id="workflow"></span>
+
+## 推荐组合工作流
+
+### 深度文章 / 公众号
+
+```text
+Research Skill
+→ 观点整理
+→ Outline Skill
+→ Draft / Co-authoring
+→ Editor Skill
+→ Fact Check
+→ 标题 / 摘要 / 社媒分发
+```
+
+### PRD / 工作文档
+
+```text
+背景资料 / Project
+→ Context Gathering
+→ 结构确认
+→ 分章节起草
+→ Reviewer Skill
+→ Reader Test
+→ DOCX / Notion 输出
+```
+
+不要让同一个 Skill 同时负责“研究事实”和“模仿文风”。任务越清楚，结果越容易稳定。
+
+<span id="custom-skills"></span>
+
+## 最值得自己做的 Skill
+
+| Skill | 适合保存的经验 |
+| --- | --- |
+| `wechat-longform` | 公众号结构、段落长度、开头方式、标题风格 |
+| `research-outline` | 从资料中提炼论点和文章骨架 |
+| `my-editor` | 你的删改标准、禁用表达、逻辑检查 |
+| `prd-writer` | 公司 PRD 模板、必要字段、验收标准 |
+| `content-repurpose` | 长文 → 即刻 / 小红书 / X / LinkedIn |
+| `fact-check` | 哪些声明需要来源、如何标记不确定性 |
+
+最值得做的第一个写作 Skill，通常不是“帮我写文章”，而是：
+
+> **“按照我的标准，把一篇已经有内容的初稿改好。”**
+
+因为编辑标准往往比创意本身更稳定，也更容易测试。
+
+继续阅读 [电商 Skill 推荐](/docs/skills/recommendations/ecommerce)，或者回到 [Skills 专区](/docs/skills)。

@@ -1,0 +1,186 @@
+---
+title: "Skill 推荐：AI 网站开发"
+navTitle: "AI 网站开发 Skill"
+description: "从前端设计、浏览器验证、支付、数据库到部署，挑选适合 AI 网站开发的 Skill / Plugin 组合。"
+locale: "zh"
+translationKey: "skills/recommendations/ai-web-development"
+section: "foundations"
+order: 9010
+draft: false
+translationStatus: complete
+lastUpdated: 2026-08-08
+pageKind: article
+sourceUrl: "https://github.com/openai/plugins"
+outline:
+  - id: "who-is-this-for"
+    label: "适合谁"
+  - id: "recommended-stack"
+    label: "推荐组合"
+  - id: "workflow"
+    label: "一个实用开发工作流"
+  - id: "custom-skills"
+    label: "最值得自己做的 Skill"
+---
+
+如果你在用 Codex、Claude Code 或其他 Agent 做 AI 网站，真正能拉开效率差距的通常不是“再写一个更长的 Prompt”，而是让不同 Skill 各自负责一段稳定工作流。
+
+<span id="who-is-this-for"></span>
+
+## 适合谁
+
+这一套适合：
+
+- 独立开发者；
+- AI SaaS 创业者；
+- 做 SEO / 工具站的人；
+- PM + AI 协作开发；
+- 不想自己写大量前端，但需要稳定交付页面的人。
+
+<span id="recommended-stack"></span>
+
+## 推荐组合
+
+### 1. Build Web Apps / Frontend App Builder
+
+**推荐指数：★★★★★**
+
+OpenAI 当前的 `build-web-apps` Plugin 把前端设计、浏览器测试、支付和数据库工作流放在一起；其中 `frontend-app-builder` 专门负责从需求到完整前端实现和视觉 QA。
+
+适合：
+
+- Landing Page；
+- Dashboard；
+- SaaS 前端；
+- 现有页面重设计；
+- 从视觉方案落到代码。
+
+参考：<https://github.com/openai/plugins/tree/main/plugins/build-web-apps>
+
+### 2. Browser / Web App Testing
+
+**推荐指数：★★★★★**
+
+Agent 写完代码后最容易出现的问题是：代码能编译，但页面实际不好用。
+
+浏览器测试类 Skill 应该承担：
+
+- 打开本地页面；
+- 检查 Console；
+- 点击核心流程；
+- 验证移动端；
+- 截图检查；
+- 找出视觉和交互回归。
+
+它适合作为所有“写完代码之后”的固定 QA Skill。
+
+### 3. Figma Skills
+
+**推荐指数：★★★★☆**
+
+OpenAI 的 Figma Plugin 已经包含从读取设计、生成设计系统，到 Code Connect 等一系列 Skill。
+
+适合：
+
+- Figma → Code；
+- Code → Figma；
+- 维护设计系统；
+- 检查设计与代码是否一致。
+
+参考：<https://github.com/openai/plugins/tree/main/plugins/figma>
+
+### 4. Stripe Best Practices
+
+**推荐指数：★★★★☆**
+
+如果你做的是付费 AI 产品，支付逻辑非常适合使用专门 Skill，而不是每次重新让模型判断 Checkout、订阅、Connect 或 PaymentIntent。
+
+OpenAI `build-web-apps` 中已经提供 Stripe 最佳实践 Skill。
+
+适合：
+
+- 一次性付款；
+- SaaS 订阅；
+- Payment Element；
+- Marketplace / Connect；
+- 支付上线前检查。
+
+### 5. Supabase / Database Skill
+
+**推荐指数：★★★★☆**
+
+数据库相关工作最好沉淀：
+
+- Schema 设计规则；
+- RLS 安全检查；
+- 索引 / SQL 性能；
+- Migration 流程；
+- Auth 约定。
+
+对于经常用同一套技术栈的人，这类 Skill 的长期价值非常高。
+
+### 6. Deploy Skill：Vercel / Cloudflare / Netlify
+
+**推荐指数：★★★★☆**
+
+部署 Skill 不只是运行一个命令，而应该包含：
+
+```text
+构建检查
+→ 环境变量检查
+→ 部署
+→ 查看日志
+→ 打开线上页面
+→ 冒烟测试
+→ 确认域名 / HTTPS
+```
+
+OpenAI Plugin 仓库目前已经有 Netlify 等部署工作流；如果你的项目长期使用 Vercel 或 Cloudflare，更值得自己维护一个团队专属部署 Skill。
+
+<span id="workflow"></span>
+
+## 一个实用的 AI 网站开发工作流
+
+你不需要让一个 Skill 包办全部事情。
+
+更好的组合是：
+
+```text
+需求 / PRD
+↓
+设计与信息架构 Skill
+↓
+Frontend App Builder
+↓
+数据库 / 支付 Skill
+↓
+Browser QA Skill
+↓
+Deploy Skill
+↓
+Production Smoke Test
+```
+
+这样每个 Skill 有清楚边界，也更容易替换和优化。
+
+<span id="custom-skills"></span>
+
+## 最值得自己做的 Skill
+
+公开 Skill 解决通用问题，但网站开发最有价值的通常是**你的项目规则**。
+
+建议优先沉淀：
+
+| 自定义 Skill | 应该包含什么 |
+| --- | --- |
+| `new-page` | 页面目录、SEO、Metadata、组件规范、埋点 |
+| `new-model-page` | AI 模型页面模板、定价字段、FAQ、结构化数据 |
+| `payment-integration` | 你的 Stripe 产品 / Credit / Subscription 约定 |
+| `release-check` | build、lint、浏览器 QA、核心支付流程 |
+| `seo-content-page` | 关键词、标题规则、内链、FAQ、CTA、Schema |
+| `db-migration` | Migration 命名、回滚、安全检查、部署流程 |
+
+判断标准很简单：
+
+> **如果你每开一个新站或新页面，都要重新向 AI 解释一次项目规范，那些规范就应该进入 Skill。**
+
+下一步可以继续看 [文章撰写 Skill 推荐](/docs/skills/recommendations/writing)，或者回到 [Skills 专区](/docs/skills)。

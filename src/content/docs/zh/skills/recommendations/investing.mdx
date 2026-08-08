@@ -1,0 +1,236 @@
+---
+title: "Skill 推荐：股票研究与投资分析"
+navTitle: "股票研究 Skill"
+description: "把公司研究、财报分析、估值、催化剂和 thesis tracking 做成可复用的投资研究 Skill，而不是让 AI 直接给买卖结论。"
+locale: "zh"
+translationKey: "skills/recommendations/investing"
+section: "foundations"
+order: 9013
+draft: false
+translationStatus: complete
+lastUpdated: 2026-08-08
+pageKind: article
+sourceUrl: "https://github.com/anthropics/financial-services"
+outline:
+  - id: "what-skills-are-good-for"
+    label: "投资里 Skill 最适合做什么"
+  - id: "recommended-skills"
+    label: "推荐 Skill"
+  - id: "workflow"
+    label: "推荐研究工作流"
+  - id: "custom-skills"
+    label: "最值得自己做的 Skill"
+  - id: "boundary"
+    label: "边界：不要做自动喊单 Skill"
+---
+
+股票研究很适合 Skill，但适合沉淀的是**研究流程**，不是“明天买什么”的答案。
+
+<span id="what-skills-are-good-for"></span>
+
+## 投资里 Skill 最适合做什么
+
+高价值方向包括：
+
+- 公司基础研究；
+- 财报拆解；
+- Earnings Preview / Review；
+- 同行比较；
+- DCF / Comps；
+- 催化剂日历；
+- Thesis Tracking；
+- 风险清单；
+- 组合暴露分析；
+- 研究报告写作。
+
+这些任务的共同点是：每家公司不同，但研究框架可以重复。
+
+<span id="recommended-skills"></span>
+
+## 推荐 Skill
+
+### 1. Company Tearsheet / Company Research
+
+**推荐指数：★★★★★**
+
+先把最基础的公司研究做标准化。
+
+建议固定覆盖：
+
+- 公司做什么；
+- 收入和利润来自哪里；
+- 核心产品；
+- 客户；
+- 竞争格局；
+- 财务趋势；
+- 估值；
+- 关键风险；
+- 近期催化剂。
+
+这类 Skill 很适合作为所有深入研究的入口。
+
+### 2. Earnings Deep Dive
+
+**推荐指数：★★★★★**
+
+财报 Skill 不应该只总结收入和 EPS。
+
+更好的流程：
+
+```text
+实际结果 vs 市场预期
+→ 指引变化
+→ 核心 KPI
+→ 管理层解释
+→ 电话会新增信息
+→ 模型影响
+→ Thesis 影响
+→ 下一季度要跟踪什么
+```
+
+如果每个季度都按同一框架分析，研究质量会更容易比较。
+
+### 3. Comps / DCF
+
+**推荐指数：★★★★☆**
+
+估值 Skill 适合标准化：
+
+- 同行怎么选；
+- 用哪些 Multiples；
+- EV 到 Equity 的桥接；
+- WACC / Terminal Value；
+- 情景分析；
+- 敏感性；
+- 假设来源。
+
+Anthropic 已公开一套 Financial Services 插件，其中包括 Comps、DCF、三表、Earnings、Equity Research 等工作流，可以作为复杂金融 Skill 的参考实现。
+
+参考：<https://github.com/anthropics/financial-services>
+
+OpenAI 的 Codex 插件生态中也已经出现面向 Public Equity Investing 的专门能力，这说明“按岗位打包研究工作流”正在成为 Skill / Plugin 的重要方向。
+
+### 4. Catalyst Calendar
+
+**推荐指数：★★★★☆**
+
+很多研究不是判断长期好坏，而是知道：**接下来什么事情可能改变市场认知？**
+
+Skill 可以固定追踪：
+
+- 财报；
+- 产品发布；
+- 监管节点；
+- 行业会议；
+- 锁定期；
+- 指数调整；
+- 资本市场活动；
+- 宏观数据。
+
+### 5. Thesis Tracker
+
+**推荐指数：★★★★★**
+
+这是个人投资者特别值得做的 Skill。
+
+建议每次更新都回答：
+
+```text
+原始 thesis 是什么？
+→ 哪些证据支持？
+→ 哪些证据反驳？
+→ 哪个核心假设发生变化？
+→ 估值是否变化？
+→ 接下来验证点是什么？
+```
+
+它能帮助你避免只在股价上涨时找利好、下跌时找理由。
+
+<span id="workflow"></span>
+
+## 推荐研究工作流
+
+### 新公司研究
+
+```text
+Company Tearsheet
+→ 行业 / 竞争格局
+→ 历史财务
+→ Earnings / Transcript
+→ Comps
+→ DCF / Scenario
+→ Thesis + Risks
+→ Catalyst Calendar
+```
+
+### 财报季
+
+```text
+Earnings Preview
+→ 结果 vs 预期
+→ Earnings Deep Dive
+→ 更新模型
+→ 更新估值
+→ 更新 Thesis Tracker
+```
+
+### 持仓跟踪
+
+```text
+新闻 / 公告变化
+→ 判断是否影响核心假设
+→ 更新 Catalyst
+→ 更新 Thesis
+→ 检查组合风险
+```
+
+<span id="custom-skills"></span>
+
+## 最值得自己做的 Skill
+
+| 自定义 Skill | 适合沉淀什么 |
+| --- | --- |
+| `company-research` | 你的公司研究框架 |
+| `earnings-review` | 你最关注的 KPI 和财报顺序 |
+| `valuation-check` | 你习惯使用的估值方法和情景 |
+| `thesis-tracker` | thesis、证据、反证、验证点 |
+| `catalyst-calendar` | 事件分类和重要程度 |
+| `portfolio-review` | 行业、因子、单股集中度、事件暴露 |
+
+如果你长期关注某一条产业链，还可以做行业专属 Skill，例如：
+
+- 半导体：库存、ASP、CapEx、利用率；
+- SaaS：ARR、NRR、RPO、S&M 效率；
+- 电商：GMV、Take Rate、广告收入；
+- AI 基础设施：GPU、网络、存储、CapEx、订单和产能。
+
+真正有价值的地方是把“你看公司时最关心什么”沉淀下来。
+
+<span id="boundary"></span>
+
+## 边界：不要做自动喊单 Skill
+
+投资 Skill 更适合：
+
+> **提高研究的一致性、完整性和可追踪性。**
+
+不适合把它设计成：
+
+```text
+输入股票代码 → 自动输出 BUY / SELL
+```
+
+因为市场数据会变化，估值依赖假设，风险承受能力也因人而异。
+
+更好的输出是：
+
+- 当前证据；
+- 核心假设；
+- 估值区间；
+- 上下行情景；
+- 风险；
+- 哪些条件会让 thesis 失效。
+
+这样 Skill 帮你**保持研究纪律**，而不是替你承担投资决策。
+
+回到 [Skills 专区](/docs/skills)，或者先阅读 [6 类最常用 Skill 工作流](/docs/skills/workflow-playbook)。
