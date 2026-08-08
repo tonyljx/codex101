@@ -468,16 +468,16 @@ html.dark .header-cta {
   height: 1.15rem;
 }
 
-.contact-control {
+.more-control {
   position: relative;
 }
 
-.contact-menu {
+.more-menu {
   position: absolute;
   z-index: 75;
   top: calc(100% + 0.45rem);
   right: 0;
-  width: 15rem;
+  width: 16.5rem;
   padding: 0.35rem;
   border: 1px solid var(--border);
   border-radius: 0.8rem;
@@ -485,8 +485,19 @@ html.dark .header-cta {
   box-shadow: var(--shadow);
 }
 
-.contact-menu a {
+.more-menu::before {
+  position: absolute;
+  right: 0;
+  bottom: 100%;
+  left: 0;
+  height: 0.5rem;
+  content: "";
+}
+
+.more-menu a {
   display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
   gap: 0.2rem;
   padding: 0.65rem 0.7rem;
   border-radius: 0.55rem;
@@ -495,13 +506,31 @@ html.dark .header-cta {
   text-decoration: none;
 }
 
-.contact-menu a:hover {
+.more-menu a:hover,
+.more-menu a[data-active] {
   background: var(--surface-soft);
 }
 
-.contact-menu small {
+.more-menu a:has(small) {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.more-menu a > svg {
+  width: 0.95rem;
+  height: 0.95rem;
+  color: var(--muted);
+  stroke-width: 1.8;
+}
+
+.more-menu small {
   color: var(--muted);
   font-size: 0.75rem;
+}
+
+.more-menu__divider {
+  height: 1px;
+  margin: 0.3rem 0.7rem;
+  background: var(--border);
 }
 
 .language-menu {

@@ -36,10 +36,11 @@ export default function InteractiveHeader({ locale, currentPath, kind, navigatio
   const [searchOpen, setSearchOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [languageOpen, setLanguageOpen] = useState(false);
-  const [contactOpen, setContactOpen] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
   const [dark, setDark] = useState(false);
   const [query, setQuery] = useState('');
   const searchInput = useRef<HTMLInputElement>(null);
+  const morePinned = useRef(false);
   const c = copy[locale];
   const normalizedCurrentPath = currentPath === '/' ? currentPath : currentPath.replace(/\/+$/, '');
 
@@ -75,7 +76,8 @@ export default function InteractiveHeader({ locale, currentPath, kind, navigatio
         setSearchOpen(false);
         setMenuOpen(false);
         setLanguageOpen(false);
-        setContactOpen(false);
+        morePinned.current = false;
+        setMoreOpen(false);
       }
     };
     window.addEventListener('keydown', onKeyDown);
@@ -107,7 +109,8 @@ export default function InteractiveHeader({ locale, currentPath, kind, navigatio
   const closeAll = () => {
     setMenuOpen(false);
     setLanguageOpen(false);
-    setContactOpen(false);
+    morePinned.current = false;
+    setMoreOpen(false);
   };
 
   const landingNav = [
@@ -116,6 +119,17 @@ export default function InteractiveHeader({ locale, currentPath, kind, navigatio
     { label: c.useCases, href: `${localizedPath(locale, '/')}#use-cases` },
     { label: c.resources, href: `${localizedPath(locale, '/')}#resources` },
   ];
+  const docsHeaderItems = [navigation.overview, ...navigation.top].map((item) => ({
+    label: item.title,
+    slug: item.slug,
+    href: item.slug ? localizedPath(locale, `/docs/${item.slug}`) : docsBase(locale),
+  }));
+  const moreSlugs = new Set(['security-administration', 'administration']);
+  const primaryDocsHeaderItems = docsHeaderItems.filter((item) => !moreSlugs.has(item.slug));
+  const moreDocsHeaderItems = docsHeaderItems.filter((item) => moreSlugs.has(item.slug));
+  const isHeaderItemActive = (item: { href: string; slug?: string }) => item.href === normalizedCurrentPath
+    || (referenceHub && item.href === localizedPath(locale, `/docs/${referenceHub}`))
+    || (item.href === docsBase(locale) && normalizedCurrentPath === docsBase(locale));
 
   return (
     <>
@@ -140,15 +154,10 @@ export default function InteractiveHeader({ locale, currentPath, kind, navigatio
           </div>
 
           <nav className="site-header__nav" aria-label="Primary navigation">
-            {(kind === 'docs' ? [navigation.overview, ...navigation.top].map((item) => ({
-              label: item.title,
-              href: item.slug ? localizedPath(locale, `/docs/${item.slug}`) : docsBase(locale),
-            })) : landingNav).map((item) => {
-              const active = item.href === normalizedCurrentPath
-                || (referenceHub && item.href === localizedPath(locale, `/docs/${referenceHub}`))
-                || (item.href === docsBase(locale) && normalizedCurrentPath === docsBase(locale));
+            {(kind === 'docs' ? primaryDocsHeaderItems : landingNav).map((item) => {
+              const active = isHeaderItemActive(item);
               return (
-                <a key={item.href} href={item.href} data-active={active || undefined}>
+                <a key={item.href} href={item.href} data-active={active || undefined} aria-current={item.href === normalizedCurrentPath ? 'page' : undefined}>
                   {item.label}
                 </a>
               );
@@ -174,7 +183,11 @@ export default function InteractiveHeader({ locale, currentPath, kind, navigatio
                   type="button"
                   aria-label={c.language}
                   aria-expanded={languageOpen}
-                  onClick={() => setLanguageOpen((value) => !value)}
+                  onClick={() => {
+                    setLanguageOpen((value) => !value);
+                    morePinned.current = false;
+                    setMoreOpen(false);
+                  }}
                 >
                   <Languages aria-hidden="true" />
                   <span>{localeNames[locale]}</span>
@@ -201,21 +214,51 @@ export default function InteractiveHeader({ locale, currentPath, kind, navigatio
               {dark ? <Moon aria-hidden="true" /> : <Sun aria-hidden="true" />}
             </button>
             {kind === 'docs' && (
-              <div className="contact-control">
+              <div
+                className="more-control"
+                onMouseEnter={() => {
+                  if (!morePinned.current) setMoreOpen(true);
+                }}
+                onMouseLeave={() => {
+                  if (!morePinned.current) setMoreOpen(false);
+                }}
+                onBlur={(event) => {
+                  if (!event.currentTarget.contains(event.relatedTarget)) {
+                    morePinned.current = false;
+                    setMoreOpen(false);
+                  }
+                }}
+              >
                 <button
                   className="icon-button desktop-more"
                   type="button"
-                  aria-label={locale === defaultLocale ? '联系我' : 'Contact'}
-                  aria-expanded={contactOpen}
-                  onClick={() => setContactOpen((value) => !value)}
+                  aria-label={locale === defaultLocale ? '更多' : 'More'}
+                  aria-haspopup="menu"
+                  aria-expanded={moreOpen}
+                  onClick={() => {
+                    const nextPinned = !morePinned.current;
+                    morePinned.current = nextPinned;
+                    setMoreOpen(nextPinned);
+                    setLanguageOpen(false);
+                  }}
                 >
                   <MoreHorizontal aria-hidden="true" />
                 </button>
-                {contactOpen && (
-                  <div className="contact-menu">
-                    <a href="mailto:goolvyouyou@gmail.com">
+                {moreOpen && (
+                  <div className="more-menu" role="menu">
+                    {moreDocsHeaderItems.map((item) => {
+                      const active = isHeaderItemActive(item);
+                      return (
+                        <a key={item.href} href={item.href} role="menuitem" data-active={active || undefined} aria-current={item.href === normalizedCurrentPath ? 'page' : undefined}>
+                          <span>{item.label}</span>
+                          <ArrowRight aria-hidden="true" />
+                        </a>
+                      );
+                    })}
+                    <div className="more-menu__divider" role="separator" />
+                    <a href="mailto:liangjiongxin@gmail.com" role="menuitem">
                       <span>{locale === defaultLocale ? '联系我' : 'Contact'}</span>
-                      <small>goolvyouyou@gmail.com</small>
+                      <small>liangjiongxin@gmail.com</small>
                     </a>
                   </div>
                 )}
