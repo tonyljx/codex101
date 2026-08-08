@@ -16,7 +16,7 @@ const docs = defineCollection({
     translationStatus: z.enum(['complete', 'needs-review', 'outdated']).default('needs-review'),
     lastUpdated: z.coerce.date(),
     pageKind: z.enum(['article', 'hub', 'product', 'special']).default('article'),
-    referenceHub: z.enum(['features', 'configuration', 'developers', 'security-administration', 'administration']).optional(),
+    referenceHub: z.enum(['features', 'configuration', 'developers', 'security-administration', 'administration', 'skills']).optional(),
     sourceUrl: z.url().optional(),
     outline: z.array(z.object({ id: z.string().min(1), label: z.string().min(1) })).optional(),
   }),

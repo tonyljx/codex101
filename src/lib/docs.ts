@@ -86,7 +86,7 @@ export async function getDocsNavigation(locale: Locale): Promise<DocsNavigation>
   const labels = docSectionLabels[locale];
   const zhDescriptions: Record<Exclude<DocSection, 'top'>, string> = {
     start: '从快速开始、基础用法和导入流程开始。',
-    foundations: '掌握提示词、个性化、技能、插件与权限。',
+    foundations: '掌握提示词、个性化、插件与权限。',
     explore: '查看最新动态、模型、定价和常用术语。',
     available: '选择桌面端、Web、CLI、IDE 或云端使用。',
     releases: '跟进更新日志、功能成熟度和开源进展。',

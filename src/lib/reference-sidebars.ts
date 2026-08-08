@@ -17,7 +17,7 @@ export type ReferenceSidebar = {
 
 const item = (title: string, href: string): ReferenceSidebarItem => ({ title, href });
 
-// The five context hubs use their own source-site navigation trees. Regular
+// Context hubs use their own source-site navigation trees. Regular
 // articles continue to use the locale collection navigation assembled from MDX.
 const zhReferenceSidebars: Record<string, ReferenceSidebar> = {
   features: {
@@ -241,6 +241,33 @@ const zhReferenceSidebars: Record<string, ReferenceSidebar> = {
           item('Windows App 部署', '/docs/enterprise/windows-deployment'),
           item('远程连接', '/docs/remote-connections'),
           item('Amazon Bedrock', '/docs/amazon-bedrock'),
+        ],
+      },
+    ],
+  },
+  skills: {
+    label: 'Skills 技能 · 文档导航',
+    groups: [
+      { items: [item('概览', '/docs/skills')] },
+      {
+        title: '入门',
+        items: [
+          item('Skill 是什么？', '/docs/skills/what-is-skill'),
+          item('为什么需要 Skill？', '/docs/skills/why-skills'),
+          item('Skill 与 Prompt、Memory、MCP', '/docs/skills/skill-vs-prompt-project-memory-mcp'),
+        ],
+      },
+      {
+        title: '工作流',
+        items: [item('6 类最常用 Skill 工作流', '/docs/skills/workflow-playbook')],
+      },
+      {
+        title: 'Skill 推荐',
+        items: [
+          item('AI 网站开发', '/docs/skills/recommendations/ai-web-development'),
+          item('文章撰写与内容工作', '/docs/skills/recommendations/writing'),
+          item('电商与增长运营', '/docs/skills/recommendations/ecommerce'),
+          item('股票研究与投资分析', '/docs/skills/recommendations/investing'),
         ],
       },
     ],
