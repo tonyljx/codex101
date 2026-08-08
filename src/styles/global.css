@@ -796,39 +796,63 @@ html.dark .header-cta {
 }
 
 .landing-hero {
-  display: flex;
-  width: min(100%, 72rem);
+  width: min(100%, 75rem);
   min-height: 0;
-  flex-direction: column;
-  align-items: center;
   margin: 0 auto;
-  padding: 6rem 1rem;
-  text-align: center;
+  padding: clamp(4.75rem, 7vw, 7rem) 1.5rem 5.5rem;
+}
+
+.landing-hero__intro {
+  display: grid;
+  grid-template-columns: minmax(0, 1.28fr) minmax(18rem, 0.72fr);
+  align-items: end;
+  gap: clamp(2rem, 5vw, 5rem);
+}
+
+.landing-hero__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin: 0 0 1.4rem;
+  color: var(--landing-muted);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.landing-hero__eyebrow svg {
+  width: 1rem;
+  height: 1rem;
 }
 
 .landing-hero h1 {
-  max-width: 72rem;
+  max-width: 52rem;
   margin: 0;
-  font-size: clamp(4.75rem, 7vw, 5.5rem);
+  font-size: clamp(3.8rem, 6.2vw, 5.45rem);
   font-weight: 500;
-  letter-spacing: -0.062em;
-  line-height: 0.96;
+  letter-spacing: -0.058em;
+  line-height: 0.98;
 }
 
-.landing-hero > p {
-  max-width: 48rem;
-  margin: 1.75rem auto 0;
+.landing-hero__summary {
+  max-width: 25rem;
+  padding-bottom: 0.35rem;
+}
+
+.landing-hero__summary > p {
+  margin: 0;
   color: var(--landing-muted);
-  font-size: 1.25rem;
-  line-height: 1.6;
+  font-size: 1.06rem;
+  line-height: 1.7;
 }
 
 .landing-hero__actions {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
   gap: 0.8rem;
-  margin-top: 2.6rem;
+  margin-top: 2rem;
 }
 
 .pill-button {
@@ -872,15 +896,152 @@ html.dark .pill-button--secondary {
   font-size: 0.9rem;
 }
 
-.landing-hero__demo {
-  width: 100%;
-  aspect-ratio: 1152 / 661;
-  margin: 4rem 0 0;
+.landing-audience {
+  margin-top: clamp(4rem, 7vw, 6.25rem);
+}
+
+.landing-audience__label {
+  display: grid;
+  grid-template-columns: minmax(2rem, 1fr) auto minmax(2rem, 1fr);
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.landing-audience__label span {
+  height: 1px;
+  background: var(--border);
+}
+
+.landing-audience__label p {
+  margin: 0;
+  color: var(--landing-muted);
+  font-size: 0.82rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+.landing-audience__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   overflow: hidden;
   border: 1px solid var(--border);
-  border-radius: 1rem;
-  background: #fff url("/images/chatgpt-app-demo.png") center / cover no-repeat;
-  box-shadow: 0 18px 55px rgb(0 0 0 / 9%);
+  border-radius: 1.25rem;
+  background: var(--surface);
+}
+
+.landing-audience__path {
+  position: relative;
+  min-height: 24rem;
+  padding: clamp(2rem, 3.8vw, 3.25rem);
+  isolation: isolate;
+  transition: background-color 180ms ease-out;
+}
+
+.landing-audience__path:hover {
+  background: color-mix(in srgb, var(--surface-soft) 56%, transparent);
+}
+
+.landing-audience__path--developer {
+  border-left: 1px solid var(--border);
+}
+
+.landing-audience__number {
+  position: absolute;
+  top: 1.3rem;
+  right: 1.8rem;
+  z-index: -1;
+  color: var(--landing-text);
+  font-size: clamp(4rem, 7vw, 6.2rem);
+  font-weight: 600;
+  letter-spacing: -0.08em;
+  line-height: 1;
+  opacity: 0.045;
+  user-select: none;
+}
+
+.landing-audience__path-header {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  color: var(--landing-muted);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.landing-audience__path-header svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+.landing-audience__path h2 {
+  max-width: 25rem;
+  margin: 2.15rem 0 0;
+  font-size: clamp(2.25rem, 3.8vw, 3.35rem);
+  font-weight: 500;
+  letter-spacing: -0.052em;
+  line-height: 1;
+}
+
+.landing-audience__path > p {
+  max-width: 28rem;
+  min-height: 5.4rem;
+  margin: 1.35rem 0 0;
+  color: var(--landing-muted);
+  font-size: 1rem;
+  line-height: 1.65;
+}
+
+.landing-audience__action {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1.65rem;
+  color: var(--landing-text);
+  font-size: 0.93rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.landing-audience__action svg {
+  width: 1rem;
+  height: 1rem;
+  transition: transform 160ms ease-out;
+}
+
+.landing-audience__action:hover svg {
+  transform: translateX(0.22rem);
+}
+
+.landing-audience__tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem 1.2rem;
+  margin-top: 2rem;
+  padding-top: 1.15rem;
+  border-top: 1px solid var(--border);
+}
+
+.landing-audience__tools a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--landing-muted);
+  font-size: 0.78rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: color 150ms ease-out;
+}
+
+.landing-audience__tools a:hover {
+  color: var(--landing-text);
+}
+
+.landing-audience__tools svg {
+  width: 0.9rem;
+  height: 0.9rem;
 }
 
 .landing-modes {
@@ -2329,50 +2490,100 @@ html.dark .landing-footer {
   }
 
   .landing-hero {
-    width: calc(100% - 2rem);
+    width: 100%;
     min-height: 0;
-    margin-right: 1rem;
-    margin-left: 1rem;
-    padding: 4rem 1rem;
+    padding: 3.5rem 1.25rem 4rem;
+  }
+
+  .landing-hero__intro {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.75rem;
+  }
+
+  .landing-hero__eyebrow {
+    margin-bottom: 1.1rem;
+    font-size: 0.72rem;
   }
 
   .landing-hero h1 {
-    max-width: 20.375rem;
-    font-size: 3rem;
-    line-height: 0.96;
+    max-width: 22rem;
+    font-size: clamp(2.75rem, 12vw, 3.35rem);
+    letter-spacing: -0.055em;
+    line-height: 1;
   }
 
-  .landing-hero > p {
-    max-width: 20.375rem;
-    min-height: 8rem;
-    margin-top: 1.75rem;
-    font-size: 1.125rem;
-    line-height: 2rem;
+  .landing-hero__summary {
+    max-width: 28rem;
+    padding-bottom: 0;
+  }
+
+  .landing-hero__summary > p {
+    font-size: 1rem;
+    line-height: 1.65;
   }
 
   .landing-hero__actions {
-    flex-direction: column;
-    align-items: center;
+    align-items: stretch;
     gap: 0.75rem;
-    margin-top: 2rem;
+    margin-top: 1.6rem;
   }
 
   .pill-button {
-    min-height: 3rem;
-    padding: 0.65rem 1.7rem;
-    font-size: 1rem;
+    min-height: 2.9rem;
+    padding: 0.65rem 1.35rem;
+    font-size: 0.92rem;
   }
 
-  .landing-hero__demo {
-    width: 20.375rem;
-    aspect-ratio: 326 / 502;
-    margin-top: 3rem;
-    border: 0;
-    border-radius: 0.75rem;
-    background-image: url("/images/chatgpt-app-demo-mobile.png");
-    background-size: cover;
-    background-position: center;
-    box-shadow: none;
+  .landing-audience {
+    margin-top: 3.5rem;
+  }
+
+  .landing-audience__label {
+    grid-template-columns: minmax(1rem, 1fr) auto minmax(1rem, 1fr);
+    gap: 0.65rem;
+  }
+
+  .landing-audience__label p {
+    max-width: 13rem;
+    font-size: 0.76rem;
+    text-align: center;
+  }
+
+  .landing-audience__grid {
+    grid-template-columns: minmax(0, 1fr);
+    border-radius: 1rem;
+  }
+
+  .landing-audience__path {
+    min-height: 0;
+    padding: 2rem 1.5rem;
+  }
+
+  .landing-audience__path--developer {
+    border-top: 1px solid var(--border);
+    border-left: 0;
+  }
+
+  .landing-audience__number {
+    top: 1rem;
+    right: 1.25rem;
+    font-size: 4.5rem;
+  }
+
+  .landing-audience__path h2 {
+    margin-top: 1.75rem;
+    font-size: 2.45rem;
+  }
+
+  .landing-audience__path > p {
+    min-height: 0;
+    margin-top: 1rem;
+    font-size: 0.94rem;
+  }
+
+  .landing-audience__tools {
+    gap: 0.7rem 1rem;
+    margin-top: 1.6rem;
   }
 
   .mode-section,

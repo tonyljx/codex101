@@ -1,5 +1,5 @@
 ---
-import { ArrowDown, ArrowRight, ArrowUpRight } from 'lucide-react';
+import { ArrowRight, ArrowUpRight, BookOpen, Code2, MousePointer2, TerminalSquare } from 'lucide-react';
 import InteractiveHeader from './InteractiveHeader';
 import ModeSection from './ModeSection';
 import BaseLayout from '../layouts/BaseLayout.astro';
@@ -30,23 +30,72 @@ const navigation = await getDocsNavigation(locale);
 
   <main class="landing-main">
     <section class="landing-hero" aria-labelledby="landing-title">
-      <h1 id="landing-title">{c.heroTitle}</h1>
-      <p>{c.heroDescription}</p>
-      <div class="landing-hero__actions">
-        <a class="pill-button" href="https://chatgpt.com/" target="_blank" rel="noreferrer">
-          {c.download}
-          <ArrowDown aria-hidden="true" />
-        </a>
-        <a class="pill-button pill-button--secondary" href={localizedPath(locale, '/docs/quickstart')}>
-          {c.getStarted}
-          <ArrowRight aria-hidden="true" />
-        </a>
+      <div class="landing-hero__intro">
+        <div class="landing-hero__headline">
+          <p class="landing-hero__eyebrow"><BookOpen aria-hidden="true" /> {c.siteName} · {c.docs}</p>
+          <h1 id="landing-title">{c.heroTitle}</h1>
+        </div>
+        <div class="landing-hero__summary">
+          <p>{c.heroDescription}</p>
+          <div class="landing-hero__actions">
+            <a class="pill-button" href={localizedPath(locale, '/docs/quickstart')}>
+              {c.getStarted}
+              <ArrowRight aria-hidden="true" />
+            </a>
+            <a class="pill-button pill-button--secondary" href={localizedPath(locale, '/docs')}>
+              {c.docs}
+            </a>
+          </div>
+        </div>
       </div>
-      <div
-        class="landing-hero__demo"
-        role="img"
-        aria-label={isZh ? 'ChatGPT Work 应用界面' : 'ChatGPT Work app interface'}
-      ></div>
+
+      <div class="landing-audience" aria-labelledby="landing-audience-title">
+        <div class="landing-audience__label">
+          <span aria-hidden="true"></span>
+          <p id="landing-audience-title">{c.pathPicker}</p>
+          <span aria-hidden="true"></span>
+        </div>
+
+        <div class="landing-audience__grid">
+          <article class="landing-audience__path" id="for-everyone">
+            <span class="landing-audience__number" aria-hidden="true">01</span>
+            <div class="landing-audience__path-header">
+              <MousePointer2 aria-hidden="true" />
+              <span>{c.nonDeveloper}</span>
+            </div>
+            <h2>{c.workTitle}</h2>
+            <p>{c.workDescription}</p>
+            <a class="landing-audience__action" href={localizedPath(locale, '/docs/get-started-with-work')}>
+              {c.nonDeveloperCta}
+              <ArrowRight aria-hidden="true" />
+            </a>
+            <nav class="landing-audience__tools" aria-label={c.nonDeveloper}>
+              <a href={localizedPath(locale, '/docs/use-chatgpt')}><BookOpen aria-hidden="true" /> ChatGPT</a>
+              <a href={localizedPath(locale, '/docs/app')}><MousePointer2 aria-hidden="true" /> Codex App</a>
+              <a href={localizedPath(locale, '/docs/skills')}><ArrowUpRight aria-hidden="true" /> Skills</a>
+            </nav>
+          </article>
+
+          <article class="landing-audience__path landing-audience__path--developer" id="for-developers">
+            <span class="landing-audience__number" aria-hidden="true">02</span>
+            <div class="landing-audience__path-header">
+              <Code2 aria-hidden="true" />
+              <span>{c.developer}</span>
+            </div>
+            <h2>{c.buildTitle}</h2>
+            <p>{c.buildDescription}</p>
+            <a class="landing-audience__action" href={localizedPath(locale, '/docs/developers')}>
+              {c.developerCta}
+              <ArrowRight aria-hidden="true" />
+            </a>
+            <nav class="landing-audience__tools" aria-label={c.developer}>
+              <a href={localizedPath(locale, '/docs/quickstart')}><BookOpen aria-hidden="true" /> Quickstart</a>
+              <a href={localizedPath(locale, '/docs/codex/cli')}><TerminalSquare aria-hidden="true" /> Codex CLI</a>
+              <a href={localizedPath(locale, '/docs/codex/ide')}><Code2 aria-hidden="true" /> IDE</a>
+            </nav>
+          </article>
+        </div>
+      </div>
     </section>
 
     <div class="landing-modes">
