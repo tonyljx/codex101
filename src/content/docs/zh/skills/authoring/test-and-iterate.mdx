@@ -32,6 +32,8 @@ Skill 创建完成以后，最常见的验收方式是：
 
 这篇会为 `weekly-ops-review` 建立第一版评估记录。
 
+![应该触发、不应触发和异常输入分别进入触发准确性、输出质量与回归测试流程](/images/docs/skills/test-and-iterate-illustration.webp)
+
 ## 分开测试两件事
 
 Skill 测试包含两个不同问题。
@@ -276,6 +278,8 @@ and questions about why operational metrics changed across periods.
 不要为了让一个测试通过，加入只针对那一句话的特殊规则。
 
 如果修改后只会识别测试集里的固定措辞，却无法处理真实用户的其他表达，这就是过拟合。持续加入新近出现的真实任务，并保留一部分没有参与修改的验证 Prompt。
+
+![从建立真实测试集、记录无 Skill 基线到定位失败并单点回归的六步漫画](/images/docs/skills/test-and-iterate-comic.webp)
 
 ## 什么时候算完成
 
