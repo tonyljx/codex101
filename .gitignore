@@ -5,6 +5,7 @@ dist/
 
 # local visual QA artifacts and Wrangler state
 .design/
+.firecrawl/
 .wrangler/
 
 # dependencies

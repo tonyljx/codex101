@@ -269,10 +269,25 @@ const zhReferenceSidebars: Record<string, ReferenceSidebar> = {
         ],
       },
       {
-        title: '写得可靠',
+        title: '安装与安全',
+        items: [
+          item('查找与安装 Skill', '/docs/skills/discover-and-install-skills'),
+          item('第三方 Skill 安全审查', '/docs/skills/review-skill-security'),
+        ],
+      },
+      {
+        title: '写好并排错',
         items: [
           item('怎样写好一个 Skill', '/docs/skills/authoring/write-reliable-skill'),
           item('测试与迭代 Skill', '/docs/skills/authoring/test-and-iterate'),
+          item('Skill 不触发怎么办？', '/docs/skills/troubleshoot-skill'),
+        ],
+      },
+      {
+        title: '组合与复用',
+        items: [
+          item('多个 Skill 怎么配合？', '/docs/skills/compose-multiple-skills'),
+          item('跨工具与团队复用', '/docs/skills/portable-team-skills'),
         ],
       },
       {

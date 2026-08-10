@@ -446,3 +446,183 @@ Text (verbatim): "建立真实测试集", "先记录无 Skill 基线", "触发�
 Constraints: use only the same female IP and never a male character; render the exact Chinese lines once; module numbers allowed; no fabricated scores; no vendor logos; no watermark
 Avoid: short hair, male appearance, child-like or sexualized styling, tiny paragraphs, overfitting to one exact Prompt, declaring success from one run
 ```
+
+## 13. 去哪里找 Skill？如何安装和判断值不值得用
+
+来源：`/docs/skills/discover-and-install-skills/`
+
+### 正文配图
+
+```text
+Use case: infographic-diagram
+Asset type: Codex101 article illustration, landscape 3:2
+Input images: Image 1 is the visual-style and female-IP reference only; do not copy its topic, claims, or numbers
+Primary request: show a beginner-friendly Skill selection funnel that begins with a real task and ends with one small verified installation instead of a giant catalog
+Scene/backdrop: warm off-white paper with subtle fibers
+Subject: a clear five-stage funnel; a task card enters first, then candidates from system, official, project, and community sources, then a quality-and-risk checklist filters them, then one Skill folder is placed into either project or personal scope, and finally a small non-sensitive test task produces a keep, disable, or remove decision
+Style/medium: hand-drawn editorial infographic matching Image 1, charcoal ink outlines, muted teal and terracotta orange accents
+Composition/framing: landscape 3:2, left-to-right selection funnel with five large stations, generous whitespace, no human characters
+Text (verbatim): "先定义任务", "可信来源", "检查质量", "正确范围", "小任务验收"
+Constraints: render each exact label once; no extra text; no fabricated ratings, download counts, or marketplace badges; no vendor logos; no watermark
+Avoid: giant app-store grid, dense comparison table, implying that popularity proves quality, copied content from Image 1
+```
+
+### 漫画讲解
+
+```text
+Use case: illustration-story
+Asset type: Codex101 educational comic, portrait 2:3
+Input images: Image 1 is the visual-style and female-IP reference
+Primary request: teach a beginner how to discover, inspect, install, and verify one useful Skill without blindly installing a large catalog
+Scene/backdrop: warm off-white paper with six modular rounded panels and hand-drawn arrows
+Subject: the same recurring cute young adult East Asian female guide from Image 1, with long dark hair, round glasses, an off-white blank T-shirt, dark straight-leg pants, and simple sneakers; she writes a small task card, searches system and trusted maintainer sources before community catalogs, opens the complete Skill folder and checks source, SKILL.md, scripts, permissions, maintenance, and overlap, chooses project or personal scope, explicitly runs one non-sensitive real task, then records the source and decides to keep, disable, or remove it
+Style/medium: hand-drawn Chinese knowledge comic matching Image 1, charcoal ink, muted teal, terracotta orange, pale gray-green
+Composition/framing: portrait 2:3, six large modules, one action per module, generous margins, mobile-readable labels
+Text (verbatim): "先写任务卡", "从可信来源找", "检查完整目录", "选择安装范围", "显式运行小任务", "保留·禁用·删除"
+Constraints: use only the same female IP and never a male character; render the exact Chinese lines once; module numbers allowed; no fabricated rankings; no vendor logos; no watermark
+Avoid: short hair, male appearance, child-like or sexualized styling, tiny paragraphs, blind copy-paste installation commands
+```
+
+## 14. 第三方 Skill 安全吗？安装前的十分钟审查
+
+来源：`/docs/skills/review-skill-security/`
+
+### 正文配图
+
+```text
+Use case: infographic-diagram
+Asset type: Codex101 article illustration, landscape 3:2
+Input images: Image 1 is the visual-style and female-IP reference only; do not copy its topic, claims, or numbers
+Primary request: explain a layered pre-install security gate for a third-party Skill without using fear-based imagery
+Scene/backdrop: warm off-white paper with subtle fibers
+Subject: a sealed third-party Skill folder approaches a human-review gate; five large inspection lenses examine source identity, written instructions, executable scripts and dependencies, requested permissions and data, and version updates; only after those checks does the folder enter a small isolated test sandbox with a visible stop control
+Style/medium: hand-drawn editorial infographic matching Image 1, charcoal ink outlines, muted teal and terracotta orange accents
+Composition/framing: landscape 3:2, five inspection lenses arranged around one central review gate, isolated sandbox on the right, large icons and generous whitespace, no human characters
+Text (verbatim): "来源", "指令", "脚本与依赖", "权限与数据", "版本与更新", "隔离试跑"
+Constraints: render each exact label once; no extra text; no fabricated security scores or statistics; no vendor logos; no watermark; show human approval before the sandbox opens
+Avoid: skulls, hackers in hoodies, sensational red warning screens, dense code, implying that one scanner guarantees safety
+```
+
+### 漫画讲解
+
+```text
+Use case: illustration-story
+Asset type: Codex101 educational comic, portrait 2:3
+Input images: Image 1 is the visual-style and female-IP reference
+Primary request: explain the ten-minute safety review a beginner should perform before running a third-party Skill
+Scene/backdrop: warm off-white paper with six modular rounded panels and hand-drawn arrows
+Subject: the same recurring cute young adult East Asian female guide from Image 1, with long dark hair, round glasses, an off-white blank T-shirt, dark straight-leg pants, and simple sneakers; she traces a directory listing back to the original repository and version, opens the complete folder instead of only SKILL.md, reads instructions for hidden or unrelated actions, inspects scripts, dependencies, external domains, secrets, and permissions, runs a first test with fake data in an isolated recoverable workspace, then either approves with a version note or stops, removes access, and rotates exposed credentials
+Style/medium: hand-drawn Chinese knowledge comic matching Image 1, charcoal ink, muted teal, terracotta orange, pale gray-green
+Composition/framing: portrait 2:3, six large modules, one action per module, generous margins, mobile-readable labels
+Text (verbatim): "追到原始来源", "查看完整目录", "读懂真实指令", "检查脚本与权限", "用假数据隔离试跑", "批准或立即停止"
+Constraints: use only the same female IP and never a male character; render the exact Chinese lines once; module numbers allowed; no dangerous command text; no vendor logos; no watermark
+Avoid: short hair, male appearance, child-like or sexualized styling, tiny paragraphs, glamorized cybercrime, claiming all public Skills are malicious
+```
+
+## 15. Skill 不触发怎么办？从发现到执行的排查地图
+
+来源：`/docs/skills/troubleshoot-skill/`
+
+### 正文配图
+
+```text
+Use case: infographic-diagram
+Asset type: Codex101 article illustration, landscape 3:2
+Input images: Image 1 is the visual-style and female-IP reference only; do not copy its topic, claims, or numbers
+Primary request: show the five distinct gates where a Skill can fail so beginners modify the correct layer
+Scene/backdrop: warm off-white paper with subtle fibers
+Subject: one small user task travels through five large diagnostic gates; discovery checks path, filename, metadata, and enabled state; routing checks description and overlap; loading checks SKILL.md and support-file paths; execution checks input, dependencies, permissions, scripts, and tools; output checks process, evidence, QA, and deliverable; each gate has one simple inspection icon and a repair loop only to that gate
+Style/medium: hand-drawn editorial infographic matching Image 1, charcoal ink outlines, muted teal and terracotta orange accents
+Composition/framing: landscape 3:2, five equal gates from left to right, minimal icons, generous whitespace, no human characters
+Text (verbatim): "发现", "路由", "加载", "执行", "输出"
+Constraints: render each exact label once; no extra text; no fabricated error codes; no vendor logos; no watermark; make the layers visually separate
+Avoid: dense flowchart branches, terminal screenshots, blaming every failure on Prompt wording, copied content from Image 1
+```
+
+### 漫画讲解
+
+```text
+Use case: illustration-story
+Asset type: Codex101 educational comic, portrait 2:3
+Input images: Image 1 is the visual-style and female-IP reference
+Primary request: teach the minimum reliable sequence for diagnosing a Skill that is missing, not triggering, or failing after activation
+Scene/backdrop: warm off-white paper with six modular rounded panels and hand-drawn arrows
+Subject: the same recurring cute young adult East Asian female guide from Image 1, with long dark hair, round glasses, an off-white blank T-shirt, dark straight-leg pants, and simple sneakers; she first checks whether the Skill appears in the catalog and verifies path, filename, metadata, and enabled state, then explicitly invokes it with one minimal task, then compares automatic triggering across matching and adjacent Prompts, then separates overlapping Skills by ownership, then fixes support-file paths, dependencies, inputs, and permissions, and finally applies output assertions only after activation works
+Style/medium: hand-drawn Chinese knowledge comic matching Image 1, charcoal ink, muted teal, terracotta orange, pale gray-green
+Composition/framing: portrait 2:3, six large modules, one action per module, generous margins, mobile-readable labels
+Text (verbatim): "先确认能被发现", "再做显式调用", "检查自动触发", "消除 Skill 重叠", "修复路径与依赖", "最后检查输出质量"
+Constraints: use only the same female IP and never a male character; render the exact Chinese lines once; module numbers allowed; no fabricated UI; no vendor logos; no watermark
+Avoid: short hair, male appearance, child-like or sexualized styling, tiny paragraphs, changing many layers at once
+```
+
+## 16. 多个 Skill 怎么配合？避免重叠、冲突与上下文拥挤
+
+来源：`/docs/skills/compose-multiple-skills/`
+
+### 正文配图
+
+```text
+Use case: infographic-diagram
+Asset type: Codex101 article illustration, landscape 3:2
+Input images: Image 1 is the visual-style and female-IP reference only; do not copy its topic, claims, or numbers
+Primary request: explain a reliable multi-Skill workflow with one owner, distinct helpers, explicit handoff contracts, and a human approval before release
+Scene/backdrop: warm off-white paper with subtle fibers
+Subject: one large central owner card defines stages and completion; four smaller helper stations for research, writing, images, and deployment each receive a clear input card and produce a checkable output card; tool and MCP plugs sit below as data-and-action providers rather than owners; failed outputs route to stop or retry, and the final deployment arrow passes through a human approval gate
+Style/medium: hand-drawn editorial infographic matching Image 1, charcoal ink outlines, muted teal and terracotta orange accents
+Composition/framing: landscape 3:2, central owner with four distinct helper stations in a clean pipeline, tools below, approval gate at the end, generous whitespace, no human characters
+Text (verbatim): "主负责人", "研究", "写作", "图片", "发布", "人工确认"
+Constraints: render each exact label once; no extra text; no vendor logos; no watermark; show only one primary owner and make handoffs visible
+Avoid: every Skill connected to every other Skill, giant routing brain, implying tools are Skills, automatic production release without approval
+```
+
+### 漫画讲解
+
+```text
+Use case: illustration-story
+Asset type: Codex101 educational comic, portrait 2:3
+Input images: Image 1 is the visual-style and female-IP reference
+Primary request: teach how to compose several Skills without semantic overlap or hidden failure propagation
+Scene/backdrop: warm off-white paper with six modular rounded panels and hand-drawn arrows
+Subject: the same recurring cute young adult East Asian female guide from Image 1, with long dark hair, round glasses, an off-white blank T-shirt, dark straight-leg pants, and simple sneakers; she names one workflow owner, assigns distinct helper Skills and keeps tools or MCP as data-and-action providers, chooses sequential, parallel, or conditional structure according to dependency, writes input-output-acceptance-failure handoff cards, tests every Skill alone and then each handoff including a failed case, and finally approves the high-risk publish step only after all checks pass
+Style/medium: hand-drawn Chinese knowledge comic matching Image 1, charcoal ink, muted teal, terracotta orange, pale gray-green
+Composition/framing: portrait 2:3, six large modules, one action per module, generous margins, mobile-readable labels
+Text (verbatim): "只设一个主负责人", "辅助能力各负其责", "选择组合结构", "写清交接契约", "单项·交接·整体测试", "高风险动作人工确认"
+Constraints: use only the same female IP and never a male character; render the exact Chinese lines once; module numbers allowed; no vendor logos; no watermark
+Avoid: short hair, male appearance, child-like or sexualized styling, tiny paragraphs, portraying more Skills as automatically better
+```
+
+## 17. 一份 Skill 能跨 Codex、Claude 和 VS Code 共用吗？
+
+来源：`/docs/skills/portable-team-skills/`
+
+### 正文配图
+
+```text
+Use case: infographic-diagram
+Asset type: Codex101 article illustration, landscape 3:2
+Input images: Image 1 is the visual-style and female-IP reference only; do not copy its topic, claims, or numbers
+Primary request: explain the relationship between one portable Agent Skills core and client-specific adapters without claiming identical runtime behavior
+Scene/backdrop: warm off-white paper with subtle fibers
+Subject: a central standard Skill folder contains SKILL.md, relative paths, scripts, references, and assets; it branches to three neutral client frames labeled Codex, Claude, and VS Code; each client has a small outer adapter ring for install location, invocation, permissions, tools, and script runtime; beneath them one Git repository, a compatibility test matrix, version notes, and rollback arrow keep the team synchronized
+Style/medium: hand-drawn editorial infographic matching Image 1, charcoal ink outlines, muted teal and terracotta orange accents
+Composition/framing: landscape 3:2, central core with three balanced client branches and one shared maintenance foundation, large elements and generous whitespace, no human characters
+Text (verbatim): "标准核心", "Codex", "Claude", "VS Code", "客户端适配", "兼容测试"
+Constraints: render each exact label once; preserve capitalization exactly; no extra text; use neutral terminal, chat, and editor frames rather than vendor logos; no watermark; make shared core and client differences equally clear
+Avoid: copied logos, claiming write-once-run-identically, hard-coded personal paths, dense compatibility table
+```
+
+### 漫画讲解
+
+```text
+Use case: illustration-story
+Asset type: Codex101 educational comic, portrait 2:3
+Input images: Image 1 is the visual-style and female-IP reference
+Primary request: teach a team how to keep one portable Skill source while adapting and testing it across clients
+Scene/backdrop: warm off-white paper with six modular rounded panels and hand-drawn arrows
+Subject: the same recurring cute young adult East Asian female guide from Image 1, with long dark hair, round glasses, an off-white blank T-shirt, dark straight-leg pants, and simple sneakers; she extracts the standard SKILL.md core and support folders, replaces personal absolute paths with relative paths and documents dependencies, labels install locations, invocation methods, permissions, tools, and client-only fields as adapters, stores one source of truth in a version-controlled team repository, runs a small compatibility matrix across Codex, Claude, and VS Code using the same positive, negative, missing-input, and output checks, then publishes a reviewed version with changelog and rollback information
+Style/medium: hand-drawn Chinese knowledge comic matching Image 1, charcoal ink, muted teal, terracotta orange, pale gray-green
+Composition/framing: portrait 2:3, six large modules, one action per module, generous margins, mobile-readable labels
+Text (verbatim): "提取标准核心", "改用相对路径", "标记客户端差异", "只维护一份事实源", "运行兼容测试", "带版本与回退发布"
+Constraints: use only the same female IP and never a male character; render the exact Chinese lines once; preserve capitalization exactly; no vendor logos; no watermark
+Avoid: short hair, male appearance, child-like or sexualized styling, tiny paragraphs, three drifting copies of the same Skill
+```

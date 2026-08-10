@@ -1,21 +1,21 @@
 ---
 title: "Skills"
 navTitle: "Skills 技能"
-description: "从理解、使用和创建 Skill，到测试迭代，再按行业组合适合自己的工作流。"
+description: "从理解、安装和安全使用 Skill，到创建、排错、组合与团队复用，再按行业搭建适合自己的工作流。"
 locale: "zh"
 translationKey: "skills"
 section: "top"
 order: 6
 draft: false
 translationStatus: complete
-lastUpdated: 2026-08-09
+lastUpdated: 2026-08-10
 pageKind: hub
 ---
 <HubPage {...{
   "variant": "context",
   "eyebrow": "ChatGPT Learn · Skills",
-  "title": "把你的工作方法，变成 AI 可以重复使用的 Skills",
-  "description": "先理解 Skill 是什么，再用真实任务完成第一次调用、创建和测试，最后按行业找到可以直接使用或值得自己维护的 Skill。",
+  "title": "Skills / 技能",
+  "description": "先理解 Skill，再用真实任务完成第一次调用与创建；继续学习安装、安全、排错、组合和团队复用，最后按行业找到适合自己的工作流。",
   "cta": {
     "href": "/docs/skills/what-is-skill",
     "label": "从 Skill 是什么开始"
@@ -28,7 +28,7 @@ pageKind: hub
   },
   "groups": [
     {
-      "title": "01 · 是什么",
+      "title": "01 · 先理解",
       "description": "先建立正确概念：Skill、Prompt、Project、Memory 和 MCP 分别解决什么问题。",
       "icon": "bot",
       "links": [
@@ -55,17 +55,36 @@ pageKind: hub
       ]
     },
     {
-      "title": "04 · 写得可靠",
-      "description": "处理触发、目录、渐进式加载和评估，让 Skill 不只格式正确，还能被验证和持续改进。",
+      "title": "04 · 安装与安全",
+      "description": "知道去哪里找 Skill，也知道怎样判断来源、检查脚本和控制权限，不把下载量当成安全证明。",
+      "icon": "shield-check",
+      "links": [
+        { "href": "/docs/skills/discover-and-install-skills", "label": "去哪里找 Skill？如何安装和判断值不值得用" },
+        { "href": "/docs/skills/review-skill-security", "label": "第三方 Skill 安全吗？安装前的十分钟审查" }
+      ]
+    },
+    {
+      "title": "05 · 写好并排错",
+      "description": "处理触发、目录、渐进式加载、评估与故障定位，让 Skill 能被发现、正确执行并持续改进。",
       "icon": "file-cog",
       "links": [
         { "href": "/docs/skills/authoring/write-reliable-skill", "label": "怎样写好一个 Skill：触发、目录与渐进式加载" },
         { "href": "/docs/skills/authoring/test-and-iterate", "label": "怎样测试 Skill：正常、缺失输入与不应触发的任务" },
+        { "href": "/docs/skills/troubleshoot-skill", "label": "Skill 不触发怎么办？从发现到执行的排查地图" },
         { "href": "/docs/build-skills", "label": "Codex 技术参考：构建技能" }
       ]
     },
     {
-      "title": "05 · Skill 推荐",
+      "title": "06 · 组合与复用",
+      "description": "让多个 Skill、工具和 MCP 各负其责，并把可移植的核心方法安全地带到不同客户端和团队。",
+      "icon": "network",
+      "links": [
+        { "href": "/docs/skills/compose-multiple-skills", "label": "多个 Skill 怎么配合？避免重叠、冲突与上下文拥挤" },
+        { "href": "/docs/skills/portable-team-skills", "label": "一份 Skill 能跨 Codex、Claude 和 VS Code 共用吗？" }
+      ]
+    },
+    {
+      "title": "07 · Skill 推荐",
       "description": "按你的工作类型挑选 Skill，不必从一张巨大清单里盲目安装。",
       "icon": "boxes",
       "links": [

@@ -1,0 +1,328 @@
+---
+title: "一份 Skill 能跨 Codex、Claude 和 VS Code 共用吗？"
+navTitle: "跨工具与团队复用"
+description: "理解 Agent Skills 开放格式的可移植核心与客户端差异，用相对路径、兼容性说明、测试矩阵和版本记录，让团队安全复用同一套方法。"
+locale: "zh"
+translationKey: "skills/portable-team-skills"
+section: "foundations"
+order: 9013
+draft: false
+translationStatus: complete
+lastUpdated: 2026-08-10
+pageKind: article
+referenceHub: "skills"
+sourceUrl: "https://agentskills.io/specification"
+---
+
+最短答案是：
+
+> Skill 的核心格式可以共用，但不同客户端的安装位置、调用方式、权限、脚本环境和扩展能力不一定相同。
+
+“开放标准”不等于“复制过去后所有行为完全一致”。
+
+更准确的理解是：
+
+```text
+可移植核心：SKILL.md、基础元数据、说明、相对路径和支持资源
+
+客户端适配：安装目录、调用 UI、权限、工具连接、脚本运行时、专属字段
+```
+
+把这两层分开，你才能真正做到一次维护、多处使用，而不是在三个目录里保存三份逐渐漂移的副本。
+
+![标准化 Skill 核心连接 Codex、Claude 和 VS Code，外圈分别保留各客户端的安装、权限和调用适配](/images/docs/skills/portable-team-skills-illustration.webp)
+
+## 哪些部分属于开放格式
+
+根据 [Agent Skills specification](https://agentskills.io/specification)，一个标准 Skill 至少是一个包含 `SKILL.md` 的目录。
+
+```text
+weekly-ops-review/
+├── SKILL.md
+├── scripts/
+├── references/
+└── assets/
+```
+
+### `SKILL.md`
+
+主文件包含 YAML frontmatter 和 Markdown 正文：
+
+```yaml
+---
+name: weekly-ops-review
+description: >-
+  Use for weekly operations reviews, period-over-period metric comparisons,
+  and traffic, conversion, revenue, or advertising anomaly analysis.
+---
+```
+
+规范要求的核心字段是 `name` 和 `description`。正文保存输入、步骤、输出、检查和边界。
+
+### 渐进式加载
+
+兼容客户端通常先读取名称和描述；Skill 被选中后再加载正文；脚本、参考资料和资源根据流程按需使用。
+
+### 支持目录
+
+- `scripts/`：可执行的确定性操作；
+- `references/`：详细知识和文档；
+- `assets/`：模板、示例和交付资源。
+
+文件引用应该相对于 Skill 根目录，避免依赖某个人电脑上的绝对路径。
+
+### 可验证的基础结构
+
+开放规范提供 `skills-ref validate` 之类的结构校验方式，用于检查名称、frontmatter 和格式约束。
+
+结构验证只能证明“符合格式”，不能证明在每个客户端都能完成真实任务。
+
+## 哪些部分由客户端决定
+
+不同产品采用同一个格式，不代表实现细节相同。
+
+| 方面 | 可能不同的内容 |
+| --- | --- |
+| 发现位置 | 项目目录、个人目录、管理员目录、Plugin 目录 |
+| 调用方式 | Skill 选择器、`$skill-name`、`/skill-name` 或自动触发 |
+| 权限模型 | 文件、终端、网络、App 和外部账户的授权方式 |
+| 支持工具 | MCP、内置工具、浏览器、连接器和本地 CLI |
+| 脚本环境 | Bash、Python、Node.js、操作系统和依赖版本 |
+| 扩展字段 | 客户端专属的模型、工具、Subagent、Hook 或调用控制 |
+| 上下文限制 | 可发现 Skill 的数量、描述长度和加载策略 |
+
+所以“规范兼容”应该理解为：
+
+> 客户端可以识别并加载标准 Skill；它能否执行其中每一步，还取决于运行环境和可用能力。
+
+## 三个客户端的当前差异
+
+下面只列初学者最需要知道的部分。产品行为会更新，安装前仍应查看当前官方文档。
+
+### Codex
+
+[OpenAI 构建技能文档](https://developers.openai.com/codex/build-skills) 当前说明：
+
+- 项目 Skill 常见于 `.agents/skills/`；
+- 个人 Skill 常见于 `~/.agents/skills/`；
+- 可以通过 Skill 选择器、`/skills` 或 `$` 显式提及；
+- 也可以根据 description 自动选择；
+- 需要广泛分发或与连接器一起打包时，可以使用 Plugin。
+
+### Claude Code
+
+[Claude Code Skills 文档](https://code.claude.com/docs/en/skills) 当前说明：
+
+- 项目 Skill 常见于 `.claude/skills/`；
+- 个人 Skill 常见于 `~/.claude/skills/`；
+- 可以通过 `/skill-name` 调用，也可以自动选择；
+- 支持一些客户端专属字段，例如调用控制、允许工具、模型和 Subagent 上下文。
+
+这些专属字段不属于所有 Agent Skills 客户端都必须理解的可移植核心。
+
+### VS Code / GitHub Copilot
+
+[VS Code Agent Skills 文档](https://code.visualstudio.com/docs/agent-customization/agent-skills) 当前说明：
+
+- Agent Skills 是跨 Agent 的开放标准；
+- 项目可以从 `.github/skills/`、`.claude/skills/` 或 `.agents/skills/` 发现；
+- 个人范围也支持对应的 Skill 目录；
+- 可以通过聊天中的斜杠命令调用；
+- description 用于发现和选择。
+
+这张表不是为了让你维护三份主文件，而是提醒你：路径和客户端扩展需要单独验证。
+
+## 怎样写出更可移植的 Skill
+
+### 1. 用相对路径
+
+不要写：
+
+```text
+读取 /Users/alice/company/templates/report.md
+```
+
+改成：
+
+```text
+读取 assets/report.md
+```
+
+个人目录、操作系统和仓库位置都会变化，相对路径才能随 Skill 一起移动。
+
+### 2. 声明依赖，不要假设存在
+
+如果脚本需要 Python、Node.js、某个 CLI、网络或外部 App，明确写出：
+
+- 依赖名称；
+- 支持或测试过的版本；
+- 如何检查是否可用；
+- 缺失时停止还是降级；
+- 是否需要登录和权限。
+
+不要让脚本失败后才暴露隐含依赖。
+
+### 3. 把客户端专属能力放到边界
+
+可移植核心应该仍然可以被其他客户端理解。
+
+例如主流程写：
+
+```text
+并行检查三个独立页面；如果当前客户端不支持并行任务，则顺序执行。
+```
+
+而不是把某个客户端专属的 Subagent 字段当成所有环境都存在。
+
+### 4. 提供可观察的替代路径
+
+```text
+首选：使用已连接的浏览器工具检查页面。
+替代：如果没有浏览器工具，输出待检查 URL、视口和交互清单，标记“未完成视觉验收”。
+```
+
+降级不应该伪装成完成。
+
+### 5. 避免写死操作系统
+
+Shell 命令、路径分隔符、系统工具和 GUI 应用可能不同。
+
+如果 Skill 只支持 macOS 或 Linux，就在 compatibility 或正文开头明确说明；如果要跨平台，提供经过测试的分支，而不是让 Agent 临时猜命令。
+
+### 6. 不把客户端功能误写成标准
+
+“这个客户端支持某字段”与“Agent Skills 规范要求该字段”是两回事。
+
+写文档时标记：
+
+- **标准核心**：任何兼容实现都应该认识；
+- **Codex 适配**：只针对 Codex 的位置或流程；
+- **Claude 适配**：只针对 Claude Code 的扩展；
+- **VS Code 适配**：只针对 Copilot/VS Code 的调用和目录。
+
+## 团队里怎样只维护一份事实源
+
+最稳妥的事实源通常是受版本控制的仓库。
+
+```text
+team-skills/
+├── skills/
+│   └── weekly-ops-review/
+│       ├── SKILL.md
+│       ├── scripts/
+│       ├── references/
+│       └── assets/
+├── tests/
+│   └── weekly-ops-review/
+├── COMPATIBILITY.md
+├── CHANGELOG.md
+└── README.md
+```
+
+不同客户端需要不同安装位置时，通过明确的安装或打包流程把同一个版本分发过去，不要让每个人手动修改自己的副本。
+
+### 项目 Skill
+
+与仓库代码、数据或发布流程紧密相关的 Skill，直接随项目版本控制。
+
+优点：
+
+- 改动与代码一起 Review；
+- 新成员克隆仓库就能看到；
+- 可以在同一个 PR 中更新流程和测试；
+- 版本与项目保持一致。
+
+### 个人 Skill
+
+个人写作习惯、通用调研方法或跨项目工具可以放个人范围。
+
+不要把公司机密、项目凭据或只适用于一个仓库的规则复制到个人通用 Skill。
+
+### Plugin 或受控分发
+
+当一个团队要统一安装多个 Skill、连接器、MCP 配置和展示资源时，Plugin 或组织级分发更适合。
+
+分发方式变化快，所以 Skill 本体仍应保持清楚、可检查和可独立测试。
+
+## 版本应该记录什么
+
+Agent Skills 规范定义格式，但不替你完成版本管理。
+
+团队至少记录：
+
+```text
+版本或 Git 提交：
+修改原因：
+触发范围是否变化：
+输入 / 输出是否变化：
+新增或修改了哪些脚本和依赖：
+需要重新授权什么：
+在哪些客户端和系统测试过：
+怎样回退：
+```
+
+下面这些变化应视为高影响更新：
+
+- 扩大自动触发范围；
+- 新增网络、密钥或外部系统访问；
+- 新增可执行脚本或安装依赖；
+- 修改输出契约；
+- 删除或重命名支持文件；
+- 从只读变成写入、发布或删除；
+- 引入客户端专属扩展。
+
+不要只写“优化 Skill”。维护者和使用者需要知道行为发生了什么变化。
+
+## 建立一个小型兼容测试矩阵
+
+不必一开始覆盖所有产品。
+
+只测试团队实际支持的环境：
+
+| 环境 | 能发现 | 显式调用 | 自动触发 | 支持文件 | 脚本 | 输出断言 |
+| --- | --- | --- | --- | --- | --- | --- |
+| Codex + macOS |  |  |  |  |  |  |
+| Codex + Linux |  |  |  |  |  |  |
+| Claude Code |  |  |  |  |  |  |
+| VS Code |  |  |  |  |  |  |
+
+每个环境至少覆盖：
+
+- 一个应该触发的任务；
+- 一个不应该触发的相邻任务；
+- 一个缺少输入的任务；
+- 一次支持文件加载；
+- 一次脚本或工具不可用时的降级；
+- 一组共同的输出断言。
+
+测试结果可以是“暂不支持”，不必为了勾满表格而伪造兼容性。
+
+## 分享前检查表
+
+- [ ] `SKILL.md` 使用标准核心字段和清楚正文
+- [ ] 文件引用使用相对路径
+- [ ] 脚本、运行时、外部工具和权限都有说明
+- [ ] 客户端专属功能被标记，没有伪装成通用标准
+- [ ] 缺少能力时会停止或明确降级
+- [ ] 团队只有一个受版本控制的事实源
+- [ ] 变更、兼容环境和回退方式有记录
+- [ ] 共享版本已经完成安全审查和真实任务测试
+
+![女生向导提取标准核心、标记客户端差异、建立单一仓库、运行兼容矩阵并发布带版本记录的 Skill](/images/docs/skills/portable-team-skills-comic.webp)
+
+## 最后记住
+
+可移植性不是“所有客户端看起来一样”，而是：
+
+```text
+同一套稳定方法
++ 标准化文件结构
++ 清楚声明依赖和兼容性
++ 少量客户端适配
++ 可重复的跨环境测试
++ 有版本、审查和回退的团队流程
+```
+
+先在一个客户端把 Skill 做小、做对、测清楚，再扩展到第二个环境。不要在第一版就为了“全平台”加入大量未经验证的分支。
+
+如果还没有稳定的单客户端版本，先回到[怎样写好一个 Skill](/docs/skills/authoring/write-reliable-skill)和[怎样测试 Skill](/docs/skills/authoring/test-and-iterate)。
